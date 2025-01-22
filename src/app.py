@@ -1,6 +1,5 @@
 from http_client.HttpClient import HttpClient
 from riot_client.GameClient import GameClient, Endpoint
-from obs_client.ObsClient import ObsClient
 from websocket.WebsocketServer import WebsocketServer
 
 import asyncio
