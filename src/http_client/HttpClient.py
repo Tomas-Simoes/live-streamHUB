@@ -2,7 +2,8 @@ import requests
 import aiohttp
 import ssl
 import asyncio
-import logging
+from util.Logging import logger 
+import warnings
 import time
 from pathlib import Path
 
@@ -34,14 +35,18 @@ class HttpClient:
             headers, ssl, timeout = [option.get(n)
                                      for n in ['headers', 'ssl', 'timeout']]
 
+            if ssl is None:
+                ssl = False
+                warnings.warn("Could not get the right SSL certificate. Running without certificate.")
+            
             async with session.get(url, headers=headers, ssl=ssl, timeout=timeout) as resp:
                 try:
                     return await resp.json()
                 except aiohttp.ClientTimeout:
-                    logging.error("Request timed out.")
+                    logger.error("Request timed out.")
                     return None
                 except aiohttp.ClientError as e:
-                    logging.error(f"HTTP request failed: {e}")
+                    logger.error(f"HTTP request failed: {e}")
                     return None
 
         async with aiohttp.ClientSession() as session:

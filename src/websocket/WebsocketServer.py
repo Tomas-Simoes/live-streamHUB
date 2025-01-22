@@ -2,7 +2,7 @@ import asyncio
 import json
 import websockets as ws
 from websockets.exceptions import ConnectionClosedOK
-
+from util.Logging import logger
 
 class WebsocketServer:
     def __init__(self):
@@ -19,16 +19,14 @@ class WebsocketServer:
             except ConnectionClosedOK:
                 break
 
-            print(message)
-
     async def send_data(self, data):
         if self.websocket:
             if not isinstance(data, (str, bytes)):
                 data = json.dumps(data)
 
-            print("Sending data to client.")
+            logger.info("Sending data to client.")
             await self.websocket.send(data)
 
     async def start_connection(self):
-        async with ws.serve(self.handler, "localhost", 8001, ping_interval=None):
+        async with ws.serve(self.handler, "localhost", 80, ping_interval=None):
             await asyncio.Future()  # listens forever

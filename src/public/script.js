@@ -1,6 +1,6 @@
 document.addEventListener("DOMContentLoaded", () => {
   var messageCount = 0
-  const websocket = new WebSocket("ws://localhost:8001/");
+  const websocket = new WebSocket("ws://localhost:80/");
 
   websocket.onopen = () => {
     console.log("WebSocket connection established.");

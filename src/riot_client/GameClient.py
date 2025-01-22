@@ -1,6 +1,7 @@
 import json
 import asyncio
 from enum import Enum
+from util.Logging import logger
 
 
 class Endpoint(Enum):
@@ -20,6 +21,11 @@ class GameClient:
 
     async def getLiveEvents(self):
         data = await self.getData([Endpoint.LIVE_EVENTS])
+
+        if data is None:
+            logger.warning("No data is available, check if game is running")
+            return None
+
         event_data = data[0].get('Events')
 
         if not event_data[-1] == self.previous_data:
@@ -37,11 +43,13 @@ class GameClient:
             data_task = asyncio.create_task(
                 self.httpClient.async_get(endpoints))
 
-            print("Waiting for data to be fetched...")
+            logger.info("Waiting for data to be fetched...")
             return await data_task
         except Exception as e:
-            print(
-                f"An error occurred while fetching live data (check if game is running): {e}")
+            logger.error(
+                f"An error occurred while fetching live data: {e}")
+        
+        return None
 
     def save_to_file(self, data):
         with open("data/game.json", "w") as json_file:
