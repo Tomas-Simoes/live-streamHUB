@@ -1,4 +1,4 @@
-export const kGamesFeatures = new Map<number, string[]>([
+export const GAME_FEATURES = new Map<number, string[]>([
   // League of Legends
   [
     5426,
@@ -25,10 +25,12 @@ export const kGamesFeatures = new Map<number, string[]>([
   ],
 ]);
 
-export const kGameClassIds = Array.from(kGamesFeatures.keys());
+export const GAME_IDS = Array.from(GAME_FEATURES.keys());
 
-export const kWindowNames = {
+export const WINDOW_NAMES = {
   inGame: 'in_game',
   desktop: 'desktop'
 };
+
+export const WSS_URL = "ws://localhost:80/"
 

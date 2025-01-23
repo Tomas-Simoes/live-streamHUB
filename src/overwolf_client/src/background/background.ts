@@ -4,7 +4,7 @@ import {
   OWWindow
 } from '@overwolf/overwolf-api-ts';
 
-import { kWindowNames, kGameClassIds } from "../consts";
+import { WINDOW_NAMES, GAME_IDS } from "../util";
 
 import RunningGameInfo = overwolf.games.RunningGameInfo;
 import AppLaunchTriggeredEvent = overwolf.extensions.AppLaunchTriggeredEvent;
@@ -22,8 +22,8 @@ class BackgroundController {
 
   private constructor() {
     // Populating the background controller's window dictionary
-    this._windows[kWindowNames.desktop] = new OWWindow(kWindowNames.desktop);
-    this._windows[kWindowNames.inGame] = new OWWindow(kWindowNames.inGame);
+    this._windows[WINDOW_NAMES.desktop] = new OWWindow(WINDOW_NAMES.desktop);
+    this._windows[WINDOW_NAMES.inGame] = new OWWindow(WINDOW_NAMES.inGame);
 
     // When a a supported game game is started or is ended, toggle the app's windows
     this._gameListener = new OWGameListener({
@@ -49,8 +49,8 @@ class BackgroundController {
     this._gameListener.start();
 
     const currWindowName = (await this.isSupportedGameRunning())
-      ? kWindowNames.inGame
-      : kWindowNames.desktop;
+      ? WINDOW_NAMES.inGame
+      : WINDOW_NAMES.desktop;
 
     this._windows[currWindowName].restore();
   }
@@ -63,11 +63,11 @@ class BackgroundController {
     }
 
     if (await this.isSupportedGameRunning()) {
-      this._windows[kWindowNames.desktop].close();
-      this._windows[kWindowNames.inGame].restore();
+      this._windows[WINDOW_NAMES.desktop].close();
+      this._windows[WINDOW_NAMES.inGame].restore();
     } else {
-      this._windows[kWindowNames.desktop].restore();
-      this._windows[kWindowNames.inGame].close();
+      this._windows[WINDOW_NAMES.desktop].restore();
+      this._windows[WINDOW_NAMES.inGame].close();
     }
   }
 
@@ -77,11 +77,11 @@ class BackgroundController {
     }
 
     if (info.isRunning) {
-      this._windows[kWindowNames.desktop].close();
-      this._windows[kWindowNames.inGame].restore();
+      this._windows[WINDOW_NAMES.desktop].close();
+      this._windows[WINDOW_NAMES.inGame].restore();
     } else {
-      this._windows[kWindowNames.desktop].restore();
-      this._windows[kWindowNames.inGame].close();
+      this._windows[WINDOW_NAMES.desktop].restore();
+      this._windows[WINDOW_NAMES.inGame].close();
     }
   }
 
@@ -93,7 +93,7 @@ class BackgroundController {
 
   // Identify whether the RunningGameInfo object we have references a supported game
   private isSupportedGame(info: RunningGameInfo) {
-    return kGameClassIds.includes(info.classId);
+    return GAME_IDS.includes(info.classId);
   }
 }
 

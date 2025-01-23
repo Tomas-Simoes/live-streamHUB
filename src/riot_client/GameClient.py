@@ -1,56 +1,60 @@
 import json
+import os
 import asyncio
 from enum import Enum
 from util.Logging import logger
 
 
-class Endpoint(Enum):
-    LIVE_EVENTS = "/liveclientdata/eventdata"
-    PLAYER_LIST = "/liveclientdata/playerlist"
-    ALL_DATA = "/liveclientdata/allgamedata"
-
-
 class GameClient:
+    previous_livedata = {}
+    previous_gameinfo = {}
     previous_data = {}
 
-    def __init__(self, httpClient):
-        self.httpClient = httpClient
+    LIVEDATA_DIR = "src/riot_client/data/livedata.json"
+    GAMEINFO_DIR = "src/riot_client/data/gameinfo.json"
+    DEFAULT_DIR = "src/riot_client/data/data.json"
 
-    async def getAllData(self):
-        return await self.getData([Endpoint.ALL_DATA])
+    SAVE_TO_FILE = True
 
-    async def getLiveEvents(self):
-        data = await self.getData([Endpoint.LIVE_EVENTS])
-
-        if data is None:
-            logger.warning("No data is available, check if game is running")
-            return None
-
-        event_data = data[0].get('Events')
-
-        if not event_data[-1] == self.previous_data:
-            self.previous_data = event_data[-1]
-
-            return self.previous_data
-
-    async def getData(self, endpoints):
-        try:
-            for endpoint in endpoints:
-                if not isinstance(endpoint, Endpoint):
-                    raise ValueError(
-                        "endpoint at getData(endpoint) must be of type Endpoint.")
-
-            data_task = asyncio.create_task(
-                self.httpClient.async_get(endpoints))
-
-            logger.info("Waiting for data to be fetched...")
-            return await data_task
-        except Exception as e:
-            logger.error(
-                f"An error occurred while fetching live data: {e}")
+    def handleData(self, string_data):
+        if not string_data:
+            return
         
-        return None
+        try:
+            json_data = json.loads(string_data)
 
-    def save_to_file(self, data):
-        with open("data/game.json", "w") as json_file:
-            json.dump(data, json_file, indent=4)
+            # Formats "live_client_data.all_players_data" to a JSON format, since it's a nested JSON. Use if needed
+            if next(iter(json_data)) == "live_client_data":
+                all_players_data = json.loads(json_data["live_client_data"]["all_players"])
+                json_data["live_client_data"]["all_players"] = all_players_data
+
+            if self.SAVE_TO_FILE:
+                self.save_to_file(json_data)
+            
+            logger.debug(f"Data received: {json.dumps(json_data, indent=4)}")
+        except Exception as e:
+            logger.error(f"Error receiving data: {e}")
+
+    def save_to_file(self, json_data, filename=DEFAULT_DIR):
+        match next(iter(json_data)):
+            case "live_client_data":
+                filename = self.LIVEDATA_DIR
+            case "game_info":
+                filename = self.GAMEINFO_DIR
+
+        if not os.path.exists(os.path.dirname(filename)):
+            os.makedirs(os.path.dirname(filename))
+
+        if os.path.exists(filename):
+            with open(filename, "r") as file:
+                existing_data = json.load(file)
+        else:
+            existing_data = []
+
+        # Append the new data to the existing data list
+        existing_data.append(json_data)
+
+        # Write the updated data back to the file
+        with open(filename, "w") as file:
+            json.dump(existing_data, file, indent=4)
+

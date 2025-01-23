@@ -5,18 +5,19 @@ import {
 } from "@overwolf/overwolf-api-ts";
 
 import { AppWindow } from "../AppWindow";
-import { kWindowNames, kGamesFeatures } from "../consts";
-//import WebSocket from 'ws'; // Default import for WebSocket
+import { WINDOW_NAMES, GAME_FEATURES, WSS_URL } from "../util";
+import Websocket from "../Websocket"
+
 
 class InGame extends AppWindow {
   private static _instance: InGame;
   private _gameEventsListener: OWGamesEvents;
   private _eventsLog: HTMLElement;
   private _infoLog: HTMLElement;
-  //private wss = new WebSocket.Server({port: 80});
+  readonly wss = new Websocket(WSS_URL)
 
   private constructor() {
-    super(kWindowNames.inGame);
+    super(WINDOW_NAMES.inGame);
 
     this._eventsLog = document.getElementById('eventsLog');
     this._infoLog = document.getElementById('infoLog');
@@ -33,7 +34,7 @@ class InGame extends AppWindow {
   public async run() {
     const gameClassId = await this.getCurrentGameClassId();
 
-    const gameFeatures = kGamesFeatures.get(gameClassId);
+    const gameFeatures = GAME_FEATURES.get(gameClassId);
 
     if (gameFeatures && gameFeatures.length) {
       this._gameEventsListener = new OWGamesEvents(
@@ -42,14 +43,7 @@ class InGame extends AppWindow {
           onNewEvents: this.onNewEvents.bind(this)
         },
         gameFeatures
-      );
-      
-      /*
-      this.wss.on('connection', (ws: WebSocket) => {
-        console.log("WebSocket connection established.");
-        ws.send("WebSocket connection established.")
-      })
-      */
+      ); 
      
       this._gameEventsListener.start();
     }
@@ -57,6 +51,7 @@ class InGame extends AppWindow {
 
   private onInfoUpdates(info) {
     this.logLine(this._infoLog, info, false);
+    this.wss.sendMessage(JSON.stringify(info))
   }
 
   private onNewEvents(e) {
@@ -75,6 +70,7 @@ class InGame extends AppWindow {
 
       return false
     });
+    this.wss.sendMessage(JSON.stringify(e))
     this.logLine(this._eventsLog, e, shouldHighlight);
   }
 

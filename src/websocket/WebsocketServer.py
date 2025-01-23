@@ -5,17 +5,20 @@ from websockets.exceptions import ConnectionClosedOK
 from util.Logging import logger
 
 class WebsocketServer:
-    def __init__(self):
+    def __init__(self, gameClient):
         self.websocket = None
+        self.gameClient = gameClient
 
     async def handler(self, websocket):
         self.websocket = websocket
+
         await self.receive_data(websocket)
 
     async def receive_data(self, websocket):
         while True:
             try:
                 message = await websocket.recv()
+                self.gameClient.handleData(message)
             except ConnectionClosedOK:
                 break
 

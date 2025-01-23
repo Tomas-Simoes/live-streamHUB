@@ -1,4 +1,4 @@
 import { AppWindow } from "../AppWindow";
-import { kWindowNames } from "../consts";
+import { WINDOW_NAMES } from "../util";
 
-new AppWindow(kWindowNames.desktop);
+new AppWindow(WINDOW_NAMES.desktop);
