@@ -6,6 +6,8 @@ import {
 
 import { WINDOW_NAMES, GAME_IDS } from "../util";
 
+
+
 import RunningGameInfo = overwolf.games.RunningGameInfo;
 import AppLaunchTriggeredEvent = overwolf.extensions.AppLaunchTriggeredEvent;
 
@@ -34,6 +36,8 @@ class BackgroundController {
     overwolf.extensions.onAppLaunchTriggered.addListener(
       e => this.onAppLaunchTriggered(e)
     );
+
+
   };
 
   public static instance(): BackgroundController {
@@ -44,7 +48,7 @@ class BackgroundController {
     return BackgroundController._instance;
   }
 
- 
+
   public async run() {
     this._gameListener.start();
 

@@ -1,23 +1,36 @@
-from riot_client.GameClient import GameClient
+from data_processor.GameDataProcessor import GameDataProcessor
 from websocket.WebsocketServer import WebsocketServer
+from http_client.HttpClient import HttpClient
 from util.Logging import logger
 
 import asyncio
+
 BASE_URI = 'https://127.0.0.1:2999'
 
-game_client = GameClient()
-wss = WebsocketServer(game_client)
+http_client = HttpClient({'baseURI': BASE_URI})
+wss = WebsocketServer()
+game_data_processor = GameDataProcessor(http_client)
+
+wss.set_GameDataProcessor(game_data_processor)
 
 async def main():
-    asyncio.create_task(wss.start_connection())
+    wss_task = asyncio.create_task(wss.start_connection())
 
-    while True:
-        data = None
+    try:
+        while True:
+            await asyncio.sleep(0.5)
+    except KeyboardInterrupt:
+        logger.info("Shutting down...")
+    finally:
+        wss_task.cancel()
         
-        if data is not None:
-            logger.info(f"New data was fetched: {data}")
-            await wss.send_data(data)
+        try:
+            await wss_task
+        except asyncio.CancelledError:
+            logger.info("WebSocket task successfully canceled.")
 
-        await asyncio.sleep(7)
-
-asyncio.run(main())
+if __name__ == "__main__":
+    try:
+        asyncio.run(main())
+    except Exception as e:
+        logger.error(f"Unhandled exception: {e}")

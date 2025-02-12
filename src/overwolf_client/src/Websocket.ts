@@ -4,16 +4,14 @@ class Websocket{
   constructor(url: string) {
     this.socket = new WebSocket(url);  
 
-    
     this.socket.addEventListener("open", (event) => {
       console.log("WebSocket connection established.")
-      this.socket.send("WebSocket connection established. ")
+      this.socket.send("Overwolf Client connected. WebSocket established. ")
     })
 
     this.socket.addEventListener("message", (event) => {
       console.log("Message received: ", event.data)
     })
-      
   }
 
   public sendMessage(message: string): void {

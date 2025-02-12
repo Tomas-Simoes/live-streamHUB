@@ -4,6 +4,9 @@ import {
   OWHotkeys
 } from "@overwolf/overwolf-api-ts";
 
+import { exec } from 'child_process'
+import path from 'path'
+
 import { AppWindow } from "../AppWindow";
 import { WINDOW_NAMES, GAME_FEATURES, WSS_URL } from "../util";
 import Websocket from "../Websocket"
@@ -43,15 +46,26 @@ class InGame extends AppWindow {
           onNewEvents: this.onNewEvents.bind(this)
         },
         gameFeatures
-      ); 
-     
+      );
+
       this._gameEventsListener.start();
     }
   }
 
   private onInfoUpdates(info) {
-    this.logLine(this._infoLog, info, false);
-    this.wss.sendMessage(JSON.stringify(info))
+    const primary_key = Object.keys(info)[0]
+
+    if (primary_key == 'live_client_data') {
+      const data = info["live_client_data"]
+      const event_type = data ? Object.keys(data)[0] : undefined
+
+      switch (event_type) {
+        case "all_players":
+          this.logLine(this._infoLog, data, true);
+          this.wss.sendMessage(JSON.stringify({ 'target': 'app', 'data': data }))
+          break;
+      }
+    }
   }
 
   private onNewEvents(e) {
@@ -65,12 +79,15 @@ class InGame extends AppWindow {
         case 'match_start':
         case 'matchEnd':
         case 'match_end':
+        case 'gold':
+        case 'live_client_data':
           return true;
       }
 
       return false
     });
-    this.wss.sendMessage(JSON.stringify(e))
+
+    this.wss.sendMessage(JSON.stringify({ 'target': 'app', 'data': e }))
     this.logLine(this._eventsLog, e, shouldHighlight);
   }
 

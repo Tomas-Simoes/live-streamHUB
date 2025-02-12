@@ -32,5 +32,5 @@ export const WINDOW_NAMES = {
   desktop: 'desktop'
 };
 
-export const WSS_URL = "ws://localhost:80/"
+export const WSS_URL = "ws://localhost:8080/overwolf"
 

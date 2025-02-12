@@ -1,5 +1,0 @@
-{
-  "live_client_data": {
-    "events": "{\"Events\":[{\"EventID\":0,\"EventName\":\"GameStart\",\"EventTime\":0.031658198684453964},{\"EventID\":1,\"EventName\":\"MinionsSpawning\",\"EventTime\":65.02848815917969},{\"Assisters\":[],\"DragonType\":\"Water\",\"EventID\":2,\"EventName\":\"DragonKill\",\"EventTime\":72.81310272216797,\"KillerName\":\"simoes ツ\",\"Stolen\":\"False\"},{\"Assisters\":[],\"DragonType\":\"Hextech\",\"EventID\":3,\"EventName\":\"DragonKill\",\"EventTime\":236.85264587402344,\"KillerName\":\"simoes ツ\",\"Stolen\":\"False\"},{\"Assisters\":[],\"DragonType\":\"Fire\",\"EventID\":4,\"EventName\":\"DragonKill\",\"EventTime\":302.6738586425781,\"KillerName\":\"simoes ツ\",\"Stolen\":\"False\"}]}"
-  }
-}

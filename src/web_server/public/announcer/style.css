@@ -1,0 +1,9 @@
+#bottom-mid-announcer p {
+  background-color: #f0f8ff; /* light blue */
+  color: black;
+  border-radius: 8px;
+  margin-bottom: 10px;
+  font-size: 18px;
+  font-weight: bold;
+  text-align: center;
+}

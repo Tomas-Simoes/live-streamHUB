@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>server debug</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="announcer/style.css">
+  <link rel="stylesheet" href="scoreboard/style.css">
+  <link rel="stylesheet" href="timers/style.css">
+</head>
+<body>
+  <div class="data-container">
+    <img id="main-img" src="images/LLD_main.png" alt="">
+
+    <img class="announcer" id="baron-announcer" src="images/LLD_baron-announcer.png" style="visibility:hidden">
+    <img class="announcer" id="drake-announcer" src="images/LLD_drake-announcer.png" style="visibility:hidden">
+    <img class="announcer" src="images/LLD_fb-announcer.png" style="visibility:hidden">
+    
+    <img class="img-timer" id="top-right-img" src="images/LLD_drake-timer.png" alt="">
+    <p id="top-right-timer"> 00:00 </p>
+    
+    <img class="img-timer" id="top-left-img" src="images/LLD_baron-timer.png" alt="">
+    <p id="top-left-timer"> 00:00 </p>
+
+    <img class="img-timer" id="top-left-down-img" src="images/LLD_baron-timer.png" alt="">
+    <p id="top-left-down-timer"> 00:00 </p>
+  </div>
+  
+  <div id="bottom-mid-announcer">
+    <p id="drake-announcer" style="visibility:hidden">Drake dead</p>
+    <p id="baron-announcer" style="visibility:hidden">Baron dead</p>
+    <p id="elder-announcer" style="visibility:hidden">Elder dead</p>
+  </div>
+  
+  <div class="scoreboard">
+    <div class="team" id="team1">
+    </div>
+      
+    <div class="team" id="team2">
+    </div>
+  </div>
+
+  <script type="module" src="script.js"></script>
+  <script type="module" src="announcer/script.js"></script>
+  <script type="module" src="timers/script.js"></script>
+  <script type="module" src="scoreboard/script.js"></script>
+</body>
+</html>

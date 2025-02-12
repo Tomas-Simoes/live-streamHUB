@@ -1,0 +1,25 @@
+/* Style and position the left div in the top-left corner */
+#top-left-timer {
+  position: absolute; /* Absolute positioning */
+  top: 0;             /* Align to the top */
+  left: 4%;            /* Align to the left */
+  color: white;       /* White text color */
+  z-index: 2;
+}
+
+#top-left-down-timer {
+  position: absolute; /* Absolute positioning */
+  top: 7%;             /* Align to the top */
+  left: 4%;            /* Align to the left */
+  color: white;       /* White text color */
+  z-index: 2;
+}
+
+/* Style and position the right div in the top-right corner */
+#top-right-timer {
+  position: absolute; /* Absolute positioning */
+  top: 0;             /* Align to the top */
+  right: 0; 
+  color: white;       /* White text color */
+  z-index: 2;
+}
