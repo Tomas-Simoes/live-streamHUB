@@ -1,0 +1,1 @@
+python ./src/screen_recognition/ScreenRecognition.py

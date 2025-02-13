@@ -1,3 +1,6 @@
+//TODO update only the diff between previous and current scoreboard
+
+
 let players_elements = {
   'team1': {},
   'team2': {}
@@ -12,7 +15,7 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
   websocket.onmessage = (event) => {
-    websocket.send("Message received from Scoreboard Webclient: " + event.data) 
+    websocket.send("Player data received from Scoreboard Webclient: ") 
     updateScoreboard(JSON.parse(event.data))
   };
 
@@ -37,7 +40,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
 function updateScoreboard(scoreboardData) {
-  console.log(players_elements)
 
   if (scoreboardData instanceof Array){
     scoreboardData.forEach((player, player_index) => {
@@ -45,9 +47,6 @@ function updateScoreboard(scoreboardData) {
       let current_player_elements = players_elements[current_team][`player-${player_index < 5 ? player_index + 1 : player_index - 4}`]
       
       for (let i = 0; i < player.items.length; i++) {
-        console.log(i)
-        console.log(player.items.length)
-        console.log(current_player_elements.length)
         if (i == current_player_elements.items.length) {
           break
         }

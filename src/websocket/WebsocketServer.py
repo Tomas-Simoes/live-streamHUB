@@ -109,7 +109,7 @@ class WebsocketServer:
             logger.info(f"Sending data to client {target}/{subtarget}.")
             await target_socket.send(data)
             
-            return True
+        return True
 
     def get_target_sockets(self, target, subtarget = None):
         if target not in self.clients or (subtarget and subtarget not in self.clients[target]):

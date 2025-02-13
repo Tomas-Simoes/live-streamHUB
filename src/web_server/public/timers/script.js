@@ -1,3 +1,6 @@
+import { IMG_PATH } from "../util/util.js"
+
+
 let DRAKE_SPAWNTIME = minToSeconds(5)
 const DRAKE_AFTERKILL = minToSeconds(5)
 const DRAKE_MAXRESPAWN = 4
@@ -26,7 +29,7 @@ const SPAWN_INFO = {
   "voidgrubs": {
     "times_killed": 0,
   },
-  "atakkan": {
+  "atakhan": {
     "was_killed": false,
   },
   "elder": {
@@ -34,7 +37,7 @@ const SPAWN_INFO = {
   }
 };
 
-let left_timer, left_timer_bottom, right_timer, matchSeconds
+let left_timer, left_bottom_timer, right_timer, matchSeconds
 let isTimerVisible = false
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -42,11 +45,32 @@ document.addEventListener("DOMContentLoaded", () => {
   const announcerWebsocket = new WebSocket("ws://localhost:8080/webclient/announcer")
 
   left_timer = document.getElementById("top-left-timer")
-  left_timer_bottom = document.getElementById("top-left-down-timer")
-
+  left_bottom_timer = document.getElementById("top-left-down-timer")
 
   right_timer = document.getElementById("top-right-timer")
   
+  left_timer = {
+    'text': document.getElementById("top-left-timer"),
+    'img': document.getElementById("top-left-img"),
+    'changeVisibility': (visibility) => changeElementVisibility(left_timer, visibility)
+  }
+
+  left_bottom_timer = {
+    'text': document.getElementById("top-left-down-timer"),
+    'img': document.getElementById("top-left-down-img"),
+    'changeVisibility': (visibility) => changeElementVisibility(left_bottom_timer, visibility)
+  }
+
+  right_timer = {
+    'text': document.getElementById("top-right-timer"),
+    'img': document.getElementById("top-right-img"),
+    'changeVisibility': (visibility) => changeElementVisibility(right_timer, visibility)
+  }
+
+  left_timer.changeVisibility('hidden')
+  left_bottom_timer.changeVisibility('hidden')
+  right_timer.changeVisibility('hidden')
+
   timerWebsocket.onopen = () => {
     console.log("Timer Webclient connected at \"ws://localhost:8080/webclient/timer\"");
     timerWebsocket.send("Timer Webclient connected at \"ws://localhost:8080/webclient/timer\"")
@@ -70,6 +94,11 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 })
 
+function changeElementVisibility(element, visibility) {
+  element.text.style.visibility = visibility
+  element.img.style.visibility = visibility
+}
+
 function updateTimers(newMatchSeconds){
   matchSeconds = newMatchSeconds
   
@@ -79,42 +108,57 @@ function updateTimers(newMatchSeconds){
   let showBaronSpawn = !showHeraldSpawn || (matchSeconds > BARON_SPAWNTIME - minToSeconds(4) && matchSeconds > HERALD_SPAWNTIME + minToSeconds(1))
   let showAtkhan = matchSeconds >= ATAKHAN_SPAWNTIME - minToSeconds(10) && !SPAWN_INFO['atakkan']['was_killed']
   
-  left_timer.style.visibility = showVoidgrubSpawn || showHeraldSpawn || showBaronSpawn ? 'visible' : 'hidden'
-  right_timer.style.visibility = showDrakeSpawn ? 'visible' : 'hidden'
-  left_timer_bottom.style.visibility = showAtkhan ? 'visible' : 'hidden'
+  console.log(  SPAWN_INFO['voidgrubs']['times_killed'])
+  console.log(secondsToMin(HERALD_SPAWNTIME - VOIDGRUB_AFTERKILL))
+  console.log(secondsToMin(VOIDGRUB_SPAWNTIME))
 
-
+  left_timer.changeVisibility(showVoidgrubSpawn || showHeraldSpawn || showBaronSpawn ? 'visible' : 'hidden')
+  left_bottom_timer.changeVisibility(showAtkhan ? 'visible' : 'hidden')
+  
+  right_timer.changeVisibility(showDrakeSpawn ? 'visible' : 'hidden')
 
   if (showDrakeSpawn){
-    // DRAKE timer
+    //TODO figure out how will I know the specific drake (ocean, mountain etc...)
     let next_drake = DRAKE_SPAWNTIME - matchSeconds
-    right_timer.textContent = (next_drake < 0 ? 'Alive' : secondsToMin(next_drake)) 
+    
+    right_timer.img.src = IMG_PATH.cloud
+    right_timer.text.textContent = (next_drake < 0 ? 'Alive' : secondsToMin(next_drake)) 
   } else {
     let next_elder = ELDER_SPAWNTIME - matchSeconds
-    right_timer.textContent = (next_elder < 0 ? 'Alive' : secondsToMin(next_elder)) 
+    
+    right_timer.img.src = IMG_PATH.elder
+    right_timer.text.textContent = (next_elder < 0 ? 'Alive' : secondsToMin(next_elder)) 
   }
 
 
   if(showVoidgrubSpawn && !showHeraldSpawn) {
     let next_voidgrub = VOIDGRUB_SPAWNTIME - matchSeconds
-    left_timer.textContent = (next_voidgrub < 0 ? 'Alive' : secondsToMin(next_voidgrub))
+    
+    left_timer.img.src = IMG_PATH.voidgrubs
+    left_timer.text.textContent = (next_voidgrub < 0 ? 'Alive' : secondsToMin(next_voidgrub))
   }
   
   if (showHeraldSpawn && !showBaronSpawn){
     // HERALD timer
     let next_herald = HERALD_SPAWNTIME - matchSeconds
-    left_timer.textContent = (next_herald <= 0 ? 'Alive' : secondsToMin(next_herald)) 
+
+    left_timer.img.src = IMG_PATH.herald
+    left_timer.text.textContent = (next_herald <= 0 ? 'Alive' : secondsToMin(next_herald)) 
   }
   
   if((showBaronSpawn || !showHeraldSpawn) && !showVoidgrubSpawn){
     let next_baron = BARON_SPAWNTIME - matchSeconds
-    left_timer.textContent = (next_baron <= 0 ? 'Alive' : secondsToMin(next_baron)) 
+
+    left_timer.img.src = IMG_PATH.baron
+    left_timer.text.textContent = (next_baron <= 0 ? 'Alive' : secondsToMin(next_baron)) 
   }
 
   if (showAtkhan){
     // ATAKHAN timer
     let next_atakhan_time = ATAKHAN_SPAWNTIME - matchSeconds
-    left_timer_bottom.textContent = (next_atakhan_time <= 0 ? 'Alive' : secondsToMin(next_atakhan_time) )
+
+    left_bottom_timer.img.src = IMG_PATH.atakhan
+    left_bottom_timer.text.textContent = (next_atakhan_time <= 0 ? 'Alive' : secondsToMin(next_atakhan_time) )
   } 
 }
 
@@ -127,8 +171,12 @@ function handleAnnouncer(announcerType) {
       SPAWN_INFO['voidgrubs']['times_killed'] += 1
       VOIDGRUB_SPAWNTIME =  Number(matchSeconds) + Number(VOIDGRUB_AFTERKILL)
       break;
-    case 'rift herald':
+    case 'herald':
       SPAWN_INFO['herald']['was_killed'] = true
+      break
+    case 'atakhan':
+      SPAWN_INFO['atakkan']['was_killed'] = true
+      break
     default:
       if (announcerType.includes('elder')) {
         ELDER_SPAWNTIME = Number(matchSeconds) + Number(ELDER_AFTERKILL)

@@ -4,8 +4,8 @@
         "raw_champion": "game_character_displayname_Jax",
         "items": [
             {
-                "name": "Sundered Sky",
-                "raw_name": "6610"
+                "name": "Doran's Blade",
+                "raw_name": "1055"
             },
             {
                 "name": "Trinity Force",
@@ -16,8 +16,12 @@
                 "raw_name": "3111"
             },
             {
-                "name": "Negatron Cloak",
-                "raw_name": "1057"
+                "name": "Long Sword",
+                "raw_name": "1036"
+            },
+            {
+                "name": "Long Sword",
+                "raw_name": "1036"
             },
             {
                 "name": "Stealth Ward",
@@ -46,9 +50,9 @@
             }
         },
         "scores": {
-            "assists": 2,
-            "creepScore": 200,
-            "deaths": 10,
+            "assists": 1,
+            "creepScore": 130,
+            "deaths": 6,
             "kills": 1,
             "wardScore": 3.4081532955169678
         }
@@ -58,8 +62,8 @@
         "raw_champion": "game_character_displayname_Hecarim",
         "items": [
             {
-                "name": "Black Cleaver",
-                "raw_name": "3071"
+                "name": "Long Sword",
+                "raw_name": "1036"
             },
             {
                 "name": "Eclipse",
@@ -70,12 +74,12 @@
                 "raw_name": "3158"
             },
             {
-                "name": "Cloth Armor",
-                "raw_name": "1029"
+                "name": "Kindlegem",
+                "raw_name": "3067"
             },
             {
-                "name": "Cloth Armor",
-                "raw_name": "1029"
+                "name": "Ruby Crystal",
+                "raw_name": "1028"
             },
             {
                 "name": "Oracle Lens",
@@ -104,11 +108,11 @@
             }
         },
         "scores": {
-            "assists": 3,
-            "creepScore": 140,
-            "deaths": 9,
+            "assists": 2,
+            "creepScore": 110,
+            "deaths": 5,
             "kills": 1,
-            "wardScore": 14.280343055725098
+            "wardScore": 12.280343055725098
         }
     },
     {
@@ -116,16 +120,24 @@
         "raw_champion": "game_character_displayname_Syndra",
         "items": [
             {
-                "name": "Shadowflame",
-                "raw_name": "4645"
+                "name": "Aether Wisp",
+                "raw_name": "3113"
             },
             {
-                "name": "Stormsurge",
-                "raw_name": "4646"
+                "name": "Refillable Potion",
+                "raw_name": "2031"
+            },
+            {
+                "name": "Hextech Alternator",
+                "raw_name": "3145"
             },
             {
                 "name": "Luden's Companion",
                 "raw_name": "6655"
+            },
+            {
+                "name": "Doran's Ring",
+                "raw_name": "1056"
             },
             {
                 "name": "Slightly Magical Footwear",
@@ -159,10 +171,10 @@
         },
         "scores": {
             "assists": 2,
-            "creepScore": 210,
-            "deaths": 7,
-            "kills": 3,
-            "wardScore": 17.469711303710938
+            "creepScore": 140,
+            "deaths": 4,
+            "kills": 1,
+            "wardScore": 14.638291358947754
         }
     },
     {
@@ -182,12 +194,16 @@
                 "raw_name": "6672"
             },
             {
-                "name": "Infinity Edge",
-                "raw_name": "3031"
+                "name": "Cloak of Agility",
+                "raw_name": "1018"
             },
             {
                 "name": "Control Ward",
                 "raw_name": "2055"
+            },
+            {
+                "name": "Pickaxe",
+                "raw_name": "1037"
             },
             {
                 "name": "Stealth Ward",
@@ -216,11 +232,11 @@
             }
         },
         "scores": {
-            "assists": 2,
-            "creepScore": 150,
-            "deaths": 6,
-            "kills": 5,
-            "wardScore": 17.21015739440918
+            "assists": 1,
+            "creepScore": 110,
+            "deaths": 4,
+            "kills": 4,
+            "wardScore": 7.118659496307373
         }
     },
     {
@@ -236,20 +252,8 @@
                 "raw_name": "6620"
             },
             {
-                "name": "Oblivion Orb",
-                "raw_name": "3916"
-            },
-            {
-                "name": "Bandleglass Mirror",
-                "raw_name": "4642"
-            },
-            {
                 "name": "Ionian Boots of Lucidity",
                 "raw_name": "3158"
-            },
-            {
-                "name": "Glowing Mote",
-                "raw_name": "2022"
             },
             {
                 "name": "Oracle Lens",
@@ -278,11 +282,11 @@
             }
         },
         "scores": {
-            "assists": 9,
+            "assists": 6,
             "creepScore": 10,
-            "deaths": 5,
+            "deaths": 3,
             "kills": 1,
-            "wardScore": 58.57230758666992
+            "wardScore": 35.47279739379883
         }
     },
     {
@@ -302,16 +306,16 @@
                 "raw_name": "3802"
             },
             {
-                "name": "Lich Bane",
-                "raw_name": "3100"
-            },
-            {
                 "name": "Needlessly Large Rod",
                 "raw_name": "1058"
             },
             {
-                "name": "Sorcerer's Shoes",
-                "raw_name": "3020"
+                "name": "Aether Wisp",
+                "raw_name": "3113"
+            },
+            {
+                "name": "Boots",
+                "raw_name": "1001"
             },
             {
                 "name": "Stealth Ward",
@@ -340,11 +344,11 @@
             }
         },
         "scores": {
-            "assists": 5,
-            "creepScore": 180,
+            "assists": 2,
+            "creepScore": 120,
             "deaths": 1,
-            "kills": 7,
-            "wardScore": 14.230558395385742
+            "kills": 4,
+            "wardScore": 8.794995307922363
         }
     },
     {
@@ -368,16 +372,8 @@
                 "raw_name": "6692"
             },
             {
-                "name": "Sterak's Gage",
-                "raw_name": "3053"
-            },
-            {
-                "name": "B. F. Sword",
-                "raw_name": "1038"
-            },
-            {
-                "name": "Stealth Ward",
-                "raw_name": "3340"
+                "name": "Eye of the Herald",
+                "raw_name": "3513"
             }
         ],
         "position": "JUNGLE",
@@ -402,11 +398,11 @@
             }
         },
         "scores": {
-            "assists": 5,
-            "creepScore": 180,
+            "assists": 4,
+            "creepScore": 100,
             "deaths": 2,
-            "kills": 13,
-            "wardScore": 13.589982032775879
+            "kills": 7,
+            "wardScore": 8.42529296875
         }
     },
     {
@@ -414,24 +410,24 @@
         "raw_champion": "game_character_displayname_Diana",
         "items": [
             {
-                "name": "Needlessly Large Rod",
-                "raw_name": "1058"
+                "name": "Doran's Ring",
+                "raw_name": "1056"
             },
             {
                 "name": "Stormsurge",
                 "raw_name": "4646"
             },
             {
-                "name": "Shadowflame",
-                "raw_name": "4645"
+                "name": "Amplifying Tome",
+                "raw_name": "1052"
             },
             {
                 "name": "Needlessly Large Rod",
                 "raw_name": "1058"
             },
             {
-                "name": "Spellslinger's Shoes",
-                "raw_name": "3175"
+                "name": "Sorcerer's Shoes",
+                "raw_name": "3020"
             },
             {
                 "name": "Stealth Ward",
@@ -461,10 +457,10 @@
         },
         "scores": {
             "assists": 5,
-            "creepScore": 150,
-            "deaths": 3,
-            "kills": 7,
-            "wardScore": 18.633604049682617
+            "creepScore": 110,
+            "deaths": 0,
+            "kills": 5,
+            "wardScore": 11.868623733520508
         }
     },
     {
@@ -472,8 +468,8 @@
         "raw_champion": "game_character_displayname_KogMaw",
         "items": [
             {
-                "name": "Ruby Crystal",
-                "raw_name": "1028"
+                "name": "Doran's Blade",
+                "raw_name": "1055"
             },
             {
                 "name": "Blade of The Ruined King",
@@ -484,16 +480,16 @@
                 "raw_name": "3006"
             },
             {
-                "name": "Wit's End",
-                "raw_name": "3091"
+                "name": "Recurve Bow",
+                "raw_name": "1043"
             },
             {
-                "name": "Guinsoo's Rageblade",
-                "raw_name": "3124"
+                "name": "Recurve Bow",
+                "raw_name": "1043"
             },
             {
-                "name": "Chain Vest",
-                "raw_name": "1031"
+                "name": "Negatron Cloak",
+                "raw_name": "1057"
             },
             {
                 "name": "Stealth Ward",
@@ -522,11 +518,11 @@
             }
         },
         "scores": {
-            "assists": 7,
-            "creepScore": 180,
+            "assists": 3,
+            "creepScore": 120,
             "deaths": 4,
-            "kills": 6,
-            "wardScore": 18.278718948364258
+            "kills": 4,
+            "wardScore": 9.527195930480957
         }
     },
     {
@@ -538,24 +534,16 @@
                 "raw_name": "3877"
             },
             {
-                "name": "Locket of the Iron Solari",
-                "raw_name": "3190"
-            },
-            {
                 "name": "Knight's Vow",
                 "raw_name": "3109"
             },
             {
-                "name": "Swiftmarch",
-                "raw_name": "3170"
+                "name": "Boots of Swiftness",
+                "raw_name": "3009"
             },
             {
-                "name": "Warden's Mail",
-                "raw_name": "3082"
-            },
-            {
-                "name": "Control Ward",
-                "raw_name": "2055"
+                "name": "Cloth Armor",
+                "raw_name": "1029"
             },
             {
                 "name": "Oracle Lens",
@@ -584,11 +572,11 @@
             }
         },
         "scores": {
-            "assists": 16,
-            "creepScore": 20,
+            "assists": 8,
+            "creepScore": 10,
             "deaths": 2,
-            "kills": 4,
-            "wardScore": 58.05548095703125
+            "kills": 2,
+            "wardScore": 34.51710510253906
         }
     }
 ]
