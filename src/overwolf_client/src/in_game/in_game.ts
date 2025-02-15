@@ -17,6 +17,12 @@ class InGame extends AppWindow {
   private _gameEventsListener: OWGamesEvents;
   private _eventsLog: HTMLElement;
   private _infoLog: HTMLElement;
+  private data_to_send = {
+    "match_clock": {},
+    "chat": [],
+    "all_players": {}
+  };
+
   readonly wss = new Websocket(WSS_URL)
 
   private constructor() {
@@ -59,42 +65,46 @@ class InGame extends AppWindow {
       const data = info["live_client_data"]
       const event_type = data ? Object.keys(data)[0] : undefined
 
-      switch (event_type) {
-        case "all_players":
-          this.logLine(this._infoLog, data, true);
-          this.wss.sendMessage(JSON.stringify({ 'target': 'app', 'data': data }))
-          break;
+      if (event_type == 'all_players') {
+        this.data_to_send['all_players'] = data;
       }
     }
   }
 
   private onNewEvents(e) {
-    const shouldHighlight = e.events.some(event => {
-      switch (event.name) {
-        case 'kill':
-        case 'death':
-        case 'assist':
-        case 'level':
-        case 'matchStart':
-        case 'match_start':
-        case 'matchEnd':
-        case 'match_end':
-        case 'gold':
-        case 'live_client_data':
-          return true;
-      }
+    const eventName = e.events[0].name
 
-      return false
-    });
+    switch (e.events[0].name) {
+      case "match_clock":
+        if (Object.keys(this.data_to_send["match_clock"]).length == 0) {
+          this.data_to_send["match_clock"] = e
+          return
+        }
 
-    this.wss.sendMessage(JSON.stringify({ 'target': 'app', 'data': e }))
-    this.logLine(this._eventsLog, e, shouldHighlight);
+        this.logLine(this._eventsLog, {
+          "clock": Object.keys(this.data_to_send["match_clock"]).length,
+          "chat": this.data_to_send['chat'].length,
+          "all_players": Object.keys(this.data_to_send['all_players']).length
+        }, true)
+
+        this.wss.sendMessage(JSON.stringify({ 'target': 'app', 'data': this.data_to_send }))
+
+        this.logLine(this._infoLog, this.data_to_send, true)
+        this.data_to_send['all_players'] = {};
+        this.data_to_send['match_clock'] = {};
+        this.data_to_send['chat'] = [];
+
+        break;
+      case "chat":
+        this.data_to_send["chat"].push(e)
+        break;
+    }
   }
 
   // Appends a new line to the specified log
   private logLine(log: HTMLElement, data, highlight) {
     const line = document.createElement('pre');
-    line.textContent = JSON.stringify(data);
+    line.textContent = JSON.stringify(data, null, 1);
 
     if (highlight) {
       line.className = 'highlight';

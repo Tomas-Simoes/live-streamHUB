@@ -5,13 +5,14 @@ from websockets.exceptions import ConnectionClosed
 from websockets import ServerConnection
 from util.Logging import logger
 
+
 class WebsocketServer:
     _instance = None
-    
+
     clients = {
         'webserver': [],
         'webclient': {
-            'timer':[],
+            'timer': [],
             'scoreboard': [],
             'announcer': []
         },
@@ -22,10 +23,10 @@ class WebsocketServer:
     def __new__(cls, *args, **kwargs):
         if not cls._instance:
             cls._instance = super().__new__(cls)
-        
+
         return cls._instance
 
-    def __init__(self, game_data_processor = None):
+    def __init__(self, game_data_processor=None):
         if not hasattr(self, "initialized"):
             self.websocket = None
             self.game_data_processor = game_data_processor
@@ -38,15 +39,16 @@ class WebsocketServer:
         path = websocket.request.path
 
         if websocket.request.path == '/':
-            return 
-        
+            return
+
         path_parts = path.strip("/").split("/")
 
         if (len(path_parts) < 1 or len(path_parts) > 2):
-            logger.error(f"Invalid path received: {path_parts}. Closing connection.")
+            logger.error(
+                f"Invalid path received: {path_parts}. Closing connection.")
             websocket.close()
-            return 
-        
+            return
+
         client_name = path_parts[0]
         sub_path = None
 
@@ -54,16 +56,19 @@ class WebsocketServer:
             sub_path = path_parts[1]
 
         if client_name not in self.clients or (sub_path and sub_path not in self.clients[client_name]):
-            logger.warning(f"Trying to register invalid client at /{client_name}/{sub_path}.")
-            return 
-        
+            logger.warning(
+                f"Trying to register invalid client at /{client_name}/{sub_path}.")
+            return
+
         if not sub_path:
             self.clients[client_name].append(websocket)
-            logger.info(f"Registered new client at path /{client_name}:{type(self.clients[client_name])}")
+            logger.info(
+                f"Registered new client at path /{client_name}:{type(self.clients[client_name])}")
         else:
             self.clients[client_name][sub_path].append(websocket)
-            logger.info(f"Registered new client at path /{client_name}/{sub_path}:{type(self.clients[client_name][sub_path])}")
-       
+            logger.info(
+                f"Registered new client at path /{client_name}/{sub_path}:{type(self.clients[client_name][sub_path])}")
+
         self.websocket = websocket
         try:
             async for message in websocket:
@@ -95,8 +100,8 @@ class WebsocketServer:
                 await self.send_data(json.dumps(data), "overwolf")
             case "app":
                 await self.game_data_processor.handleOWData(data)
-            
-    async def send_data(self, data, target, subtarget = ""):
+
+    async def send_data(self, data, target, subtarget=""):
         target_sockets = self.get_target_sockets(target, subtarget)
 
         if not target_sockets:
@@ -108,26 +113,28 @@ class WebsocketServer:
 
             logger.info(f"Sending data to client {target}/{subtarget}.")
             await target_socket.send(data)
-            
+
         return True
 
-    def get_target_sockets(self, target, subtarget = None):
+    def get_target_sockets(self, target, subtarget=None):
         if target not in self.clients or (subtarget and subtarget not in self.clients[target]):
-            logger.warning(F"Trying to send to an invalid target at /{target}/{subtarget}")
+            logger.warning(
+                F"Trying to send to an invalid target at /{target}/{subtarget}")
             return None
-        
-        target_sockets = None 
-        
+
+        target_sockets = None
+
         if not subtarget:
             target_sockets = self.clients[target]
         else:
             target_sockets = self.clients[target][subtarget]
-            
+
         if len(target_sockets) == 0:
-            logger.warning(F"Could not find clients for target /{target}/{subtarget}")
+            logger.warning(
+                F"Could not find clients for target /{target}/{subtarget}")
 
         return target_sockets
-    
+
     async def start_connection(self):
         try:
             async with ws.serve(self.handler, "localhost", 8080, ping_interval=None):
@@ -162,6 +169,3 @@ class WebsocketServer:
                     print(f"  - {sub_type}: {count} connections")
             else:  # Direct count
                 print(f"- {client_type}: {connections} connections")
-
-    
- 

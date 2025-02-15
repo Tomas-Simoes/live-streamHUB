@@ -22,5 +22,1155 @@
     },
     {
         "data": "{\r\n  \"name\": \"minions_30_sec\",\r\n  \"data\": null\r\n}"
-    }
+    },
+    [
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "11:26 AlTruGar (Jax) signals that enemies are missing"
+                }
+            ]
+        }
+    ],
+    [
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "11:29 Cutiemon (Syndra) signals enemy has vision here"
+                }
+            ]
+        }
+    ],
+    [
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "11:38 The Red Team has completed the Feat of Monster Slaying!"
+                }
+            ]
+        },
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "11:38 Captain 5obza Oo (Lee Sin) has slain the Voidgrubs!"
+                }
+            ]
+        }
+    ],
+    [
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "11:39 Captain 5obza Oo (Lee Sin) is on the way"
+                }
+            ]
+        }
+    ],
+    [
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "11:49 Cutiemon (Syndra) purchased Luden's Companion"
+                }
+            ]
+        }
+    ],
+    [
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "11:52 HAMPOT ALTER EGO (Gragas) is on a killing spree!"
+                }
+            ]
+        }
+    ],
+    [
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "11:55 AlTruGar (Jax) has shut down HAMPOT ALTER EGO (Gragas)"
+                }
+            ]
+        },
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "11:55 Yvva daughter (Diana) signals that enemies are missing"
+                }
+            ]
+        }
+    ],
+    [
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "11:57 HAMPOT ALTER EGO (Gragas): Unleashed Teleport - Ready"
+                }
+            ]
+        }
+    ],
+    [
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "12:00 AlTruGar (Jax) signals that enemies are missing"
+                }
+            ]
+        }
+    ],
+    [
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "12:01 Santarou (Braum) signals to be cautious"
+                }
+            ]
+        }
+    ],
+    [
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "12:04 AlTruGar (Jax) signals that enemies are missing"
+                }
+            ]
+        }
+    ],
+    [
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "12:07 Santarou (Braum) signals enemy has vision here"
+                }
+            ]
+        }
+    ],
+    [
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "12:09 AlTruGar (Jax) signals that enemies are missing"
+                }
+            ]
+        },
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "12:10 Captain 5obza Oo (Lee Sin) is on a killing spree!"
+                }
+            ]
+        },
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "12:10 AlTruGar (Jax) signals enemy has vision here"
+                }
+            ]
+        }
+    ],
+    [
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "12:11 AlTruGar (Jax) signals enemy has vision here"
+                }
+            ]
+        },
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "12:11 AlTruGar (Jax) signals enemy has vision here"
+                }
+            ]
+        },
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "12:12 AlTruGar (Jax) signals enemy has vision here"
+                }
+            ]
+        }
+    ],
+    [
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "12:16 Captain 5obza Oo (Lee Sin): Hecarim"
+                }
+            ]
+        }
+    ],
+    [
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "12:17 Cutiemon (Syndra) signals to retreat"
+                }
+            ]
+        },
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "12:18 Cutiemon (Syndra) signals that enemies are missing"
+                }
+            ]
+        },
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "12:18 SM Bro (Hecarim) purchased Eclipse"
+                }
+            ]
+        }
+    ],
+    [
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "12:28 Cutiemon (Syndra): Janna"
+                }
+            ]
+        },
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "12:28 Cutiemon (Syndra): Janna"
+                }
+            ]
+        },
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "12:28 Cutiemon (Syndra): Janna"
+                }
+            ]
+        },
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "12:28 Cutiemon (Syndra): Janna"
+                }
+            ]
+        },
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "12:28 Cutiemon (Syndra): Janna"
+                }
+            ]
+        }
+    ],
+    [
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "12:29 Cutiemon (Syndra): Janna"
+                }
+            ]
+        },
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "12:29 Cutiemon (Syndra): Janna"
+                }
+            ]
+        },
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "12:29 Cutiemon (Syndra): Janna"
+                }
+            ]
+        }
+    ],
+    [
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "12:37 Santarou (Braum) purchased Knight's Vow"
+                }
+            ]
+        }
+    ],
+    [
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "Kog'Maw)"
+                }
+            ]
+        },
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "12:42 Yvva daughter (Diana): R - Ready"
+                }
+            ]
+        }
+    ],
+    [
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "12:56 SM Bro (Hecarim) is on the way"
+                }
+            ]
+        }
+    ],
+    [
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "13:11 Cutiemon (Syndra): Janna"
+                }
+            ]
+        },
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "13:11 Cutiemon (Syndra): Janna"
+                }
+            ]
+        },
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "13:11 Cutiemon (Syndra): Janna"
+                }
+            ]
+        },
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "13:11 Cutiemon (Syndra): Janna"
+                }
+            ]
+        },
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "13:11 Cutiemon (Syndra): Janna"
+                }
+            ]
+        },
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "13:12 Cutiemon (Syndra): Janna"
+                }
+            ]
+        },
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "13:12 Cutiemon (Syndra): Janna"
+                }
+            ]
+        },
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "13:12 Cutiemon (Syndra): Janna"
+                }
+            ]
+        },
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "13:12 Cutiemon (Syndra): Janna"
+                }
+            ]
+        },
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "13:12 Cutiemon (Syndra): Janna"
+                }
+            ]
+        },
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "13:12 Cutiemon (Syndra): Janna"
+                }
+            ]
+        },
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "13:13 Cutiemon (Syndra): Janna"
+                }
+            ]
+        }
+    ],
+    [
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "13:13 Cutiemon (Syndra): Janna"
+                }
+            ]
+        },
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "13:13 Cutiemon (Syndra): Janna"
+                }
+            ]
+        },
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "13:13 Cutiemon (Syndra): Janna"
+                }
+            ]
+        }
+    ],
+    [
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "13:17 Yvva daughter (Diana) is on the way"
+                }
+            ]
+        }
+    ],
+    [
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "13:24 SM Bro (Hecarim) has hit a new milestone on Epic Monsters Killed: 120!"
+                }
+            ]
+        },
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "13:24 SM Bro (Hecarim) has slain the Hextech Drake!"
+                }
+            ]
+        }
+    ],
+    [
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "13:28 Hoeghz (Kog'Maw) is on the way"
+                }
+            ]
+        }
+    ],
+    [
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "13:45 SM Bro (Hecarim) signals that enemies are missing"
+                }
+            ]
+        },
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "13:45 SM Bro (Hecarim) signals to all in"
+                }
+            ]
+        }
+    ],
+    [
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "13:56 Yvva daughter (Diana) is on a killing spree!"
+                }
+            ]
+        }
+    ],
+    [
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "14:05 Santarou (Braum): Ashe"
+                }
+            ]
+        },
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "14:05 Santarou (Braum): Ashe"
+                }
+            ]
+        },
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "14:05 Santarou (Braum): Ashe"
+                }
+            ]
+        }
+    ],
+    [
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "14:13 Yvva daughter (Diana) signals to retreat"
+                }
+            ]
+        }
+    ],
+    [
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "14:24 Captain 5obza Oo (Lee Sin) is unstoppable!"
+                }
+            ]
+        }
+    ],
+    [
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "14:30 sashimifelix (Ashe) purchased Kraken Slayer"
+                }
+            ]
+        }
+    ],
+    [
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "14:34 SM Bro (Hecarim) is on the way"
+                }
+            ]
+        }
+    ],
+    [
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "14:41 SM Bro (Hecarim) has shut down Captain 5obza Oo (Lee Sin)"
+                }
+            ]
+        }
+    ],
+    [
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "15:00 Yvva daughter (Diana) is on the way"
+                }
+            ]
+        },
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "15:00 SM Bro (Hecarim) signals that enemies are missing"
+                }
+            ]
+        }
+    ],
+    [
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "15:02 HAMPOT ALTER EGO (Gragas) purchased Cosmic Drive"
+                }
+            ]
+        }
+    ],
+    [
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "15:07 Lady Medarda (Janna) purchased Echoes of Helia"
+                }
+            ]
+        }
+    ],
+    [
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "15:09 SM Bro (Hecarim) signals that enemies are missing"
+                }
+            ]
+        }
+    ],
+    [
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "15:10 Yvva daughter (Diana) is on a rampage!"
+                }
+            ]
+        }
+    ],
+    [
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "15:28 Santarou (Braum) signals to be cautious"
+                }
+            ]
+        }
+    ],
+    [
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "15:34 Santarou (Braum) signals enemy has vision here"
+                }
+            ]
+        }
+    ],
+    [
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "15:39 Santarou (Braum) signals enemy has vision here"
+                }
+            ]
+        }
+    ],
+    [
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "15:40 Lady Medarda (Janna) signals enemy has vision here"
+                }
+            ]
+        }
+    ],
+    [
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "15:56 HAMPOT ALTER EGO (Gragas) signals that enemies are missing"
+                }
+            ]
+        },
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "15:56 Yvva daughter (Diana): Ashe"
+                }
+            ]
+        }
+    ],
+    [
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "16:04 HAMPOT ALTER EGO (Gragas): Rift Herald - Alive"
+                }
+            ]
+        },
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "16:05 Captain 5obza Oo (Lee Sin) is on the way"
+                }
+            ]
+        },
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "16:05 Santarou (Braum): Ashe"
+                }
+            ]
+        },
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "16:05 Santarou (Braum): Ashe"
+                }
+            ]
+        }
+    ],
+    [
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "16:08 Captain 5obza Oo (Lee Sin) is on the way"
+                }
+            ]
+        },
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "16:09 AlTruGar (Jax) purchased Trinity Force"
+                }
+            ]
+        }
+    ],
+    [
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "16:21 Cutiemon (Syndra) purchased Farsight Alteration"
+                }
+            ]
+        }
+    ],
+    [
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "16:25 Yvva daughter (Diana): Syndra"
+                }
+            ]
+        }
+    ],
+    [
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "16:36 Captain 5obza Oo (Lee Sin) has slain Rift Herald!"
+                }
+            ]
+        },
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "16:36 Yvva daughter (Diana) is on the way"
+                }
+            ]
+        }
+    ],
+    [
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "16:58 Santarou (Braum) is on the way"
+                }
+            ]
+        },
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "16:59 Cutiemon (Syndra) is on the way"
+                }
+            ]
+        }
+    ],
+    [
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "17:02 Cutiemon (Syndra) signals enemy has vision here"
+                }
+            ]
+        }
+    ],
+    [
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "17:18 SM Bro (Hecarim): Jax"
+                }
+            ]
+        },
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "17:18 SM Bro (Hecarim): Jax"
+                }
+            ]
+        },
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "17:18 SM Bro (Hecarim): Jax"
+                }
+            ]
+        },
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "17:19 SM Bro (Hecarim): Jax"
+                }
+            ]
+        },
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "17:19 SM Bro (Hecarim): Jax"
+                }
+            ]
+        },
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "17:19 SM Bro (Hecarim): Jax"
+                }
+            ]
+        },
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "17:19 SM Bro (Hecarim): Jax"
+                }
+            ]
+        },
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "17:19 SM Bro (Hecarim): Jax"
+                }
+            ]
+        }
+    ],
+    [
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "Lee Sin)"
+                }
+            ]
+        }
+    ],
+    [
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "17:24 Santarou (Braum) signals enemy has vision here"
+                }
+            ]
+        }
+    ],
+    [
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "17:26 Captain 5obza Oo (Lee Sin) is asking for assistance"
+                }
+            ]
+        }
+    ],
+    [
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "17:43 Santarou (Braum) signals enemy has vision here"
+                }
+            ]
+        }
+    ],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "19:08 Yvva daughter (Diana) purchased Shadowflame"
+                }
+            ]
+        },
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "(37%) with a %i:bounty% 500G bounty"
+                }
+            ]
+        }
+    ],
+    [],
+    [
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "Captain 5obza Oo - (Lee Sin"
+                }
+            ]
+        },
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "19:13 Santarou (Braum) is on the way"
+                }
+            ]
+        }
+    ],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "00:41 Kharliar (Nami) signals to be cautious"
+                }
+            ]
+        },
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "00:41 DDForge (Jax) signals to be cautious"
+                }
+            ]
+        },
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "00:42 DDForge (Jax) signals to be cautious"
+                }
+            ]
+        },
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "00:42 edvardstyle12 (Viego) purchased Oracle Lens"
+                }
+            ]
+        }
+    ],
+    [],
+    [
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "00:45 Kharliar (Nami) signals enemy has vision here"
+                }
+            ]
+        },
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "00:46 ErrfrE (Vi) is asking for vision"
+                }
+            ]
+        }
+    ],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "01:21 Kharliar (Nami) signals that enemies are missing"
+                }
+            ]
+        }
+    ],
+    [],
+    [],
+    [],
+    [],
+    [
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "01:31 CDArissaN (Swain): E - Ready"
+                }
+            ]
+        }
+    ],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "02:03 CDArissaN (Swain) signals that enemies are missing"
+                }
+            ]
+        }
+    ],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "02:21 Generoso (Pyke): Nami"
+                }
+            ]
+        }
+    ],
+    [],
+    [
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "02:26 edvardstyle12 (Viego) is on the way"
+                }
+            ]
+        }
+    ],
+    [],
+    [],
+    []
 ]
