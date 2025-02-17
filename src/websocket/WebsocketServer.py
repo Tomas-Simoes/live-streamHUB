@@ -2,7 +2,7 @@ import asyncio
 import json
 import websockets as ws
 from websockets.exceptions import ConnectionClosed
-from websockets import ServerConnection
+from websockets.server import ServerConnection
 from util.Logging import logger
 
 

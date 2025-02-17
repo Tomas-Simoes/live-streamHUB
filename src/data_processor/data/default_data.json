@@ -1172,5 +1172,72 @@
     ],
     [],
     [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "20:23 Majkell (Udyr) signals that enemies are missing"
+                }
+            ]
+        }
+    ],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "01:19 \u0394uror\u03b1 Bore\u03b1l (Evelynn): Ping is 125 ms"
+                }
+            ]
+        }
+    ],
+    [],
+    [
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "01:45 Lady Medarda (Mel) signals that enemies are missing"
+                }
+            ]
+        }
+    ],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
     []
 ]
