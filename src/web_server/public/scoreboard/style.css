@@ -1,10 +1,10 @@
 .scoreboard {
-  position: fixed;
+  position: absolute;
   bottom: 0;
   transform: translateX(-50%);
-  left: 48%;
-  width: 36%;
-  height: 25%;
+  left: 965px;
+  width: 730px;
+  height: 200px;
   max-width: 1000px;
   max-height: 200px;
   background: rgba(40, 40, 40, 0.9);
@@ -38,12 +38,12 @@
   background: #666;
   border-radius: 4px;
   align-items: center;
-  justify-content: center;  /* Center the image within the item */
+  justify-content: center; /* Center the image within the item */
 }
 
 .item-img {
-  width: 100%;   /* Make the image fill the width of the parent */
-  height: 100%;  /* Make the image fill the height of the parent */
+  width: 100%; /* Make the image fill the width of the parent */
+  height: 100%; /* Make the image fill the height of the parent */
   object-fit: cover; /* Ensures the image covers the item box while maintaining aspect ratio */
 }
 
@@ -54,7 +54,7 @@
 }
 
 .champion {
-  width: 33px;  /* Set fixed width */
+  width: 33px; /* Set fixed width */
   height: 33px; /* Set fixed height */
   object-fit: cover; /* Ensures the image fills the box while maintaining aspect ratio */
   border-radius: 50%; /* Optional: makes it circular */

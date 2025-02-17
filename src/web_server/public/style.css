@@ -1,5 +1,6 @@
 body {
-  width: 100vw; 
+  font-family: "Gill Sans", "Gill Sans MT", Calibri, "Trebuchet MS", sans-serif;
+  width: 100vw;
   height: 100vh;
   margin: 0;
   display: flex;
@@ -9,47 +10,23 @@ body {
 }
 
 .data-container {
-  position: relative; 
-  width: 100%; 
+  position: relative;
+  width: 100%;
   height: 100%;
 }
 
 #main-img {
-  position: absolute; 
-  width: 100%; 
+  position: absolute;
+  width: 100%;
   height: 100%;
+  z-index: 1;
 }
 
 .announcer {
   position: absolute;
-  bottom: 0; 
+  bottom: 0;
   left: 50%;
-  transform: translateX(-50%); 
+  transform: translateX(-50%);
   height: auto;
-  z-index: 2; 
-}
-
-.img-timer{
-  position: absolute;
-  width: 7%;
-  height: 7%;
-}
-
-#top-right-img {
-  position: absolute;
-  top: 0;
-  right: 0;
-  transform: translateX(66.5%);
-}
-
-#top-left-img {
-  position: absolute;
-  top: 0;
-  left: 0;
-}
-
-#top-left-down-img {
-  position: absolute;
-  top: 7%;
-  left: 0;
+  z-index: 2;
 }

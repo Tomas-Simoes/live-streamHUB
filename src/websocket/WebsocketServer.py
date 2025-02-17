@@ -14,7 +14,8 @@ class WebsocketServer:
         'webclient': {
             'timer': [],
             'scoreboard': [],
-            'announcer': []
+            'announcer': [],
+            'upper-scoreboard': []
         },
         'overwolf': [],
         'app': [],

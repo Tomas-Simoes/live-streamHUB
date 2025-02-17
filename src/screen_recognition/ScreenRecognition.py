@@ -30,11 +30,11 @@ REF_OFFSETS = {
 }
 
 PREDICTED_STATS = {
-    'team-0': {
+    'team-1': {
         'towers': 0,
         'gold': 0
     },
-    'team-1': {
+    'team-2': {
         'towers': 0,
         'gold': 0
     }
@@ -45,8 +45,7 @@ class ScreenRecognition:
     def __init__(self):
         pass
 
-    def getWindowPosition(self):
-
+    def getDataPrediction(self):
         league_window = gw.getWindowsWithTitle(
             "League of Legends (TM) Client")[0]
         Resolution = namedtuple('Resolution', ['x', 'y'])
@@ -96,13 +95,9 @@ class ScreenRecognition:
 
                 text = text.replace('O', '0').replace('o', '0')
 
-                PREDICTED_STATS[f"team-{i}"][x] = text
+                PREDICTED_STATS[f"team-{i + 1}"][x] = text
 
-        print(f"Predicted text: {json.dumps(PREDICTED_STATS, indent=3)}")
+        return PREDICTED_STATS
 
         # saving_path = f"src/screen_recognition/screenshots/screenshot-{cur_resolution.x}x{cur_resolution.y}.png"
         # screenshot.save(saving_path)
-
-
-screen_recognition = ScreenRecognition()
-screen_recognition.getWindowPosition()

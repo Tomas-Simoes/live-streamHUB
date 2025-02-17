@@ -1,0 +1,27 @@
+.upper_scoreboard {
+  position: absolute;
+  left: 400px;
+  top: 15px;
+
+  width: 1160px;
+  z-index: 10;
+}
+
+#data_wrapper {
+  display: flex;
+  gap: 250px;
+}
+
+.upper_data {
+  color: white;
+  margin-right: 30px;
+}
+
+.score {
+  display: flex;
+  gap: 60px;
+}
+
+.upper_scoreboard {
+  color: cornflowerblue;
+}

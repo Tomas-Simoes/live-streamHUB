@@ -78,7 +78,6 @@ class InGame extends AppWindow {
       case "match_clock":
         if (Object.keys(this.data_to_send["match_clock"]).length == 0) {
           this.data_to_send["match_clock"] = e
-          return
         }
 
         this.logLine(this._eventsLog, {

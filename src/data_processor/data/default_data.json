@@ -1172,5 +1172,1098 @@
     ],
     [],
     [],
+    [],
+    [],
+    [],
+    [],
+    [
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "02:41 CDArissaN (Swain) has drawn first blood!"
+                }
+            ]
+        }
+    ],
+    [],
+    [],
+    [
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "02:48 Kharliar (Nami) signals that enemies are missing"
+                }
+            ]
+        }
+    ],
+    [],
+    [],
+    [
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "03:39 edvardstyle12 (Viego) is on the way"
+                }
+            ]
+        }
+    ],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "03:52 G3N3R0S0 (Aurora) signals that enemies are missing"
+                }
+            ]
+        }
+    ],
+    [],
+    [],
+    [
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "03:58 edvardstyle12 (Viego): Vi"
+                }
+            ]
+        }
+    ],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "04:10 Zog Kik (Cho'Gath) is on the way"
+                }
+            ]
+        }
+    ],
+    [],
+    [
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "04:13 DDForge (Jax) signals to be cautious"
+                }
+            ]
+        }
+    ],
+    [],
+    [],
+    [
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "04:19 The Red Team has completed the Feat of Warfare!"
+                }
+            ]
+        },
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "04:20 IIIYassuo (Orianna) signals that enemies are missing"
+                }
+            ]
+        }
+    ],
+    [],
+    [],
+    [
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "00:11 LaMauvaiseFoi (Thresh) is on the way"
+                }
+            ]
+        }
+    ],
+    [
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "00:12 LaMauvaiseFoi (Thresh) is on the way"
+                }
+            ]
+        },
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "00:12 LaMauvaiseFoi (Thresh) is on the way"
+                }
+            ]
+        }
+    ],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "00:34 Treimor (Warwick) signals to be cautious"
+                }
+            ]
+        }
+    ],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "00:52 Treimor (Warwick) is asking for vision"
+                }
+            ]
+        },
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "00:53 natte visstick (Pantheon) signals to be cautious"
+                }
+            ]
+        }
+    ],
+    [],
+    [
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "00:56 SnowPunch (Annie) signals enemy has vision here"
+                }
+            ]
+        },
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "00:56 The Better One (Aurora) signals enemy has vision here"
+                }
+            ]
+        }
+    ],
+    [],
+    [],
+    [],
+    [],
+    [
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "01:07 natte visstick (Pantheon) purchased Oracle Lens"
+                }
+            ]
+        }
+    ],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "01:59 sashimifelix (Kai'Sa) has drawn first blood!"
+                }
+            ]
+        }
+    ],
+    [],
+    [],
+    [
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "02:06 LaMauvaiseFoi (Thresh) signals to all in"
+                }
+            ]
+        }
+    ],
+    [
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "02:08 LaMauvaiseFoi (Thresh) is on the way"
+                }
+            ]
+        }
+    ],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "Aurora)"
+                }
+            ]
+        }
+    ],
+    [
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "02:37 Treimor (Warwick) is on the way"
+                }
+            ]
+        },
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "02:38 Treimor (Warwick) is on the way"
+                }
+            ]
+        }
+    ],
+    [
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "02:39 Treimor (Warwick) signals to all in"
+                }
+            ]
+        }
+    ],
+    [],
+    [],
+    [],
+    [],
+    [
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "02:49 The Better One (Aurora): Jayce"
+                }
+            ]
+        },
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "02:49 The Better One (Aurora): Jayce"
+                }
+            ]
+        }
+    ],
+    [],
+    [],
+    [],
+    [],
+    [
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "02:59 Alfa Kiyor mum (Ziggs) signals that enemies are missing"
+                }
+            ]
+        }
+    ],
+    [],
+    [
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "03:04 Treimor (Warwick) signals to all in"
+                }
+            ]
+        }
+    ],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "03:30 sashimifelix (Kai'Sa): Zilean"
+                }
+            ]
+        },
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "03:30 sashimifelix (Kai'Sa): Zilean"
+                }
+            ]
+        },
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "03:30 sashimifelix (Kai'Sa): Zilean"
+                }
+            ]
+        }
+    ],
+    [
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "03:31 LaMauvaiseFoi (Thresh): Wait For Q - 2s"
+                }
+            ]
+        }
+    ],
+    [
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "03:33 Abaddon (Twitch): Pantheon"
+                }
+            ]
+        }
+    ],
+    [],
+    [],
+    [],
+    [
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "03:42 Treimor (Warwick) signals to all in"
+                }
+            ]
+        }
+    ],
+    [],
+    [
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "03:46 Treimor (Warwick) is asking for assistance"
+                }
+            ]
+        }
+    ],
+    [],
+    [],
+    [
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "03:51 I Was A Witness (Jayce): Thresh"
+                }
+            ]
+        },
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "03:51 SnowPunch (Annie) signals that enemies are missing"
+                }
+            ]
+        }
+    ],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "Ziggs)"
+                }
+            ]
+        }
+    ],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "04:53 LaMauvaiseFoi (Thresh) signals to retreat"
+                }
+            ]
+        }
+    ],
+    [],
+    [
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "04:56 The Better One (Aurora) is asking for assistance"
+                }
+            ]
+        }
+    ],
+    [],
+    [
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "05:00 The Better One (Aurora) is asking for assistance"
+                }
+            ]
+        }
+    ],
+    [],
+    [
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "05:04 The Better One (Aurora) signals that enemies are missing"
+                }
+            ]
+        }
+    ],
+    [],
+    [
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "05:08 Treimor (Warwick) purchased Tiamat"
+                }
+            ]
+        }
+    ],
+    [],
+    [
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "05:11 The Better One (Aurora) is on the way"
+                }
+            ]
+        },
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "05:12 The Better One (Aurora): Jayce"
+                }
+            ]
+        },
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "05:12 The Better One (Aurora): Jayce"
+                }
+            ]
+        }
+    ],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "05:46 Abaddon (Twitch) signals that enemies are missing"
+                }
+            ]
+        }
+    ],
+    [],
+    [
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "05:49 LaMauvaiseFoi (Thresh) is asking for assistance"
+                }
+            ]
+        },
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "05:50 LaMauvaiseFoi (Thresh) is on the way"
+                }
+            ]
+        },
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "05:50 RetroPlayers (Zilean) signals to retreat"
+                }
+            ]
+        }
+    ],
+    [
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "05:52 RetroPlayers (Zilean) signals to retreat"
+                }
+            ]
+        }
+    ],
+    [],
+    [],
+    [],
+    [
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "06:00 Treimor (Warwick) signals to be cautious"
+                }
+            ]
+        }
+    ],
+    [
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "06:01 Treimor (Warwick) signals to be cautious"
+                }
+            ]
+        }
+    ],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "06:26 LaMauvaiseFoi (Thresh) is on the way"
+                }
+            ]
+        },
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "06:27 sashimifelix (Kai'Sa) is on the way"
+                }
+            ]
+        }
+    ],
+    [],
+    [],
+    [],
+    [],
+    [
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "06:35 LaMauvaiseFoi (Thresh) is on the way"
+                }
+            ]
+        },
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "06:36 LaMauvaiseFoi (Thresh) is on the way"
+                }
+            ]
+        }
+    ],
+    [],
+    [],
+    [
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "06:42 The Blue Team has completed the Feat of Warfare!"
+                }
+            ]
+        }
+    ],
+    [],
+    [],
+    [],
+    [
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "06:54 Alfa Kiyor mum (Ziggs) signals that enemies are missing"
+                }
+            ]
+        }
+    ],
+    [
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "06:55 Alfa Kiyor mum (Ziggs) signals that enemies are missing"
+                }
+            ]
+        }
+    ],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "07:15 SnowPunch (Annie) purchased Oracle Lens"
+                }
+            ]
+        }
+    ],
+    [],
+    [],
+    [
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "07:21 sashimifelix (Kai'Sa) is asking for vision"
+                }
+            ]
+        }
+    ],
+    [],
+    [],
+    [],
+    [],
+    [
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "07:32 The Better One (Aurora) signals that enemies are missing"
+                }
+            ]
+        },
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "Ziggs)"
+                }
+            ]
+        },
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "07:33 LaMauvaiseFoi (Thresh) signals to retreat"
+                }
+            ]
+        }
+    ],
+    [
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "07:33 LaMauvaiseFoi (Thresh) signals to retreat"
+                }
+            ]
+        },
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "07:33 The Better One (Aurora) signals enemy has vision here"
+                }
+            ]
+        }
+    ],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "07:45 Abaddon (Twitch) is on the way"
+                }
+            ]
+        }
+    ],
+    [
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "07:47 Abaddon (Twitch) is asking for assistance"
+                }
+            ]
+        }
+    ],
+    [],
+    [
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "07:53 Alfa Kiyor mum (Ziggs): Annie"
+                }
+            ]
+        }
+    ],
+    [
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "07:53 natte visstick (Pantheon): Ziggs"
+                }
+            ]
+        },
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "07:53 Alfa Kiyor mum (Ziggs): Pantheon"
+                }
+            ]
+        },
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "07:54 Alfa Kiyor mum (Ziggs): Pantheon"
+                }
+            ]
+        }
+    ],
+    [
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "07:55 Alfa Kiyor mum (Ziggs): Annie"
+                }
+            ]
+        }
+    ],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "08:09 The Better One (Aurora) signals enemy has vision here"
+                }
+            ]
+        }
+    ],
+    [],
+    [
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "08:14 RetroPlayers (Zilean) purchased Oracle Lens"
+                }
+            ]
+        }
+    ],
+    [],
+    [],
+    [],
+    [],
+    [
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "08:23 Alfa Kiyor mum (Ziggs) is asking for assistance"
+                }
+            ]
+        },
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "Annie)"
+                }
+            ]
+        }
+    ],
+    [],
+    [],
+    [],
+    [
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "08:33 Abaddon (Twitch) signals enemy has vision here"
+                }
+            ]
+        }
+    ],
+    [],
+    [
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "08:37 SnowPunch (Annie) signals to be cautious"
+                }
+            ]
+        }
+    ],
+    [],
+    [],
+    [],
+    [
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "08:44 Abaddon (Twitch): Wait For R - 11s"
+                }
+            ]
+        }
+    ],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "Ziggs)"
+                }
+            ]
+        }
+    ],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "04:53 LaMauvaiseFoi (Thresh) signals to retreat"
+                }
+            ]
+        }
+    ],
+    [],
+    [
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "04:56 The Better One (Aurora) is asking for assistance"
+                }
+            ]
+        }
+    ],
+    [],
+    [
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "05:00 The Better One (Aurora) is asking for assistance"
+                }
+            ]
+        }
+    ],
+    [],
+    [
+        {
+            "events": [
+                {
+                    "name": "chat",
+                    "data": "05:04 The Better One (Aurora) signals that enemies are missing"
+                }
+            ]
+        }
+    ],
     []
 ]

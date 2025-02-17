@@ -3,6 +3,7 @@ import os
 import asyncio
 import re
 import traceback
+import time
 
 from enum import Enum
 from util.Logging import logger
@@ -28,14 +29,14 @@ class GameDataProcessor:
 
     DEFAULT_DIR = DATA_DIR + "default_data.json"
 
-    SAVE_TO_FILE = True
+    SAVE_TO_FILE = False
     GET_OWDATA = True
     GET_LCAPIDATA = False
 
     CURR_PLAYER_DATA = {}
 
-    def __init__(self, httpClient):
-        self.httpClient = httpClient
+    def __init__(self, screen_recognition):
+        self.screen_recognition = screen_recognition
         self.wss = WebsocketServer()
 
     # Handles data that comes from Overwolf APP
@@ -47,6 +48,7 @@ class GameDataProcessor:
         if not self.GET_OWDATA:
             return
 
+        asyncio.create_task(self.getScreenPrediction())
         original_json = json_data
 
         for key in json_data.keys():
@@ -55,8 +57,6 @@ class GameDataProcessor:
 
             json_data = original_json
             json_data = json_data[key]
-
-            print(json_data)
 
             try:
                 match key:
@@ -72,14 +72,13 @@ class GameDataProcessor:
                         json_data = {
                             'data': event_data
                         }
-                        await self.wss.send_data(json_data, 'webclient', 'timer')
+                        asyncio.create_task(self.wss.send_data(
+                            json_data, 'webclient', 'timer'))
 
                     case "all_players":
                         save_dir = self.OW_PLAYERS_DIR
-
-                        # Only for formatting
+                        print(json_data["all_players"])
                         players_data = json.loads(json_data["all_players"])
-                        json_data["all_players"] = players_data
 
                         players_filtered_data = []
                         player_index = 0
@@ -112,12 +111,11 @@ class GameDataProcessor:
                             diff = DeepDiff(self.CURR_PLAYER_DATA,
                                             players_filtered_data)
 
-                            logger.info(
-                                f"New players information received. Sending it now...")
-                            sent_data = await self.wss.send_data(players_filtered_data if isPlayerDataEmpty else diff, "webclient", "scoreboard")
+                            asyncio.create_task(self.wss.send_data(
+                                players_filtered_data if isPlayerDataEmpty else diff, "webclient", "scoreboard"))
 
-                            if sent_data:
-                                self.CURR_PLAYER_DATA = players_filtered_data
+                            # if sent_data:
+                            #    self.CURR_PLAYER_DATA = players_filtered_data
 
                     case "chat":
                         for chat_json in json_data:
@@ -136,13 +134,14 @@ class GameDataProcessor:
                                             drake_type = " ".join(
                                                 clean_chat_event.split()[-2:])
 
-                                            json_data["data"] = drake_type
+                                            chat_json['events'][0]['data'] = drake_type
                                         else:
-                                            json_data["data"] = keyword
+                                            chat_json['events'][0]['data'] = keyword
 
                                         logger.debug(
-                                            f"{json_data['data']} has been slain.")
-                                        await self.wss.send_data(json_data, 'webclient', 'announcer')
+                                            f"{chat_json['events'][0]['data']} has been slain.")
+                                        asyncio.create_task(self.wss.send_data(
+                                            chat_json, 'webclient', 'announcer'))
 
                 if self.SAVE_TO_FILE:
                     self.save_to_file(json_data, save_dir, append_to_file)
@@ -166,7 +165,17 @@ class GameDataProcessor:
         logger.debug(
             f"Data received from Live Client API. {"Saved to file" if self.SAVE_TO_FILE else ""}")
 
+    # Data prediction for some specific data that is extracted by a text recognition system
+    async def getScreenPrediction(self):
+        start_prediction_time = time.perf_counter()
+        data_prediction = self.screen_recognition.getDataPrediction()
+        end_time = time.perf_counter()
+
+        data_prediction['time'] = end_time - start_prediction_time
+        asyncio.create_task(self.wss.send_data(data_prediction, "webclient", "upper-scoreboard")
+                            )
     # Gets data from Live Client API. Supports multiple endpoints fetching at same time
+
     async def requestEndpoints(self, endpoints):
         if not self.GET_LCAPIDATA:
             return

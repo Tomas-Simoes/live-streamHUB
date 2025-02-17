@@ -1,17 +1,18 @@
 from data_processor.GameDataProcessor import GameDataProcessor
+from screen_recognition.ScreenRecognition import ScreenRecognition
 from websocket.WebsocketServer import WebsocketServer
-from http_client.HttpClient import HttpClient
 from util.Logging import logger
 
 import asyncio
 
 BASE_URI = 'https://127.0.0.1:2999'
 
-http_client = HttpClient({'baseURI': BASE_URI})
 wss = WebsocketServer()
-game_data_processor = GameDataProcessor(http_client)
+screen_recognition = ScreenRecognition()
+game_data_processor = GameDataProcessor(screen_recognition)
 
 wss.set_GameDataProcessor(game_data_processor)
+
 
 async def main():
     wss_task = asyncio.create_task(wss.start_connection())
@@ -23,7 +24,7 @@ async def main():
         logger.info("Shutting down...")
     finally:
         wss_task.cancel()
-        
+
         try:
             await wss_task
         except asyncio.CancelledError:

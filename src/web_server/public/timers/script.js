@@ -1,6 +1,5 @@
 import { IMG_PATH } from "../util/util.js"
 
-
 let DRAKE_SPAWNTIME = minToSeconds(5)
 const DRAKE_AFTERKILL = minToSeconds(5)
 const DRAKE_MAXRESPAWN = 4
@@ -18,19 +17,21 @@ let ATAKHAN_SPAWNTIME = minToSeconds(20)
 let ELDER_SPAWNTIME = minToSeconds(6)
 const ELDER_AFTERKILL = minToSeconds(6)
 
-const SPAWN_INFO = {
+export const SPAWN_INFO = {
   "drake": {
     "was_killed": false,
     "times_killed": 0,
   },
   "herald": {
     "was_killed": false,
+    "times_killed": 0,
   },
   "voidgrubs": {
     "times_killed": 0,
   },
   "atakhan": {
     "was_killed": false,
+    "times_killed": 0,
   },
   "elder": {
     "was_killed": false,
@@ -108,10 +109,6 @@ function updateTimers(newMatchSeconds){
   let showBaronSpawn = !showHeraldSpawn || (matchSeconds > BARON_SPAWNTIME - minToSeconds(4) && matchSeconds > HERALD_SPAWNTIME + minToSeconds(1))
   let showAtkhan = matchSeconds >= ATAKHAN_SPAWNTIME - minToSeconds(10) && !SPAWN_INFO['atakkan']['was_killed']
   
-  console.log(  SPAWN_INFO['voidgrubs']['times_killed'])
-  console.log(secondsToMin(HERALD_SPAWNTIME - VOIDGRUB_AFTERKILL))
-  console.log(secondsToMin(VOIDGRUB_SPAWNTIME))
-
   left_timer.changeVisibility(showVoidgrubSpawn || showHeraldSpawn || showBaronSpawn ? 'visible' : 'hidden')
   left_bottom_timer.changeVisibility(showAtkhan ? 'visible' : 'hidden')
   
