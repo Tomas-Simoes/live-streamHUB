@@ -6,7 +6,6 @@ body {
   display: flex;
   justify-content: center;
   align-items: flex-end;
-  background-color: gray;
 }
 
 .data-container {
