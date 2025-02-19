@@ -7,7 +7,7 @@
     "editor.defaultFormatter": "ms-python.autopep8"
   },
   "python.analysis.autoImportCompletions": true,
-  "python.analysis.typeCheckingMode": "off",
+  "python.analysis.typeCheckingMode": "basic",
   "[html]": {
     "editor.defaultFormatter": "vscode.html-language-features"
   },
