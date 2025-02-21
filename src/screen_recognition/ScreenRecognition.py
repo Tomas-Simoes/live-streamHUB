@@ -1,13 +1,15 @@
+from encodings import oem
 from screeninfo import get_monitors
 from collections import namedtuple
-from PIL import ImageGrab
-from skimage.transform import ThinPlateSplineTransform
+from PIL import ImageGrab, Image
+from matplotlib import pyplot as plt
 
-import pygetwindow as gw
+import os
+import glob
 import pytesseract
 import numpy as np
-import matplotlib.pyplot as plt
-
+import json
+import cv2
 
 Resolution = namedtuple('Resolution', ['x', 'y'])
 
@@ -36,12 +38,6 @@ REF_OFFSETS = {
     }
     
 }
-
-REF_HEIGHT_OFFSETS = {
-    "1920x1080": 1006,
-    "1680x1050": 978
-}
-
 REF_RESOLUTION = Resolution(1920, 1080)
 
 PREDICTED_STATS = {
@@ -55,14 +51,17 @@ PREDICTED_STATS = {
     }
 }
 
+PSM_MODE = 7
+OEM_MODE = 3 
 SAVE_SCREENSHOT = False
-TPS = ThinPlateSplineTransform()
 
 class ScreenRecognition:
     def __init__(self):
         pass
 
     def getDataPrediction(self):
+        """
+        #? Offset method, not working
         league_window = gw.getWindowsWithTitle(
             "League of Legends (TM) Client")[0]
 
@@ -81,52 +80,77 @@ class ScreenRecognition:
         print(f"Monitor resolution: {monitor_resolution}")
         print(f"League resolution: {league_resolution}")
         
-        src_points = []
-        dst_points = []
-        for x in range(1, 100):
-            src_points.append((round(x/100 * REF_RESOLUTION.x, 4), REF_HEIGHT_OFFSETS[f"{REF_RESOLUTION.x}x{REF_RESOLUTION.y}"]))
-            dst_points.append((round(x/100 * league_resolution.x, 4), REF_HEIGHT_OFFSETS[f"{league_resolution.x}x{league_resolution.y}"]))
+        
+        #? Hard coded method
+        x_left_offset = 680
+        x_right_offset =  670
+        y_offset = 1006
 
-        TPS.estimate(np.array(src_points), np.array(dst_points))
+        data_pos = {
+            "left": league_pos['left'] + x_left_offset,
+            "top": league_pos["top"],
+            "right": league_pos["right"] - x_right_offset,
+            "bottom": league_pos["bottom"] - y_offset
+        }
+        
+        screenshot = ImageGrab.grab(bbox=(data_pos["left"], data_pos["top"],
+                                    data_pos["right"], data_pos["bottom"]), all_screens=True)
 
+        if SAVE_SCREENSHOT: save_screenshot(screenshot, league_resolution)
+        print(
+            f"Screenshot at: {data_pos} with offsets {x_left_offset} and {x_right_offset}")
+        """
+
+        filtered_img = preprocess_img(Image.open("src/screen_recognition/screenshots/screenshot-1920x1080.png"))
+
+        config = f"""
+                --psm {PSM_MODE} --oem {OEM_MODE} -c
+                tessedit_char_whitelist=0123456789.k
+                classify_bln_numeric_mode=1
+                load_system_dawg=0
+                load_freq_dawg=0 
+                load_unambig_dawg=0
+                load_punc_dawg=0
+                preserve_interword_spaces=1
+            """
+        
+        text = pytesseract.image_to_string(
+                        filtered_img, config=config).strip()
+        text.replace('O', '0').replace('o', '0')
+        
+        text_arr = text.split()
+        print(text_arr)
+
+        data_index = 0
         for i in range(2):
-            for x in ["gold"]:
+            for x in ["towers", "gold"] if i == 0 else ["gold", "towers"]:
+                PREDICTED_STATS[f"team-{i + 1}"][x] = text_arr[data_index] if data_index <= len(text_arr) - 1 else "not found"
+                data_index += 1
+
+        return PREDICTED_STATS
+        """
+        #? Not hardcoded method
+        #for i in range(2):
                 ref_offsets = REF_OFFSETS[f"team-{i}"][x]
                 
                 #? Linear transformation (not working)
-                #x_left_offset, y_offset =  xy_linear_transformation(REF_RESOLUTION, league_resolution, ref_offsets["left"], ref_offsets["height"])
-                #x_right_offset, y_offset =  xy_linear_transformation(REF_RESOLUTION, league_resolution, ref_offsets["left"], ref_offsets["height"])
+                # x_left_offset, y_offset =  xy_linear_transformation(REF_RESOLUTION, league_resolution, ref_offsets["left"], ref_offsets["height"])
+                # x_right_offset, y_offset =  xy_linear_transformation(REF_RESOLUTION, league_resolution, ref_offsets["left"], ref_offsets["height"])
                 
                 #? Non-linear transformation (not working)
-                x_left_offset, y_offset = xy_nonlinear_transformation((ref_offsets["left"], REF_HEIGHT_OFFSETS[f"{REF_RESOLUTION.x}x{REF_RESOLUTION.y}"]))
-                x_right_offset, y_offset = xy_nonlinear_transformation((ref_offsets["right"], REF_HEIGHT_OFFSETS[f"{REF_RESOLUTION.x}x{REF_RESOLUTION.y}"]))
+                # x_left_offset, y_offset = xy_nonlinear_transformation((ref_offsets["left"], REF_HEIGHT_OFFSETS[f"{REF_RESOLUTION.x}x{REF_RESOLUTION.y}"]))
+                # x_right_offset, y_offset = xy_nonlinear_transformation((ref_offsets["right"], REF_HEIGHT_OFFSETS[f"{REF_RESOLUTION.x}x{REF_RESOLUTION.y}"]))
 
-                data_pos = {
-                    "left": league_pos['left'] + x_left_offset,
-                    "top": league_pos["top"],
-                    "right": league_pos["right"] - x_right_offset,
-                    "bottom": league_pos["bottom"] - y_offset
-                }
 
-                #print(
-                #    f"Screenshot at: {data_pos} with offsets {x_left_offset} and {x_right_offset}")
-                screenshot = ImageGrab.grab(bbox=(data_pos["left"], data_pos["top"],
-                                            data_pos["right"], data_pos["bottom"]), all_screens=True)
+                
+                text = pytesseract.image_to_string(
+                        filtered_img, config=f'--psm {PSM_MODE} --oem {OEM_MODE} -c tessedit_char_whitelist=0123456789Oo.kK').strip()
 
-                screenshot.show()
+                text = text.replace('O', '0').replace('o', '0')
+                PREDICTED_STATS[f"team-{i + 1}"][x] = text
 
-                if SAVE_SCREENSHOT: save_screenshot(screenshot, league_resolution)
-
-            text = pytesseract.image_to_string(
-                screenshot, config=r'--psm 6 --oem 3 -c tessedit_char_whitelist=0123456789Oo.kK').strip()
-
-            text = text.replace('O', '0').replace('o', '0')
-
-            PREDICTED_STATS[f"team-{i + 1}"][x] = text
-        
         return PREDICTED_STATS
-
-
+        """
 def xy_linear_transformation(ref_resolution: Resolution, new_resolution: Resolution, x_position, y_position):
     if ref_resolution.x == new_resolution.x and ref_resolution.y == new_resolution.y:
         return x_position, y_position
@@ -163,13 +187,95 @@ def xy_linear_transformation(ref_resolution: Resolution, new_resolution: Resolut
 def xy_nonlinear_transformation(point):
     return TPS.inverse(point)
 
+def preprocess_img(img):
+    img_arr = np.array(img, dtype=np.uint8)
+    filtered_arr = img_arr
+    
+    filtered_arr = np.full_like(img_arr, 255, dtype=np.uint8)
+    
+    r, g, b = img_arr[:,:,0], img_arr[:,:,1], img_arr[:,:,2]
+    red_mask = (r > g) & (r > b) & (r > 150) & (g < 100)
+    blue_mask = (b > r) & (b > g) & (b > 170)
+
+    filtered_arr[red_mask, :] = img_arr[red_mask, :]
+    filtered_arr[blue_mask, :] = img_arr[blue_mask, :]
+    filtered_arr[red_mask] = 0
+    filtered_arr[blue_mask] = 0
+
+    filtered_arr = cv2.cvtColor(filtered_arr, cv2.COLOR_BGR2GRAY)
+
+    filtered_img = Image.fromarray(filtered_arr)
+    filtered_img.show()
+    return filtered_arr
+
+# I think there is kinda of an error here
+#def test_models():
+    model_results = {}
+    correct_texts = ["0", "33.8k", "9", "28", "41.9k", "3"]
+
+    image_paths = glob.glob('src/screen_recognition/screenshots/*.png')
+
+    for i in range(50):
+        for path in image_paths:
+            filename = os.path.basename(path)
+            model_results.setdefault(filename, {})
+
+            screenshot = Image.open(path).convert('RGB')
+            filtered_img = preprocess_img(screenshot)
+
+            for psm_mode in range(14):
+                for oem_mode in range(4):
+                    model_results[filename].setdefault(f"psm={psm_mode}", {})
+                    try:
+                        model_results[filename][f"psm={psm_mode}"].setdefault(f"oem={oem_mode}", {})
+
+                        print(f"Predicting with model psm={psm_mode} and oem={oem_mode}")
+
+                        configs = f"""
+                        --psm {psm_mode} --oem {oem_mode} -c
+                        tessedit_char_whitelist=0123456789
+                        classify_bln_numeric_mode=1
+                        load_system_dawg=0
+                        load_freq_dawg=0 
+                        load_unambig_dawg=0
+                        load_punc_dawg=0
+                        preserve_interword_spaces=1
+                        """
+
+                        text = pytesseract.image_to_string(
+                            filtered_img, config=configs).strip()
+
+                        text = text.replace('O', '0').replace('o', '0')
+                        
+                        model_results[filename][f"psm={psm_mode}"][f"oem={oem_mode}"].setdefault("words_counted", 0)
+                        
+                        for word in text.split():
+                            model_results[filename][f"psm={psm_mode}"][f"oem={oem_mode}"]["words_counted"] += 1
+                            
+                            if word in correct_texts:
+                                print(f"Matched word: {word}")
+                                model_results[filename][f"psm={psm_mode}"][f"oem={oem_mode}"].setdefault(word, 0)
+                                model_results[filename][f"psm={psm_mode}"][f"oem={oem_mode}"][word] += 1 
+                            else:
+                                model_results[filename][f"psm={psm_mode}"][f"oem={oem_mode}"].setdefault("error", 0)
+                                model_results[filename][f"psm={psm_mode}"][f"oem={oem_mode}"]["error"] += 1
+                    except Exception:
+                        model_results[filename][f"psm={psm_mode}"][f"oem={oem_mode}"].setdefault("error", 0)
+                        model_results[filename][f"psm={psm_mode}"][f"oem={oem_mode}"]["error"] += 1
+                        continue
+                                
+    return model_results
+
 def save_screenshot(screenshot, cur_resolution: Resolution):
     saving_path = f"src/screen_recognition/screenshots/screenshot-{cur_resolution.x}x{cur_resolution.y}.png"
     screenshot.save(saving_path)
 
 def local_class_test():
     screen_recognition = ScreenRecognition()
-    screen_recognition.getDataPrediction()
+    prediction = screen_recognition.getDataPrediction()
 
+    print(json.dumps(prediction, indent=3))
+    
+    plt.show()
 
 local_class_test()
