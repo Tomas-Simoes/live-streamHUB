@@ -4,6 +4,7 @@ from collections import namedtuple
 from PIL import ImageGrab, Image
 from matplotlib import pyplot as plt
 
+import pygetwindow as gw
 import os
 import glob
 import pytesseract
@@ -28,12 +29,10 @@ REF_OFFSETS = {
         'towers': {
             "left": 1180,
             "right": 695,
-            'height': 1000
         },
         'gold': {
             "left": 1105,
             "right": 755,
-            'height': 1000
         }
     }
     
@@ -60,8 +59,6 @@ class ScreenRecognition:
         pass
 
     def getDataPrediction(self):
-        """
-        #? Offset method, not working
         league_window = gw.getWindowsWithTitle(
             "League of Legends (TM) Client")[0]
 
@@ -79,58 +76,9 @@ class ScreenRecognition:
 
         print(f"Monitor resolution: {monitor_resolution}")
         print(f"League resolution: {league_resolution}")
-        
-        
-        #? Hard coded method
-        x_left_offset = 680
-        x_right_offset =  670
-        y_offset = 1006
 
-        data_pos = {
-            "left": league_pos['left'] + x_left_offset,
-            "top": league_pos["top"],
-            "right": league_pos["right"] - x_right_offset,
-            "bottom": league_pos["bottom"] - y_offset
-        }
-        
-        screenshot = ImageGrab.grab(bbox=(data_pos["left"], data_pos["top"],
-                                    data_pos["right"], data_pos["bottom"]), all_screens=True)
-
-        if SAVE_SCREENSHOT: save_screenshot(screenshot, league_resolution)
-        print(
-            f"Screenshot at: {data_pos} with offsets {x_left_offset} and {x_right_offset}")
-        """
-
-        filtered_img = preprocess_img(Image.open("src/screen_recognition/screenshots/screenshot-1920x1080.png"))
-
-        config = f"""
-                --psm {PSM_MODE} --oem {OEM_MODE} -c
-                tessedit_char_whitelist=0123456789.k
-                classify_bln_numeric_mode=1
-                load_system_dawg=0
-                load_freq_dawg=0 
-                load_unambig_dawg=0
-                load_punc_dawg=0
-                preserve_interword_spaces=1
-            """
-        
-        text = pytesseract.image_to_string(
-                        filtered_img, config=config).strip()
-        text.replace('O', '0').replace('o', '0')
-        
-        text_arr = text.split()
-        print(text_arr)
-
-        data_index = 0
         for i in range(2):
             for x in ["towers", "gold"] if i == 0 else ["gold", "towers"]:
-                PREDICTED_STATS[f"team-{i + 1}"][x] = text_arr[data_index] if data_index <= len(text_arr) - 1 else "not found"
-                data_index += 1
-
-        return PREDICTED_STATS
-        """
-        #? Not hardcoded method
-        #for i in range(2):
                 ref_offsets = REF_OFFSETS[f"team-{i}"][x]
                 
                 #? Linear transformation (not working)
@@ -141,7 +89,23 @@ class ScreenRecognition:
                 # x_left_offset, y_offset = xy_nonlinear_transformation((ref_offsets["left"], REF_HEIGHT_OFFSETS[f"{REF_RESOLUTION.x}x{REF_RESOLUTION.y}"]))
                 # x_right_offset, y_offset = xy_nonlinear_transformation((ref_offsets["right"], REF_HEIGHT_OFFSETS[f"{REF_RESOLUTION.x}x{REF_RESOLUTION.y}"]))
 
+                x_left_offset = ref_offsets["left"]
+                x_right_offset = ref_offsets["right"]
+                y_offset = 1010
 
+                data_pos = {
+                    "left": league_pos['left'] + x_left_offset,
+                    "top": league_pos["top"],
+                    "right": league_pos["right"] - x_right_offset,
+                    "bottom": league_pos["bottom"] - y_offset
+                }
+
+                screenshot = ImageGrab.grab(bbox=(data_pos["left"], data_pos["top"],
+                                            data_pos["right"], data_pos["bottom"]), all_screens=True)
+                
+                filtered_img = preprocess_img(screenshot)
+
+                if SAVE_SCREENSHOT: save_screenshot(filtered_img, league_resolution)
                 
                 text = pytesseract.image_to_string(
                         filtered_img, config=f'--psm {PSM_MODE} --oem {OEM_MODE} -c tessedit_char_whitelist=0123456789Oo.kK').strip()
@@ -150,7 +114,7 @@ class ScreenRecognition:
                 PREDICTED_STATS[f"team-{i + 1}"][x] = text
 
         return PREDICTED_STATS
-        """
+    
 def xy_linear_transformation(ref_resolution: Resolution, new_resolution: Resolution, x_position, y_position):
     if ref_resolution.x == new_resolution.x and ref_resolution.y == new_resolution.y:
         return x_position, y_position
@@ -205,11 +169,10 @@ def preprocess_img(img):
     filtered_arr = cv2.cvtColor(filtered_arr, cv2.COLOR_BGR2GRAY)
 
     filtered_img = Image.fromarray(filtered_arr)
-    filtered_img.show()
     return filtered_arr
 
 # I think there is kinda of an error here
-#def test_models():
+def test_models():
     model_results = {}
     correct_texts = ["0", "33.8k", "9", "28", "41.9k", "3"]
 
@@ -278,4 +241,3 @@ def local_class_test():
     
     plt.show()
 
-local_class_test()
