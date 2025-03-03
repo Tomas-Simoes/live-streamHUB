@@ -72,8 +72,6 @@ class InGame extends AppWindow {
   }
 
   private onNewEvents(e) {
-    const eventName = e.events[0].name
-
     switch (e.events[0].name) {
       case "match_clock":
         if (Object.keys(this.data_to_send["match_clock"]).length == 0) {
