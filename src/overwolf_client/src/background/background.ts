@@ -51,19 +51,18 @@ class BackgroundController {
     this._processManagerPlugin = new OverwolfPlugin("process-manager-plugin", true);
     var processId = 0;
 
-    const batchFilePath = await this.get_service_path();
+    //TODO fix this
+    //var batchFilePath = await this.get_service_path();
+    const args = ""
+    const environmentVariables = {}
+    const batchFilePath = "C:\\Users\\tomas\\OneDrive\\Desktop\\Folders\\projects\\League-Live-Desk\\run_services.bat"
+    
     this._processManagerPlugin.initialize(status => {
       if (!status) {
         console.error("Process Manager Plugin couldn't be loaded.");
         return;
       }
 
-      console.log("Process manager plugin loaded.")
-
-      const local_path = "C:\\Users\\tomas\\OneDrive\\Desktop\\Folders\\projects\\League-Live-Desk\\run_services.bat"
-      const args = ""
-      const environmentVariables = {}
-      
       this._processManagerPlugin.get().onDataReceivedEvent.addListener(({ error, data }) => {
         if (error) {
           console.error(error);
@@ -82,11 +81,11 @@ class BackgroundController {
         }
       });
       
-      this._processManagerPlugin.get().launchProcess("local_path", 
+      this._processManagerPlugin.get().launchProcess(batchFilePath, 
         args, 
         JSON.stringify(environmentVariables), 
         true, 
-        false, // if we close the app, don't close notepad
+        true, // if we close the app, don't close notepad
         ({ error, data }) => {
           if (error) {
             console.error(error);
@@ -105,7 +104,6 @@ class BackgroundController {
       overwolf.extensions.current.getManifest(
         function(app){
           if(app){
-            console.log(app)
             const extensionId = app.UID;
             const version = app.meta.version;
 

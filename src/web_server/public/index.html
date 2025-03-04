@@ -13,69 +13,80 @@
 </head>
 
 <body>
-  <div class="data-container">
-    <!--? Main Overlay -->
-    <img id="main-img" src="images/LLD_main.png" alt="">
-
-    <!--? Objective kill announcer -->
-    <img class="announcer" id="baron-announcer" src="images/LLD_baron-announcer.png" style="visibility:hidden">
-    <img class="announcer" id="drake-announcer" src="images/LLD_drake-announcer.png" style="visibility:hidden">
-    <img class="announcer" src="images/LLD_fb-announcer.png" style="visibility:hidden">
-
-    <!--? Objective timers -->
-    <img class="img-timer" id="top-right-img" src="images/LLD_drake-timer.png" alt="">
-    <p id="top-right-timer"> 00:00 </p>
-
-    <img class="img-timer" id="top-left-img" src="images/LLD_baron-timer.png" alt="">
-    <p id="top-left-timer"> 00:00 </p>
-
-    <img class="img-timer" id="top-left-down-img" src="images/LLD_baron-timer.png" alt="">
-    <p id="top-left-down-timer"> 00:00 </p>
-
-    <!--? Down Scoreboard -->
-    <div class="scoreboard">
-      <div class="team" id="team1">
+  <img class="fullscreen-img" src="images/LLD_main.png" alt="">
+  
+  <section class="data-container">
+    
+    <header class="top">
+      <div class="timer" id="left-timer">
+        <figure class="img-timer" id="top-left-down-img">
+          <img src="images/LLD_baron-timer.png" alt="">
+          <figcaption>00:00</figcaption>
+        </figure>
+        <figure class="img-timer" id="top-left-down-img">
+          <img src="images/LLD_baron-timer.png" alt="">
+          <figcaption>00:00</figcaption>
+        </figure>
       </div>
 
-      <div class="team" id="team2">
-      </div>
-    </div>
-
-    <!--? Upper Scoreboard -->
-    <div class="upper_scoreboard">
-      <div id="data_wrapper">
-        <div class="upper_team" id="upper_team1">
+      <div class="upper-scoreboard">
+        <section class="upper-team-stats" id="upper_team1">
           <span class="upper_data" id="atakhan_team1"> 0 </span>
           <span class="upper_data" id="drake_team1"> 0 </span>
           <span class="upper_data" id="herald_team1"> 0 </span>
           <span class="upper_data" id="voidgrubs_team1"> 0 </span>
           <span class="upper_data" id="towers_team1"> 0 </span>
           <span class="upper_data" id="gold_team1"> 0 </span>
-        </div>
-
-        <div class="score">
+        </section>
+    
+        <section class="score">
           <span class="upper_score" id="score_team1"> 0 </span>
           <span class="upper_score" id="score_team2"> 0 </span>
-        </div>
-
-        <div class="upper_team" id="upper_team2">
+        </section>
+    
+        <section class="upper-team-stats" id="upper_team2">
           <span class="upper_data" id="atakhan_team2"> 0 </span>
           <span class="upper_data" id="drake_team2"> 0 </span>
           <span class="upper_data" id="herald_team2"> 0 </span>
           <span class="upper_data" id="voidgrubs_team2"> 0 </span>
           <span class="upper_data" id="towers_team2"> 0 </span>
           <span class="upper_data" id="gold_team2"> 0 </span>
-        </div>
+        </section>
       </div>
-    </div>
 
-  </div>
+      <div class="timer" id="right-timer">
+        <figure class="img-timer" id="top-right-img">
+          <img src="images/LLD_drake-timer.png" alt="">
+          <figcaption id="top-right-timer"> 00:00 </figcaption>
+        </figure>
+      </div>
+    </header>  
+    
+    <main class="mid">
+      <!--? Objective kill announcer -->
+      
+    </main>  
+    
+    <footer class="bottom">
+      <section class="scoreboard">
+        <section class="team" id="team1">
+        </section>  
+    
+        <section class="team" id="team2">
+        </section>  
+      </section>  
 
+    </footer>  
+  </section>
+ 
+  <img class="fullscreen-img" id="fb-announcer" src="images/LLD_fb-announcer.png" style="visibility: hidden;">
+  <img class="fullscreen-img" id="drake-announcer" src="images/LLD_drake-announcer.png" style="visibility: hidden;">
+  <img class="fullscreen-img" id="baron-announcer" src="images/LLD_baron-announcer.png" style="visibility: hidden;">
+  
   <script type="module" src="script.js"></script>
   <script type="module" src="announcer/script.js"></script>
   <script type="module" src="timers/script.js"></script>
   <script type="module" src="scoreboard/script.js"></script>
   <script type="module" src="upper-scoreboard/script.js"></script>
 </body>
-
 </html>

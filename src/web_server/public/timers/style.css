@@ -1,50 +1,47 @@
-/* Style and position the left div in the top-left corner */
-#top-left-timer {
-  position: absolute; /* Absolute positioning */
-  top: 0; /* Align to the top */
-  left: 4%; /* Align to the left */
-  color: white; /* White text color */
+.timer {
+  display: flex;
+  flex-direction: column;
+}
+
+#left-timer {
+  flex: 1.45;
+}
+
+#right-timer {
+  flex: 1.3;
+  align-items: flex-end;
+}
+
+.timer figure {
+  position: relative;
+
+  width: 30%;
+
+  margin: 0;
+  padding: 0;
+
+  display: flex;
+  flex-direction: column;
+}
+
+.timer img {
+  width: 100%;
+  height: 100%;
+}
+
+.timer figcaption {
+  position: absolute;
+  top: 30%;
+
+  color: white;
+
   z-index: 2;
 }
 
-#top-left-down-timer {
-  position: absolute; /* Absolute positioning */
-  top: 7%; /* Align to the top */
-  left: 4%; /* Align to the left */
-  color: white; /* White text color */
-  z-index: 2;
+#left-timer figcaption {
+  left: 55%;
 }
 
-/* Style and position the right div in the top-right corner */
-#top-right-timer {
-  position: absolute; /* Absolute positioning */
-  top: 0; /* Align to the top */
-  right: 85px;
-  color: white; /* White text color */
-  z-index: 2;
-}
-
-.img-timer {
-  position: absolute;
-  width: 7%;
-  height: 7%;
-}
-
-#top-right-img {
-  position: absolute;
-  top: 0;
-  right: 100px;
-  transform: translateX(66.5%);
-}
-
-#top-left-img {
-  position: absolute;
-  top: 0;
-  left: 0;
-}
-
-#top-left-down-img {
-  position: absolute;
-  top: 7%;
-  left: 0;
+#right-timer figcaption {
+  right: 55%;
 }

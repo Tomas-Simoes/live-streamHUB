@@ -48,41 +48,42 @@ class GameDataProcessor:
         if not self.GET_OWDATA:
             return
 
-        asyncio.create_task(self.getScreenPrediction())
-        original_json = json_data
+        asyncio.create_task(self.getScreenPrediction(json_data["latency_data"]))
 
         for key in json_data.keys():
+            if key == "latency_data":
+                continue
+
             save_dir = self.DEFAULT_DIR
             append_to_file = True
 
-            json_data = original_json
-            json_data = json_data[key]
+            received_data = json_data[key]
 
             try:
                 match key:
                     case "match_clock":
                         save_dir = self.OW_CLOCK_DIR
-                        primary_key = next(iter(json_data))
+                        primary_key = next(iter(received_data))
 
-                        event_type = json_data.get(primary_key, {})[
-                            0].get("name")
-                        event_data = json_data.get(primary_key, {})[
+                        clock_data = received_data.get(primary_key, {})[
                             0].get("data")
 
-                        json_data = {
-                            'data': event_data
+                        json_to_send = {
+                            'data': clock_data,
+                            'latency_data': json_data["latency_data"]
                         }
-                        asyncio.create_task(self.wss.send_data(
-                            json_data, 'webclient', 'timer'))
 
+                        asyncio.create_task(self.wss.send_data(
+                            json_to_send, 'webclient', 'timer'))
                     case "all_players":
                         save_dir = self.OW_PLAYERS_DIR
-                        print(json_data["all_players"])
-                        players_data = json.loads(json_data["all_players"])
+
+                        if 'all_players' not in received_data:
+                            continue
 
                         players_filtered_data = []
                         player_index = 0
-                        for player in players_data:
+                        for player in json.loads(received_data["all_players"]):
                             players_filtered_data.append({
                                 "champion": player["championName"],
                                 "raw_champion": player['rawChampionName'],
@@ -100,9 +101,8 @@ class GameDataProcessor:
 
                             player_index += 1
 
-                        isPlayerDataEmpty = len(self.CURR_PLAYER_DATA) == 0
-
                         # TODO Remove this line for only update the diference between the last scoreboard
+                        isPlayerDataEmpty = len(self.CURR_PLAYER_DATA) == 0
                         isPlayerDataEmpty = True
 
                         if self.CURR_PLAYER_DATA == players_filtered_data and not isPlayerDataEmpty:
@@ -111,14 +111,16 @@ class GameDataProcessor:
                             diff = DeepDiff(self.CURR_PLAYER_DATA,
                                             players_filtered_data)
 
-                            asyncio.create_task(self.wss.send_data(
-                                players_filtered_data if isPlayerDataEmpty else diff, "webclient", "scoreboard"))
+                            json_to_send = {
+                                "data": players_filtered_data,
+                                "latency_data": json_data["latency_data"]
+                            }
 
-                            # if sent_data:
-                            #    self.CURR_PLAYER_DATA = players_filtered_data
+                            asyncio.create_task(self.wss.send_data(
+                                json_to_send if isPlayerDataEmpty else diff, "webclient", "scoreboard"))
 
                     case "chat":
-                        for chat_json in json_data:
+                        for chat_json in received_data:
                             chat_event = chat_json['events'][0]['data'].lower()
 
                             if ('stolen' in chat_event or 'slain' in chat_event):
@@ -140,8 +142,14 @@ class GameDataProcessor:
 
                                         logger.debug(
                                             f"{chat_json['events'][0]['data']} has been slain.")
+                                        
+                                        json_to_send = {
+                                            "data": chat_json,
+                                            "latency_data": json_data["latency_data"]
+                                        }
+
                                         asyncio.create_task(self.wss.send_data(
-                                            chat_json, 'webclient', 'announcer'))
+                                            json_to_send, 'webclient', 'announcer'))
 
                 if self.SAVE_TO_FILE:
                     self.save_to_file(json_data, save_dir, append_to_file)
@@ -166,13 +174,18 @@ class GameDataProcessor:
             f"Data received from Live Client API. {"Saved to file" if self.SAVE_TO_FILE else ""}")
 
     # Data prediction for some specific data that is extracted by a text recognition system
-    async def getScreenPrediction(self):
+    async def getScreenPrediction(self, latency_data):
         start_prediction_time = time.perf_counter()
         data_prediction = self.screen_recognition.getDataPrediction()
         end_time = time.perf_counter()
 
         data_prediction['time'] = end_time - start_prediction_time
-        asyncio.create_task(self.wss.send_data(data_prediction, "webclient", "upper-scoreboard")
+
+        json_to_send = {
+            "data": data_prediction,
+            "latency_data": latency_data 
+        }
+        asyncio.create_task(self.wss.send_data(json_to_send, "webclient", "upper-scoreboard")
                             )
     # Gets data from Live Client API. Supports multiple endpoints fetching at same time
 

@@ -3,7 +3,7 @@
   "type": "WebApp",
   "meta": {
     "name": "League Live Desk",
-    "author": "Overwolf",
+    "author": "Simoes",
     "version": "3.0.3",
     "minimum-overwolf-version": "0.160.0",
     "description": "Overwolf app to retrive data from League of Legends and integrate it with OBS",
@@ -105,7 +105,7 @@
       }
     ],
     "developer": {
-      "enable_auto_refresh": true,
+      "enable_auto_refresh": false,
       "reload_delay": 1000,
       "filter": "*.*"
     },

@@ -47,7 +47,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   left_timer = document.getElementById("top-left-timer")
   left_bottom_timer = document.getElementById("top-left-down-timer")
-
   right_timer = document.getElementById("top-right-timer")
   
   left_timer = {
@@ -78,9 +77,25 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
   timerWebsocket.onmessage = (event) => {
-    timerWebsocket.send("Message received from Timer Webclient: " + event.data)
+    let receivedData = JSON.parse(event.data);
+
+    if(receivedData.latency_data) {
+      let latency_data = receivedData.latency_data
+      
+      latency_data.webclient_timestamp = Date.now() / 1000
+
+      let overwolfToWebSocket = latency_data.websocket_timestamp - latency_data.overwolf_timestamp;
+      let webSocketToDataProcessor = latency_data.dataprocessor_timestamp - latency_data.websocket_timestamp;
+      let dataProcessorToWebClient = latency_data.webclient_timestamp - latency_data.dataprocessor_timestamp;
+      let totalLatency = latency_data.webclient_timestamp - latency_data.overwolf_timestamp;
+
+       // Send the latency information back through the WebSocket
+       timerWebsocket.send(`Timer Webclient received: OW-WS in ${overwolfToWebSocket.toFixed(3)}s -> WS-DP in ${webSocketToDataProcessor.toFixed(3)}s -> DP-WC in ${dataProcessorToWebClient.toFixed(3)}s (total: ${totalLatency.toFixed(3)}s)`);
+    }
     
-    updateTimers(JSON.parse(event.data).data)
+    if(receivedData.data) {
+      updateTimers(receivedData.data)
+    }
   };
 
   announcerWebsocket.onopen = () => {
@@ -89,9 +104,25 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
   announcerWebsocket.onmessage = (event) => {
-    announcerWebsocket.send("Message received from Timer Webclient: " + event.data)
+    let receivedData = JSON.parse(event.data);
+
+    if(receivedData.latency_data) {
+      let latency_data = receivedData.latency_data
+      
+      latency_data.webclient_timestamp = Date.now() / 1000
+
+      let overwolfToWebSocket = latency_data.websocket_timestamp - latency_data.overwolf_timestamp;
+      let webSocketToDataProcessor = latency_data.dataprocessor_timestamp - latency_data.websocket_timestamp;
+      let dataProcessorToWebClient = latency_data.webclient_timestamp - latency_data.dataprocessor_timestamp;
+      let totalLatency = latency_data.webclient_timestamp - latency_data.overwolf_timestamp;
+
+       // Send the latency information back through the WebSocket
+       announcerWebsocket.send(`Timer Webclient received in OW-WS${overwolfToWebSocket} / WS-DP${webSocketToDataProcessor} / DP-WC${dataProcessorToWebClient} (total: ${totalLatency})`);
+    }
     
-    handleAnnouncer(JSON.parse(event.data).data)
+    if(receivedData.data) {
+      handleAnnouncer(receivedData.data)
+    }
   };
 })
 

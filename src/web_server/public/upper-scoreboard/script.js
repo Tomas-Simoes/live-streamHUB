@@ -13,9 +13,25 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
   upperWebsocket.onmessage = (event) => {
-    upperWebsocket.send("Message received from Upper Scoreboard Webclient: " + event.data)
+    let receivedData = JSON.parse(event.data);
+
+    if(receivedData.latency_data) {
+      let latency_data = receivedData.latency_data
+      
+      latency_data.webclient_timestamp = Date.now() / 1000
+
+      let overwolfToWebSocket = latency_data.websocket_timestamp - latency_data.overwolf_timestamp;
+      let webSocketToDataProcessor = latency_data.dataprocessor_timestamp - latency_data.websocket_timestamp;
+      let dataProcessorToWebClient = latency_data.webclient_timestamp - latency_data.dataprocessor_timestamp;
+      let totalLatency = latency_data.webclient_timestamp - latency_data.overwolf_timestamp;
+
+       // Send the latency information back through the WebSocket
+       upperWebsocket.send(`Announcer Webclient received: OW-WS in ${overwolfToWebSocket.toFixed(3)}s -> WS-DP in ${webSocketToDataProcessor.toFixed(3)}s -> DP-WC in ${dataProcessorToWebClient.toFixed(3)}s (total: ${totalLatency.toFixed(3)}s)`);
+    }
     
-    updateUpperScoreboard(JSON.parse(event.data))
+    if(receivedData.data) {
+      updateUpperScoreboard(receivedData.data)
+    }
   };
 })
 

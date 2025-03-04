@@ -7,16 +7,33 @@ let players_elements = {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-  const websocket = new WebSocket("ws://localhost:8080/webclient/scoreboard");
+  const scoreWebsocket = new WebSocket("ws://localhost:8080/webclient/scoreboard");
 
-  websocket.onopen = () => {
+  scoreWebsocket.onopen = () => {
     console.log("Scoreboard Webclient connected at \"ws://localhost:8080/webclient/scoreboard\"");
-    websocket.send("Scoreboard Webclient connected connected at \"ws://localhost:8080/webclient/scoreboard\"")
+    scoreWebsocket.send("Scoreboard Webclient connected connected at \"ws://localhost:8080/webclient/scoreboard\"")
   };
 
-  websocket.onmessage = (event) => {
-    websocket.send("Player data received from Scoreboard Webclient: ") 
-    updateScoreboard(JSON.parse(event.data))
+  scoreWebsocket.onmessage = (event) => {
+    let receivedData = JSON.parse(event.data);
+
+    if(receivedData.latency_data) {
+      let latency_data = receivedData.latency_data
+      
+      latency_data.webclient_timestamp = Date.now() / 1000
+
+      let overwolfToWebSocket = latency_data.websocket_timestamp - latency_data.overwolf_timestamp;
+      let webSocketToDataProcessor = latency_data.dataprocessor_timestamp - latency_data.websocket_timestamp;
+      let dataProcessorToWebClient = latency_data.webclient_timestamp - latency_data.dataprocessor_timestamp;
+      let totalLatency = latency_data.webclient_timestamp - latency_data.overwolf_timestamp;
+
+       // Send the latency information back through the WebSocket
+       scoreWebsocket.send(`Scoreboard Webclient received: OW-WS in ${overwolfToWebSocket.toFixed(3)}s -> WS-DP in ${webSocketToDataProcessor.toFixed(3)}s -> DP-WC in ${dataProcessorToWebClient.toFixed(3)}s (total: ${totalLatency.toFixed(3)}s)`);
+    }
+    
+    if(receivedData.data) {
+      updateScoreboard(receivedData.data)
+    }
   };
 
   let team1_el = document.querySelector("#team1")
@@ -40,7 +57,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
 function updateScoreboard(scoreboardData) {
-
   if (scoreboardData instanceof Array){
     scoreboardData.forEach((player, player_index) => {
       let current_team = player_index < 5 ? "team1" : "team2"

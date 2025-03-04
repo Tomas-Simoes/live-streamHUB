@@ -1,28 +1,36 @@
 .scoreboard {
   position: absolute;
-  bottom: 0;
+  
   transform: translateX(-50%);
-  left: 965px;
-  width: 730px;
-  height: 200px;
-  max-width: 1000px;
-  max-height: 200px;
-  background: rgba(40, 40, 40, 0.9);
+  left: 50.5%;
+  bottom: 0%;
+  
+  width: 38%;
+  height: 75%;
+  
   display: flex;
-  justify-content: space-between;
+  flex-direction: row;
+  
+  background: rgba(40, 40, 40, 0.9);
   border-radius: 10px 10px 0 0;
   z-index: -1;
 }
 .team {
   display: flex;
   flex-direction: column;
-  width: 60%;
+
+  width: 50%;
+  height: 100%;
 }
+
 .player {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 3px 35px;
+  
+  height: 100%;
+  padding: 0% 10%;
+
   border-bottom: 1px solid rgba(255, 255, 255, 0.2);
 }
 

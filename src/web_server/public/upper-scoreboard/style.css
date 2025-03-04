@@ -1,27 +1,36 @@
-.upper_scoreboard {
-  position: absolute;
-  left: 400px;
-  top: 15px;
+.upper-scoreboard {
+  flex: 5;
 
-  width: 1160px;
-  z-index: 10;
-}
-
-#data_wrapper {
   display: flex;
-  gap: 250px;
+  flex-direction: row;
+
+  height: 40%;
 }
 
-.upper_data {
+.upper-scoreboard > section { 
+  flex: 1;
+  
+  display: flex;
+  flex-direction: row;
+  
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+.upper-team-stats > span {
+  flex: 1;
+
   color: white;
-  margin-right: 30px;
+  z-index: 2;
 }
 
-.score {
-  display: flex;
-  gap: 60px;
+.score > span {
+  flex: 1;
+
+  color: darkblue;
 }
 
-.upper_scoreboard {
-  color: cornflowerblue;
-}
+
+
+

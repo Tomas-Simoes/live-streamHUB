@@ -1,14 +1,25 @@
 import asyncio
 import json
 import websockets as ws
+import time
 from websockets.exceptions import ConnectionClosed
 from websockets.server import ServerConnection
 from util.Logging import logger
 
 
+
 class WebsocketServer:
     _instance = None
 
+    # Saves current LATENCY_DATA while game data is being processed
+    LATENCY_DATA = {
+        "overwolf_timestamp": 0,
+        "websocket_timestamp": 0,
+        "dataprocessor_timestamp": 0,
+        "webclient_timestamp": 0
+    }
+    
+    # Saves Websocket Clients
     clients = {
         'webserver': [],
         'webclient': {
@@ -36,6 +47,15 @@ class WebsocketServer:
     def set_GameDataProcessor(self, game_data_processor):
         self.game_data_processor = game_data_processor
 
+    '''
+    Websocket Handler
+
+    Handles incoming WebSocket connections, processes the request path to determine
+    the client and optional sub-path, validates the client, registers the connection,
+    and processes incoming messages.
+
+    A path must be of type client/sub_path where sub_path is optional
+    '''
     async def handler(self, websocket: ServerConnection):
         path = websocket.request.path
 
@@ -71,13 +91,14 @@ class WebsocketServer:
                 f"Registered new client at path /{client_name}/{sub_path}:{type(self.clients[client_name][sub_path])}")
 
         self.websocket = websocket
+
         try:
             async for message in websocket:
                 try:
                     data = json.loads(message)
-                    await self.process_message(data)
+                    asyncio.create_task(self.process_message(data))         
                 except json.JSONDecodeError:
-                    logger.message(f"NON-JSON received: {message}")
+                    logger.message(f"{message}")
         except ConnectionClosed:
             pass
         finally:
@@ -87,21 +108,36 @@ class WebsocketServer:
             else:
                 self.clients[client_name][sub_path].remove(websocket)
 
+    """
+    Every time Websocket Handler gets new message create a new concurrent task on process_message.
+
+    If the message target is the 'app' that means it came from Overwolf and needs to be processed. The processed data is  
+    also handled concurrently.
+
+    Else it will send to the different clients.
+    """
     async def process_message(self, message):
-        data = message['data']
+        try:
+            data = message['data']
 
-        match(message['target']):
-            case 'webclient/main':
-                await self.send_data(json.dumps(data), 'webclient', 'main')
-            case "webclient/timer":
-                await self.send_data(json.dumps(data), "webclient", "timer")
-            case "webclient/announcer":
-                await self.send_data(json.dumps(data), "webclient", "announcer")
-            case "overwolf":
-                await self.send_data(json.dumps(data), "overwolf")
-            case "app":
-                await self.game_data_processor.handleOWData(data)
+            match(message['target']):
+                case 'webclient/main':
+                    await self.send_data(json.dumps(data), 'webclient', 'main')
+                case "webclient/timer":
+                    await self.send_data(json.dumps(data), "webclient", "timer")
+                case "webclient/announcer":
+                    await self.send_data(json.dumps(data), "webclient", "announcer")
+                case "overwolf":
+                    await self.send_data(json.dumps(data), "overwolf")
+                case "app":
+                    data["latency_data"]["websocket_timestamp"] = time.time();
+                    asyncio.create_task(self.game_data_processor.handleOWData(data))
+        except Exception as e:
+            logger.error(f"An unexpected error occurred: {e}")
 
+    """
+        Finds the target sockets and for each target sends the respective message
+    """
     async def send_data(self, data, target, subtarget=""):
         target_sockets = self.get_target_sockets(target, subtarget)
 
@@ -109,10 +145,13 @@ class WebsocketServer:
             return False
 
         for target_socket in target_sockets:
+            data["latency_data"]["dataprocessor_timestamp"] = time.time()
+
             if not isinstance(data, (str, bytes)):
                 data = json.dumps(data)
 
             logger.info(f"Sending data to client {target}/{subtarget}.")
+
             await target_socket.send(data)
 
         return True

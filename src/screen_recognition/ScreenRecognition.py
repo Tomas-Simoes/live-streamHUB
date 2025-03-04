@@ -74,9 +74,6 @@ class ScreenRecognition:
         league_resolution = Resolution(
             monitor_resolution.x - league_pos["left"] * 2, monitor_resolution.y - league_pos["top"] * 2)
 
-        print(f"Monitor resolution: {monitor_resolution}")
-        print(f"League resolution: {league_resolution}")
-
         for i in range(2):
             for x in ["towers", "gold"] if i == 0 else ["gold", "towers"]:
                 ref_offsets = REF_OFFSETS[f"team-{i}"][x]
@@ -191,8 +188,6 @@ def test_models():
                     model_results[filename].setdefault(f"psm={psm_mode}", {})
                     try:
                         model_results[filename][f"psm={psm_mode}"].setdefault(f"oem={oem_mode}", {})
-
-                        print(f"Predicting with model psm={psm_mode} and oem={oem_mode}")
 
                         configs = f"""
                         --psm {psm_mode} --oem {oem_mode} -c
