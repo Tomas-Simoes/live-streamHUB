@@ -45,28 +45,28 @@ document.addEventListener("DOMContentLoaded", () => {
   const timerWebsocket = new WebSocket("ws://localhost:8080/webclient/timer");
   const announcerWebsocket = new WebSocket("ws://localhost:8080/webclient/announcer")
 
-  left_timer = document.getElementById("top-left-timer")
-  left_bottom_timer = document.getElementById("top-left-down-timer")
-  right_timer = document.getElementById("top-right-timer")
+  left_fig = document.getElementById("left-fig")
+  left_bottom_fig = document.getElementById("left-down-fig")
+  right_fig = document.getElementById("right-fig")
   
   left_timer = {
-    'text': document.getElementById("top-left-timer"),
-    'img': document.getElementById("top-left-img"),
+    'text': left_fig.querySelector("figcaption"),
+    'img': left_fig.querySelector("img"),
     'changeVisibility': (visibility) => changeElementVisibility(left_timer, visibility)
   }
 
   left_bottom_timer = {
-    'text': document.getElementById("top-left-down-timer"),
-    'img': document.getElementById("top-left-down-img"),
+    'text': left_bottom_fig.querySelector("figcaption"),
+    'img': left_bottom_fig.querySelector("img"),
     'changeVisibility': (visibility) => changeElementVisibility(left_bottom_timer, visibility)
   }
-
+  
   right_timer = {
-    'text': document.getElementById("top-right-timer"),
-    'img': document.getElementById("top-right-img"),
+    'text': right_fig.querySelector("figcaption"),
+    'img': right_fig.querySelector("img"),
     'changeVisibility': (visibility) => changeElementVisibility(right_timer, visibility)
   }
-
+  
   left_timer.changeVisibility('hidden')
   left_bottom_timer.changeVisibility('hidden')
   right_timer.changeVisibility('hidden')
