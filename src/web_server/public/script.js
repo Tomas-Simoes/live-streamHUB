@@ -17,14 +17,6 @@ document.addEventListener("DOMContentLoaded", () => {
     websocket.send("Message received from client.")
   };
 
-  websocket.onerror = (error) => {
-    console.error("WebSocket error:", error);
-  };
-  
-  websocket.onclose = () => {
-    console.log("WebSocket connection closed.");
-  };
-  
   const team1 = document.getElementById("team1");
   const team2 = document.getElementById("team2");
   

@@ -1,4 +1,4 @@
-import { SPAWN_INFO } from "/timers/script.js";
+import { SPAWN_INFO } from "../timers/script.js";
 let team1_elements, team2_elements
 
 document.addEventListener("DOMContentLoaded", () => {
