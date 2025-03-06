@@ -30,7 +30,9 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     
     if(receivedData.data) {
-      updateAnnouncer(receivedData.data)
+      receivedData.data.events.forEach(chat_event => {
+        updateAnnouncer(chat_event.data)
+      });
     }
   };
 })
@@ -44,7 +46,8 @@ function updateAnnouncer(announcerType){
       showAndHide(elderAnnouncer, announcerType)
       break
     default:
-      showAndHide(drakeAnnouncer, announcerType)
+      if (announcerType.includes("drake"))
+        showAndHide(drakeAnnouncer, announcerType)
       break
   }
 }

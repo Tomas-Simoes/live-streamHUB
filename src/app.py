@@ -13,25 +13,17 @@ game_data_processor = GameDataProcessor(screen_recognition)
 
 wss.set_GameDataProcessor(game_data_processor)
 
-
 async def main():
-    wss_task = asyncio.create_task(wss.start_connection())
-
     try:
-        while True:
-            await asyncio.sleep(0.5)
+        await wss.start_connection()
     except KeyboardInterrupt:
         logger.info("Shutting down...")
     finally:
-        wss_task.cancel()
-
-        try:
-            await wss_task
-        except asyncio.CancelledError:
-            logger.info("WebSocket task successfully canceled.")
+        logger.info("WebSocket task successfully stopped.")
 
 if __name__ == "__main__":
     try:
         asyncio.run(main())
     except Exception as e:
         logger.error(f"Unhandled exception: {e}")
+

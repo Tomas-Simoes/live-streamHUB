@@ -1,63 +1,19 @@
-import { IMG_PATH, getWebsocketLatency } from "../util/util.js"
+import { IMG_PATH, const_SPAWN_INFO, getWebsocketLatency, minToSeconds, secondsToMin } from "../util/util.js"
 
-export const SPAWN_INFO = {
-  "drake": {
-    "spawntime": minToSeconds(5),
-    "afterkill": minToSeconds(5),
-    "maxrespawn": 4,
-
-    "was_killed": false,
-    "times_killed": 0,
-  },
-  "herald": {
-    "spawntime": minToSeconds(16),
-    "afterkill": null,
-    "maxrespawn": null,
-
-    "was_killed": false,
-    "times_killed": 0,
-  },
-  "voidgrubs": {
-    "spawntime": minToSeconds(6),
-    "afterkill": minToSeconds(4),
-    "maxrespawn": null,
-
-    "was_killed": false,
-    "times_killed": 0,
-  },
-  "baron": {
-    "spawntime": minToSeconds(25),
-    "afterkill": minToSeconds(6),
-    "maxrespawn": null,
-
-    "was_killed": false,
-    "times_killed": 0,
-  },
-  "atakhan": {
-    "spawntime": minToSeconds(20),
-    "afterkill": null,
-    "maxrespawn": null,
-
-    "was_killed": false,
-    "times_killed": 0,
-  },
-  "elder": {
-    "spawntime": minToSeconds(6),
-    "afterkill": minToSeconds(6),
-    "maxrespawn": null,
-
-    "was_killed": false,
-    "times_killed": 0,
-  }
-};
+export let SPAWN_INFO = const_SPAWN_INFO 
 
 let left_timer, left_bottom_timer, right_timer, matchSeconds
 let timerWebsocket, announcerWebsocket
-let isTimerVisible = false
 
 document.addEventListener("DOMContentLoaded", () => {
   connectWebsockets()
-
+  
+  let storageSpawnInfo = localStorage.getItem("spawnInfo")
+  if (storageSpawnInfo != null ) {
+    SPAWN_INFO = JSON.parse(storageSpawnInfo)
+    console.log("Updated spawn info from storage.")
+  }
+  
   left_timer = getFigChilds(document.getElementById("left-fig"), left_timer)
   left_bottom_timer = getFigChilds(document.getElementById("left-down-fig"), left_bottom_timer)  
   right_timer = getFigChilds(document.getElementById("right-fig"), right_timer)
@@ -66,7 +22,10 @@ document.addEventListener("DOMContentLoaded", () => {
   left_bottom_timer.changeVisibility('hidden')
   right_timer.changeVisibility('hidden')
 
-  updateTimers(60)
+})
+
+window.addEventListener("beforeunload", function() {
+  localStorage.setItem("spawnInfo", JSON.stringify(SPAWN_INFO))
 })
 
 function getFigChilds(fig_el, bundled_el) {
@@ -142,7 +101,8 @@ function updateTimers(newMatchSeconds){
 }
 
 function handleAnnouncer(announcerType) {
-  switch (announcerType) {
+  console.log(announcerType)
+  switch (announcerType.toLowerCase()) {
     case 'baron':
       BARON_SPAWNTIME = Number(matchSeconds) + Number(BARON_AFTERKILL)
       break;
@@ -159,26 +119,12 @@ function handleAnnouncer(announcerType) {
     default:
       if (announcerType.includes('elder')) {
         ELDER_SPAWNTIME = Number(matchSeconds) + Number(ELDER_AFTERKILL)
-      } else {
+      } else if (announcerType.includes('drake')) {
         SPAWN_INFO['drake']['times_killed'] += 1
         DRAKE_SPAWNTIME = Number(matchSeconds) + Number(DRAKE_AFTERKILL)
       }
       break;
     }
-    
-    sessionStorage.setItem('spawnInfo', SPAWN_INFO);
-}
-
-function minToSeconds(minutes, seconds = 0){
-  return (minutes * 60) + seconds
-}
-
-function secondsToMin(seconds) {
-  const minutes = Math.floor(seconds / 60);
-  const remainingSeconds = seconds % 60;
-  
-  // Format as "mm:ss" (e.g., "05:09")
-  return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
 }
 
 function connectWebsockets() {
@@ -193,6 +139,13 @@ function connectWebsockets() {
   timerWebsocket.onmessage = (event) => {
     let receivedData = JSON.parse(event.data);
     
+    if(receivedData.firstTimeToken) {
+      console.log("First time connection, erasing data.")
+      
+      localStorage.clear()
+      SPAWN_INFO = const_SPAWN_INFO
+    }
+    
     if(receivedData.latency_data) {
       // Send the latency information back through the WebSocket
       announcerWebsocket.send(`Timer Webclient ${getWebsocketLatency(receivedData.latency_data)}`);
@@ -202,7 +155,7 @@ function connectWebsockets() {
       updateTimers(receivedData.data)
     }
   };
-  
+
   announcerWebsocket.onopen = () => {
     console.log("Timer Webclient connected at \"ws://localhost:8080/webclient/announcer\"");
     announcerWebsocket.send("Timer Webclient connected at \"ws://localhost:8080/webclient/announcer\"")
@@ -216,7 +169,9 @@ function connectWebsockets() {
     }
     
     if(receivedData.data) {
-      handleAnnouncer(receivedData.data)
+      receivedData.data.events.forEach(chat_event => {
+        handleAnnouncer(chat_event.data)
+      });
     }
   };
 }

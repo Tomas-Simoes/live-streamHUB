@@ -1,40 +1,19 @@
+import { getWebsocketLatency } from "../util/util.js"
+
 //TODO update only the diff between previous and current scoreboard
-
-
 let players_elements = {
   'team1': {},
   'team2': {}
 }
 
+export let KILLS_DATA = {
+  "team1": 0,
+  "team2": 0
+}
+
+let scoreWebsocket 
 document.addEventListener("DOMContentLoaded", () => {
-  const scoreWebsocket = new WebSocket("ws://localhost:8080/webclient/scoreboard");
-
-  scoreWebsocket.onopen = () => {
-    console.log("Scoreboard Webclient connected at \"ws://localhost:8080/webclient/scoreboard\"");
-    scoreWebsocket.send("Scoreboard Webclient connected connected at \"ws://localhost:8080/webclient/scoreboard\"")
-  };
-
-  scoreWebsocket.onmessage = (event) => {
-    let receivedData = JSON.parse(event.data);
-
-    if(receivedData.latency_data) {
-      let latency_data = receivedData.latency_data
-      
-      latency_data.webclient_timestamp = Date.now() / 1000
-
-      let overwolfToWebSocket = latency_data.websocket_timestamp - latency_data.overwolf_timestamp;
-      let webSocketToDataProcessor = latency_data.dataprocessor_timestamp - latency_data.websocket_timestamp;
-      let dataProcessorToWebClient = latency_data.webclient_timestamp - latency_data.dataprocessor_timestamp;
-      let totalLatency = latency_data.webclient_timestamp - latency_data.overwolf_timestamp;
-
-       // Send the latency information back through the WebSocket
-       scoreWebsocket.send(`Scoreboard Webclient received: OW-WS in ${overwolfToWebSocket.toFixed(3)}s -> WS-DP in ${webSocketToDataProcessor.toFixed(3)}s -> DP-WC in ${dataProcessorToWebClient.toFixed(3)}s (total: ${totalLatency.toFixed(3)}s)`);
-    }
-    
-    if(receivedData.data) {
-      updateScoreboard(receivedData.data)
-    }
-  };
+  connectWebsocket()
 
   let team1_el = document.querySelector("#team1")
   let team2_el = document.querySelector("#team2")
@@ -55,8 +34,10 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   })
 
-
 function updateScoreboard(scoreboardData) {
+  let team1_kills = 0
+  let team2_kills = 0
+
   if (scoreboardData instanceof Array){
     scoreboardData.forEach((player, player_index) => {
       let current_team = player_index < 5 ? "team1" : "team2"
@@ -74,6 +55,35 @@ function updateScoreboard(scoreboardData) {
       current_player_elements['champion-img'].src = `/images/champions/${player.champion}.png`
       current_player_elements['stats'][0].innerText = `${player.scores.kills}/${player.scores.deaths}/${player.scores.assists}`
       current_player_elements['stats'][1].innerText = `${player.scores.creepScore}`
+      
+      if (current_team == 'team1') team1_kills += player.scores.kills
+      else team2_kills += player.scores.kills
     })
+
+
+    if (team1_kills > KILLS_DATA.team1) KILLS_DATA.team1 = team1_kills
+    else if(team2_kills > KILLS_DATA.team2) KILLS_DATA.team2 = team2_kills
   }
+}
+
+function connectWebsocket() {
+  scoreWebsocket = new WebSocket("ws://localhost:8080/webclient/scoreboard");
+
+  scoreWebsocket.onopen = () => {
+    console.log("Scoreboard Webclient connected at \"ws://localhost:8080/webclient/scoreboard\"");
+    scoreWebsocket.send("Scoreboard Webclient connected connected at \"ws://localhost:8080/webclient/scoreboard\"")
+  };
+
+  scoreWebsocket.onmessage = (event) => {
+    let receivedData = JSON.parse(event.data);
+
+    if(receivedData.latency_data) {
+       // Send the latency information back through the WebSocket
+       scoreWebsocket.send(`Scoreboard Webclient ${getWebsocketLatency(receivedData.latency_data)})`);
+    }
+    
+    if(receivedData.data) {
+      updateScoreboard(receivedData.data)
+    }
+  };
 }

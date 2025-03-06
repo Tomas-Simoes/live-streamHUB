@@ -10,6 +10,7 @@ from util.Logging import logger
 
 class WebsocketServer:
     _instance = None
+    first_connection = True
 
     # Saves current LATENCY_DATA while game data is being processed
     LATENCY_DATA = {
@@ -90,6 +91,7 @@ class WebsocketServer:
             logger.info(
                 f"Registered new client at path /{client_name}/{sub_path}:{type(self.clients[client_name][sub_path])}")
 
+    
         self.websocket = websocket
 
         try:
@@ -99,6 +101,12 @@ class WebsocketServer:
                     asyncio.create_task(self.process_message(data))         
                 except json.JSONDecodeError:
                     logger.message(f"{message}")
+
+                    if "Timer Webclient connected" in message:
+                        if self.first_connection:
+                            self.first_connection = False
+                            await websocket.send(json.dumps({"firstTimeToken": True}))
+
         except ConnectionClosed:
             pass
         finally:
@@ -120,18 +128,21 @@ class WebsocketServer:
         try:
             data = message['data']
 
-            match(message['target']):
-                case 'webclient/main':
-                    await self.send_data(json.dumps(data), 'webclient', 'main')
-                case "webclient/timer":
-                    await self.send_data(json.dumps(data), "webclient", "timer")
-                case "webclient/announcer":
-                    await self.send_data(json.dumps(data), "webclient", "announcer")
-                case "overwolf":
-                    await self.send_data(json.dumps(data), "overwolf")
-                case "app":
-                    data["latency_data"]["websocket_timestamp"] = time.time();
-                    asyncio.create_task(self.game_data_processor.handleOWData(data))
+            async def handle_message(target, data):
+                match(target):
+                    case 'webclient/main':
+                        await self.send_data(json.dumps(data), 'webclient', 'main')
+                    case "webclient/timer":
+                        await self.send_data(json.dumps(data), "webclient", "timer")
+                    case "webclient/announcer":
+                        await self.send_data(json.dumps(data), "webclient", "announcer")
+                    case "overwolf":
+                        await self.send_data(json.dumps(data), "overwolf")
+                    case "app":
+                        data["latency_data"]["websocket_timestamp"] = time.time();
+                        asyncio.create_task(self.game_data_processor.handleOWData(data))
+            
+            asyncio.create_task(handle_message(message['target'], data))
         except Exception as e:
             logger.error(f"An unexpected error occurred: {e}")
 
@@ -145,6 +156,7 @@ class WebsocketServer:
             return False
 
         for target_socket in target_sockets:
+            print(data)
             data["latency_data"]["dataprocessor_timestamp"] = time.time()
 
             if not isinstance(data, (str, bytes)):

@@ -1,11 +1,60 @@
 import { SPAWN_INFO } from "../timers/script.js";
+import { KILLS_DATA } from "../scoreboard/script.js";
+
 let team1_elements, team2_elements
+let upperWebsocket
 
 document.addEventListener("DOMContentLoaded", () => {
-  team1_elements = document.querySelectorAll("#upper_team1 > *")
-  team2_elements = document.querySelectorAll("#upper_team2 > *")
+  connectWebsockets()
+  
+  team1_elements = Array.from(document.querySelectorAll("#upper_team1 > *"))
+  team2_elements = Array.from(document.querySelectorAll("#upper_team2 > *"))
+  
+  team1_elements.push(document.getElementById("score_team1"))
+  team2_elements.push(document.getElementById("score_team2"))
+})
 
-  const upperWebsocket = new WebSocket("ws://localhost:8080/webclient/upper-scoreboard");
+function updateUpperScoreboard(json_data) {
+  for (let i = 1; i <= 2; i++) {
+    let team_elements = i == 1 ? team1_elements : team2_elements
+
+    for (let z = 0; z < team_elements.length; z++) {
+      const element = team_elements[z];
+      let el_id = (element.id).replace(`_team${i}`, '')
+      
+      switch (el_id) {
+        case 'towers':
+        case 'gold':
+          let new_data = (json_data[`team-${i}`][el_id]).toLowerCase()
+          let old_data = element.textContent
+
+          if (!new_data.includes('k') || !new_data.includes('.')) {
+            continue 
+          }
+
+          let num_new_data = parseInt(new_data.replace(".", "").replace("k", ""))
+          let num_old_data = parseInt(old_data.replace(".", "").replace("k", "")) 
+          
+          if (num_new_data <= num_old_data - 10 && num_new_data >= num_old_data + 10) {
+            console.log("Discarted new data: " + new_data)
+            continue
+          }
+
+          element.textContent = new_data
+          break;
+        case "score":
+          element.textContent = KILLS_DATA[`team${i}`]
+          break;
+        default:
+          element.textContent = SPAWN_INFO[el_id]['times_killed']
+          break;
+      }
+    }
+  }
+}
+
+function connectWebsockets() {
+  upperWebsocket = new WebSocket("ws://localhost:8080/webclient/upper-scoreboard");
 
   upperWebsocket.onopen = () => {
     console.log("Upper Scoreboard Webclient connected at \"ws://localhost:8080/webclient/upper-scoreboard\"");
@@ -33,27 +82,4 @@ document.addEventListener("DOMContentLoaded", () => {
       updateUpperScoreboard(receivedData.data)
     }
   };
-})
-
-function updateUpperScoreboard(json_data) {
-  for (let i = 1; i <= 2; i++) {
-    let team_elements = i == 1 ? team1_elements : team2_elements
-    
-    team_elements.forEach(element => {
-      console.log(element)
-      let el_id = (element.id).replace(`_team${i}`, '')
-
-      switch (el_id) {
-        case 'towers':
-        case 'gold':
-          element.textContent = json_data[`team-${i}`][el_id]
-          break;
-        default:
-          console.log(el_id)
-          console.log(SPAWN_INFO)
-          element.textContent = SPAWN_INFO[el_id]['times_killed']
-          break;
-      }
-    });
-  }
 }

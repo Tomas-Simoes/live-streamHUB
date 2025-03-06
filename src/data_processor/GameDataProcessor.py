@@ -187,8 +187,8 @@ class GameDataProcessor:
         }
         asyncio.create_task(self.wss.send_data(json_to_send, "webclient", "upper-scoreboard")
                             )
-    # Gets data from Live Client API. Supports multiple endpoints fetching at same time
 
+    # Gets data from Live Client API. Supports multiple endpoints fetching at same time
     async def requestEndpoints(self, endpoints):
         if not self.GET_LCAPIDATA:
             return
