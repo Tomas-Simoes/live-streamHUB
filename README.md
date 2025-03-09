@@ -24,20 +24,6 @@ npm -v && node -v
 v18.19.1
 ```
 
-## Table of Contents
-- [League Live Desk](#league-live-desk)
-  - [Overview](#overview)
-  - [Features](#features)
-  - [Prerequisites](#prerequisites)
-  - [Getting Started](#getting-started)
-    - [Installation](#installation)
-  - [Usage](#usage)
-    - [Starting the application](#starting-the-application)
-    - [Building the application](#building-the-application)
-  - [Built With](#built-with)
-  - [Authors](#authors)
-  - [License](#license)
-
 ## Getting Started
 These instructions will help you set up the project on your local machine for development and testing.
 
