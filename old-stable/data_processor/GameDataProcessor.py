@@ -18,7 +18,7 @@ class Endpoint(Enum):
 
 
 class GameDataProcessor:
-    DATA_DIR = "src/data_processor/data/"
+    DATA_DIR = "old-stable/data_processor/data/"
     OW_CLOCK_DIR = DATA_DIR + "OW_clock.json"
     OW_EVENTS_DIR = DATA_DIR + "OW_events.json"
     OW_CHAT_DIR = DATA_DIR + "OW_chat.json"

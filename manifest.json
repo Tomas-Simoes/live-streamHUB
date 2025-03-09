@@ -8,10 +8,10 @@
     "minimum-overwolf-version": "0.160.0",
     "description": "Overwolf app to retrive data from League of Legends and integrate it with OBS",
     "dock_button_title": "League Live Desk",
-    "icon": "src/overwolf_client/dist/icons/IconMouseOver.png",
-    "icon_gray": "src/overwolf_client/dist/icons/IconMouseNormal.png",
-    "launcher_icon": "src/overwolf_client/dist/icons/desktop-icon.ico",
-    "window_icon": "src/overwolf_client/dist/icons/IconMouseOver.png"
+    "icon": "old-stable/overwolf_client/dist/icons/IconMouseOver.png",
+    "icon_gray": "old-stable/overwolf_client/dist/icons/IconMouseNormal.png",
+    "launcher_icon": "old-stable/overwolf_client/dist/icons/desktop-icon.ico",
+    "window_icon": "old-stable/overwolf_client/dist/icons/IconMouseOver.png"
   },
   "permissions": [
     "Hotkeys",
@@ -41,12 +41,12 @@
     "force_browser": "user",
     "windows": {
       "background": {
-        "file": "src/overwolf_client/dist/background.html",
+        "file": "old-stable/overwolf_client/dist/background.html",
         "background_optimization": true,
         "is_background_page": true
       },
       "desktop": {
-        "file": "src/overwolf_client/dist/desktop.html",
+        "file": "old-stable/overwolf_client/dist/desktop.html",
         "desktop_only": true,
         "native_window": true,
         "resizable": true,
@@ -62,7 +62,7 @@
         }
       },
       "in_game": {
-        "file": "src/overwolf_client/dist/in_game.html",
+        "file": "old-stable/overwolf_client/dist/in_game.html",
         "desktop_only": true,
         "native_window": true,
         "focus_game_takeover": "ReleaseOnHidden",
@@ -111,7 +111,7 @@
     },
     "extra-objects": {
       "process-manager-plugin":{
-        "file": "src/overwolf_client/plugins/process_manager.dll",
+        "file": "old-stable/overwolf_client/plugins/process_manager.dll",
         "class": "com.overwolf.com.overwolf.procmgr.ProcessManager"
       }
     }

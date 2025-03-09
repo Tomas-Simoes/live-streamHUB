@@ -1,1 +1,1 @@
-python ./src/screen_recognition/ScreenRecognition.py
+python ./old-stable/screen_recognition/ScreenRecognition.py
