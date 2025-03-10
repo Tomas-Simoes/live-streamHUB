@@ -1,32 +1,29 @@
-const path = require('path')
-const HtmlWebpackPlugin = require('html-webpack-plugin')
+/* eslint-disable @typescript-eslint/no-var-requires */
+const config = require('./webpack.base.config');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+const path = require('path');
 
-module.exports = {
-    entry: './src/renderer.ts',
-    target: 'electron-renderer',
-    mode: 'development',
-    module: {
-        rules: [
-            {
-            test: /\.ts$/,
-            include: path.resolve(__dirname, 'src'),
-            use: 'ts-loader'
-            }
-        ]
-    },
-    resolve: {
-        extensions: ['.tsx', '.ts', '.js']
-    },
-    output: {
-        filename: 'renderer.js',
-        path: path.resolve(__dirname, '.webpack/renderer'),
-        clean: true,
-    },
-    plugins: [
-        new HtmlWebpackPlugin({
-            title: "Overwolf API",
-            template: path.resolve(__dirname, 'src/renderer/index.html'),
-            filename: 'index.html'
-        })
-    ]
+const rendererConfig = { ...config };
+
+rendererConfig.target = 'electron-renderer';
+
+rendererConfig.entry = {
+  'renderer': './src/renderer/renderer.ts',
+  'preload': './src/preload/preload.ts',
+};
+
+rendererConfig.output = { 
+    path: path.join(__dirname, '.webpack/renderer'),
+    filename: '[name].js',
+    clean: true
 }
+
+rendererConfig.plugins.push(new HtmlWebpackPlugin({
+  template: './src/renderer/index.html',
+  filename: path.join(__dirname, '.webpack/renderer/index.html'),
+  chunks: ['renderer'],
+  publicPath: '',
+  inject: false
+}));
+
+module.exports = rendererConfig;

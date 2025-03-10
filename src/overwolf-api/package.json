@@ -2,38 +2,81 @@
   "name": "overwolf-api",
   "version": "1.0.0",
   "description": "Overwolf API",
-  "main": ".webpack/main",
+  "main": ".webpack/main/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "webpack --config ./webpack.config.js",
-    "start": "electron-forge start --app-path=.webpack/main/bundle.js",
-    "package": "electron-forge package",
-    "make": "electron-forge make"
+    "build:renderer": "npx webpack --config ./webpack.renderer.config.js",
+    "build:main": "npx webpack --config ./webpack.main.config.js",
+    "build": "npx webpack --mode=development && npm run build:main && npm run build:renderer",
+    "build:dev": "npx webpack --watch --mode=development",
+    "build:start": "npm run build && ow-electron . ",
+    "start": "npm run build && npm run build:ow-electron && ow-electron .",
+    "build:ow-electron": "ow-electron-builder --c.extraMetadata.name=GameEventsTester --publish=never"
   },
-  "author": "",
+  "overwolf": {
+    "packages": [
+      "gep"
+    ]
+  },
+  "build": {
+    "nodeGypRebuild": false,
+    "appId": "com.overwolf.packageSample",
+    "asar": true,
+    "overwolf": {
+      "disableAdOptimization": false
+    },
+    "productName": "owElectronpackageSample",
+    "directories": {
+      "output": "build"
+    },
+    "files": [
+      ".webpack/**/*",
+      "*.js",
+      "*.html",
+      "*.exe"
+    ],
+    "copyright": "Copyright 2023 Overwolf Ltd.",
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "artifactName": "${productName}-Setup-${version}.${ext}",
+      "publisherName": "Overwolf Ltd",
+      "legalTrademarks": "Copyright 2023 Overwolf Ltd."
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
+    }
+  },
+  "author": "C57",
   "license": "ISC",
   "devDependencies": {
-    "@electron-forge/cli": "^7.7.0",
-    "@electron-forge/maker-deb": "^7.7.0",
-    "@electron-forge/maker-rpm": "^7.7.0",
-    "@electron-forge/maker-squirrel": "^7.7.0",
-    "@electron-forge/maker-zip": "^7.7.0",
-    "@electron-forge/plugin-auto-unpack-natives": "^7.7.0",
-    "@electron-forge/plugin-fuses": "^7.7.0",
-    "@electron-forge/plugin-webpack": "^7.7.0",
+    "electron": "21.1.0",
     "@electron/fuses": "^1.8.0",
-    "@types/electron": "^1.6.12",
-    "@types/node": "^22.13.10",
-    "electron": "^35.0.0",
-    "html-webpack-plugin": "^5.6.3",
-    "ts-loader": "^9.5.2",
-    "typescript": "^5.8.2",
+
+    "@overwolf/ow-electron": "latest",
+    "@overwolf/ow-electron-builder": "latest",
+    "@overwolf/ow-electron-packages-types": "^0.0.13",
+    
     "webpack": "^5.98.0",
     "webpack-cli": "^6.0.1",
-    "webpack-dev-server": "^5.2.0"
+    "webpack-dev-server": "^5.2.0",
+    "wrapper-webpack-plugin": "^2.1.0",
+    "html-webpack-plugin": "^5.6.3",
+    
+    "ts-loader": "^9.5.2",
+    "typescript": "^5.8.2",
+    "typescript-logging": "^2.0.2",
+
+    "@types/electron": "^1.6.12",
+    "@types/node": "^22.13.10"  
   },
   "dependencies": {
-    "electron-squirrel-startup": "^1.0.1",
     "path-browserify": "^1.0.1"
   },
   "config": {

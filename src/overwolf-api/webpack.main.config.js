@@ -1,29 +1,16 @@
 const path = require('path')
+const config = require('./webpack.base.config')
 
-module.exports = {
-    entry: './src/app.ts',
-    target: 'electron-main',
-    mode: 'development',
-    module: {
-        rules: [
-            {
-                test: /\.ts?$/,
-                include: path.resolve(__dirname, 'src'),
-                use: [{loader: 'ts-loader'}],
-                //exclude: /node_modules/,
-            },
-        ],
-    },
-    resolve: {
-        extensions: ['.tsx', '.ts', '.js'],
-        fallback: {
-            fs: false,
-            path: require.resolve('path-browserify')
-        }
-    },
-    output: {
-        filename: 'bundle.js',
-        path: path.resolve(__dirname, '.webpack/main'),
-        clean: true,
-    },
-};
+const mainConfig = { ...config }
+mainConfig.target = 'electron-main'
+mainConfig.entry = {
+    'index': './src/main/index.ts'
+}
+
+mainConfig.output = { 
+    path: path.join(__dirname, '.webpack/main'),
+    filename: '[name].js',
+    clean: true
+}
+
+module.exports = mainConfig

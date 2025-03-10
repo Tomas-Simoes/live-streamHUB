@@ -28,12 +28,12 @@ v18.19.1
 These instructions will help you set up the project on your local machine for development and testing.
 
 ### Installation
-**Before installing, make sure you meet the [prerequisites](#prerequisites).**
+**Before installing**, make sure you meet the [prerequisites](#prerequisites).
 
 Clone the repository and install dependencies:
 
 ```sh
-git clone <repository-url>
+git clone https://github.com/Tomas-Simoes/live-streamHUB
 cd live-streamHUB/src/overwolf-api
 npm install
 ```
