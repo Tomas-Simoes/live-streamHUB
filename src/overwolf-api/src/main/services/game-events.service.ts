@@ -11,7 +11,7 @@ export class GameEventsService extends EventEmitter {
 
     constructor() {
         super();
-        this.registerOverwolfPackageManager();
+        //this.registerOverwolfPackageManager();
     }
 
     public registerGames(gepGamesId: number[]) {
@@ -26,7 +26,7 @@ export class GameEventsService extends EventEmitter {
         }))
     }
 
-    private registerOverwolfPackageManager() {
+    public registerOverwolfPackageManager() {
         app.overwolf.packages.on('ready', (e, packageName, version) => {
             if (packageName !== 'gep')
                 return;
@@ -35,6 +35,14 @@ export class GameEventsService extends EventEmitter {
             
             this.onGameEventsPackageReady();
             this.emit('ready');
+        })
+
+        app.overwolf.packages.on('failed-to-initialize', (e, packageName) => {
+            this.emit('log', `Failed to initialize ${packageName}: `, e)
+        })
+
+        app.overwolf.packages.on('crashed', (e, canRecover) => {
+            this.emit('log', 'Package Manager crashed: ', e)
         })
     }
 

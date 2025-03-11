@@ -4,13 +4,12 @@
   "description": "Overwolf API",
   "main": ".webpack/main/index.js",
   "scripts": {
+    "build:ow-electron": "ow-electron-builder --c.extraMetadata.name=GameEventsTester --publish=never",
     "build:renderer": "npx webpack --config ./webpack.renderer.config.js",
     "build:main": "npx webpack --config ./webpack.main.config.js",
-    "build": "npx webpack --mode=development && npm run build:main && npm run build:renderer",
-    "build:dev": "npx webpack --watch --mode=development",
+    "build": "concurrently \"npm run build:ow-electron\" \"npm run build:main\" \"npm run build:renderer\"",
     "build:start": "npm run build && ow-electron . ",
-    "start": "npm run build && npm run build:ow-electron && ow-electron .",
-    "build:ow-electron": "ow-electron-builder --c.extraMetadata.name=GameEventsTester --publish=never"
+    "start": "ow-electron ."
   },
   "overwolf": {
     "packages": [
@@ -56,25 +55,22 @@
   "author": "C57",
   "license": "ISC",
   "devDependencies": {
-    "electron": "21.1.0",
     "@electron/fuses": "^1.8.0",
-
     "@overwolf/ow-electron": "latest",
     "@overwolf/ow-electron-builder": "latest",
     "@overwolf/ow-electron-packages-types": "^0.0.13",
-    
-    "webpack": "^5.98.0",
-    "webpack-cli": "^6.0.1",
-    "webpack-dev-server": "^5.2.0",
-    "wrapper-webpack-plugin": "^2.1.0",
+    "@types/electron": "^1.6.12",
+    "@types/node": "^22.13.10",
+    "concurrently": "^9.1.2",
+    "electron": "21.1.0",
     "html-webpack-plugin": "^5.6.3",
-    
     "ts-loader": "^9.5.2",
     "typescript": "^5.8.2",
     "typescript-logging": "^2.0.2",
-
-    "@types/electron": "^1.6.12",
-    "@types/node": "^22.13.10"  
+    "webpack": "^5.98.0",
+    "webpack-cli": "^6.0.1",
+    "webpack-dev-server": "^5.2.0",
+    "wrapper-webpack-plugin": "^2.1.0"
   },
   "dependencies": {
     "path-browserify": "^1.0.1"

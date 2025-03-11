@@ -4,10 +4,8 @@ import MainWindowController from "./controllers/main-window.controller"
 import { GameEventsService } from "./services/game-events.service";
 
 const bootstrap = (): Application => {
-    const mainWindowController = new MainWindowController();
     const gepService = new GameEventsService();    
-
-    gepService.on('log', mainWindowController.printLogMessage.bind(mainWindowController))
+    const mainWindowController = new MainWindowController(gepService);
 
     ElectronApp.disableHardwareAcceleration();
     return new Application(gepService, mainWindowController)

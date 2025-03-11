@@ -3,11 +3,15 @@ import  MainWindowController  from './controllers/main-window.controller'
 import { GameEventsService } from './services/game-events.service'
 
 export class Application {
+    private readonly gepService: GameEventsService;
+    private readonly mainWindowController: MainWindowController;
+
     constructor (
-        private readonly gepService: GameEventsService,
-        private readonly mainWindowController: MainWindowController
+        gepService: GameEventsService,
+        mainWindowController: MainWindowController
     ){
-        gepService = new GameEventsService();
+        this.gepService = gepService
+        this.mainWindowController = mainWindowController
     }
 
     public run(){
