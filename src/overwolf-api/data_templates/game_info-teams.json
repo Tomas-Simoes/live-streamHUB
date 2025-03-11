@@ -1,0 +1,7 @@
+{
+  "gameId": 5426,
+  "feature": "teams",
+  "category": "game_info",
+  "key": "teams",
+  "value": "%5B%7B%22team%22:%22Order%22,%22champion%22:%22Ryze%22,%22skinId%22:%220%22,%22summoner%22:%22'miiikoto#euw'%20(miiikoto#euw)%22%7D,%7B%22team%22:%22Order%22,%22champion%22:%22LeeSin%22,%22skinId%22:%2251%22,%22summoner%22:%22'xiaoen#1027'%20(xiaoen#1027)%22%7D,%7B%22team%22:%22Order%22,%22champion%22:%22Yone%22,%22skinId%22:%2255%22,%22summoner%22:%22'spooky#fino'%20(spooky#fino)%22%7D,%7B%22team%22:%22Order%22,%22champion%22:%22Twitch%22,%22skinId%22:%2245%22,%22summoner%22:%22'kungfuchrissy#euw'%20(kungfuchrissy#euw)%22%7D,%7B%22team%22:%22Order%22,%22champion%22:%22Bard%22,%22skinId%22:%224%22,%22summoner%22:%22'edg%20ignite#euw'%20(edg%20ignite#euw)%22%7D,%7B%22team%22:%22Chaos%22,%22champion%22:%22Gragas%22,%22skinId%22:%225%22,%22summoner%22:%22'max%20koionko#szamz'%20(max%20koionko#szamz)%22%7D,%7B%22team%22:%22Chaos%22,%22champion%22:%22MasterYi%22,%22skinId%22:%220%22,%22summoner%22:%22'dizi#morda'%20(dizi#morda)%22%7D,%7B%22team%22:%22Chaos%22,%22champion%22:%22Kaisa%22,%22skinId%22:%2216%22,%22summoner%22:%22'%CE%B2%CF%85llet#euw'%20(%CE%B2%CF%85llet#euw)%22%7D,%7B%22team%22:%22Chaos%22,%22champion%22:%22Jinx%22,%22skinId%22:%223%22,%22summoner%22:%22'ufik#7575'%20(ufik#7575)%22%7D,%7B%22team%22:%22Chaos%22,%22champion%22:%22Milio%22,%22skinId%22:%220%22,%22summoner%22:%22'elya%20lulu%20acc#euw3'%20(elya%20lulu%20acc#euw3)%22%7D%5D"
+}

@@ -30,7 +30,6 @@ export default class MainWindowController {
             this.printLogMessage("main-window.controller created mainWindow.")
             this.gepService.on('log', this.printLogMessage.bind(this))
             this.gepService.registerOverwolfPackageManager()
-
         })
 
     }

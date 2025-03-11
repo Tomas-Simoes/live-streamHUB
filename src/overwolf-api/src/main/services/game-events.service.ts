@@ -2,8 +2,33 @@ import { EventEmitter } from "events";
 import { overwolf } from "@overwolf/ow-electron";
 import { app as ElectronApp } from "electron";
 
+import fs from 'fs' // remove after 
+import path from "path";
+
 const app = ElectronApp as overwolf.OverwolfApp;
 
+const GEP_SUPPORTED_GAMES: number[] = [
+    5426, // League of Legends
+    22730 // Counter-Strike 2
+]
+
+const GEP_FEATURES: string[] = [
+    'live_client_data',
+    'matchState',
+    'counters',
+    'death',
+    'respawn',
+    'abilities',
+    'kill',
+    'assist',
+    'gold',
+    'minions',
+    'gameMode',
+    'teams',
+    'level',
+    'announcer',
+    'damage',
+]
 export class GameEventsService extends EventEmitter {
     private gepAPI !: overwolf.packages.OverwolfGameEventPackage;
     private gepGamesID: number[] = [];
@@ -22,7 +47,7 @@ export class GameEventsService extends EventEmitter {
     public async setRequiredFeaturesForAllSuportedGames() {
         await Promise.all(this.gepGamesID.map(async (gameId) => {
             this.emit('log', `set-required-feature for: ${gameId}`);
-            await this.gepAPI.setRequiredFeatures(gameId, undefined); 
+            await this.gepAPI.setRequiredFeatures(gameId, GEP_FEATURES); 
         }))
     }
 
@@ -51,6 +76,9 @@ export class GameEventsService extends EventEmitter {
         
         this.gepAPI.removeAllListeners();
         
+        this.registerGames(GEP_SUPPORTED_GAMES)
+        this.setRequiredFeaturesForAllSuportedGames();
+
         this.gepAPI.on('game-detected', (e, gameId, name, gameInfo) => {
             if (!this.gepGamesID.includes(gameId)){
                 this.emit('log', `gep: game ${name} is not registered.`)
@@ -64,15 +92,32 @@ export class GameEventsService extends EventEmitter {
 
         this.gepAPI.on('new-game-event', (e, gameId, ...args) => {
             this.emit('log', 'new-event', gameId, ...args)
-        })
 
+            this.saveDataOnFile(args[0])
+        })
+        
         this.gepAPI.on('new-info-update', (e, gameId, ...args) => {
-            this.emit('log', 'info-update', gameId, ...args)
-        })
+            this.emit('log', 'info-update', gameId, args[0])
 
+            this.saveDataOnFile(args[0])
+        })
+        
         this.gepAPI.on('error', (e, gameId, error, ...args) => {
-            this.emit('log', 'gep-error', gameId, error, ...args);
+            this.emit('log', 'gep-error', gameId, error, args[0]);
             this.activeGame = 0
         })
+    }
+    
+    private saveDataOnFile(json_data) {
+        const dirPath = 'data_templates'; // Define the directory path
+        const filePath = path.join(dirPath, `${json_data['category']}-${json_data['key']}.json`); // Ensure it's a file
+    
+        let data = JSON.stringify(json_data, null, 2);
+    
+        fs.appendFile(filePath, data + '\n', (err) => {
+            if (err) {
+                this.emit('log', 'Error writing to file', err);
+            }
+        });
     }
 }

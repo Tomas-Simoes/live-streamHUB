@@ -1,0 +1,7 @@
+{
+  "gameId": 5426,
+  "feature": "matchState",
+  "category": "game_info",
+  "key": "matchStarted",
+  "value": true
+}

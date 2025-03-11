@@ -1,0 +1,7 @@
+{
+  "gameId": 5426,
+  "feature": "live_client_data",
+  "category": "live_client_data",
+  "key": "active_player",
+  "value": "{\"error\":\"Spectator mode doesn't currently support this feature\"}"
+}
