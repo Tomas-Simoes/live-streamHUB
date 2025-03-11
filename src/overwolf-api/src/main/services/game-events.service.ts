@@ -38,19 +38,19 @@ export class GameEventsService extends EventEmitter {
         super();
 
     }
-    
+
     public registerGames(gepGamesId: number[]) {
         this.emit('log', `register game events for ${gepGamesId}`)
         this.gepGamesID = gepGamesId;
     }
-    
+
     public async setRequiredFeaturesForAllSuportedGames() {
         await Promise.all(this.gepGamesID.map(async (gameId) => {
             this.emit('log', `set-required-feature for: ${gameId}`);
-            await this.gepAPI.setRequiredFeatures(gameId, GEP_FEATURES); 
+            await this.gepAPI.setRequiredFeatures(gameId, GEP_FEATURES);
         }))
     }
-    
+
     public registerOverwolfPackageManager() {
         let platform = process.platform;
 
@@ -58,16 +58,15 @@ export class GameEventsService extends EventEmitter {
             this.emit('log', `Running application in ${platform}-mode. Using template data`)
         } else {
             this.emit('log', `Running application in ${platform}-mode. Using GEP data`)
-        
-            this.registerOverwolfPackageManager();
+
         }
-        
+
         app.overwolf.packages.on('ready', (e, packageName, version) => {
             if (packageName !== 'gep')
                 return;
 
             this.emit('log', `GEP ${version} package is ready `);
-            
+
             this.onGameEventsPackageReady();
             this.emit('ready');
         })
@@ -83,14 +82,14 @@ export class GameEventsService extends EventEmitter {
 
     private async onGameEventsPackageReady() {
         this.gepAPI = app.overwolf.packages.gep;
-        
+
         this.gepAPI.removeAllListeners();
-        
+
         this.registerGames(GEP_SUPPORTED_GAMES)
         this.setRequiredFeaturesForAllSuportedGames();
 
         this.gepAPI.on('game-detected', (e, gameId, name, gameInfo) => {
-            if (!this.gepGamesID.includes(gameId)){
+            if (!this.gepGamesID.includes(gameId)) {
                 this.emit('log', `GEP: game ${name} is not registered.`)
                 return
             }
@@ -105,25 +104,25 @@ export class GameEventsService extends EventEmitter {
 
             this.saveDataOnFile(args[0])
         })
-        
+
         this.gepAPI.on('new-info-update', (e, gameId, ...args) => {
             this.emit('log', 'GEP: info-update for game ', gameId, args[0])
 
             this.saveDataOnFile(args[0])
         })
-        
+
         this.gepAPI.on('error', (e, gameId, error, ...args) => {
             this.emit('log', 'gep-error', gameId, error, args[0]);
             this.activeGame = 0
         })
     }
-    
+
     private saveDataOnFile(json_data) {
         const dirPath = 'data_templates'; // Define the directory path
         const filePath = path.join(dirPath, `${json_data['category']}-${json_data['key']}.json`); // Ensure it's a file
-    
+
         let data = JSON.stringify(json_data, null, 2);
-    
+
         fs.appendFile(filePath, data + '\n', (err) => {
             if (err) {
                 this.emit('log', 'GEP: Error writing to file', err);
