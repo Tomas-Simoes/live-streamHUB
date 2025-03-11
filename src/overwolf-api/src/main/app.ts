@@ -18,7 +18,12 @@ export class Application {
         this.initialize();
     }
 
-    private initialize() {
-        this.mainWindowController.createWindow()
+    private async initialize(): Promise<void> {
+        const { gepService, mainWindowController } = this
+
+        await mainWindowController.createWindow();
+    
+        gepService.on('log', mainWindowController.printLogMessage.bind(mainWindowController))
+        gepService.registerOverwolfPackageManager()
     }
 }

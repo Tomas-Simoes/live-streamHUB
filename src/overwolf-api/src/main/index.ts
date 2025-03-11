@@ -5,9 +5,10 @@ import { GameEventsService } from "./services/game-events.service";
 
 const bootstrap = (): Application => {
     const gepService = new GameEventsService();    
-    const mainWindowController = new MainWindowController(gepService);
+    const mainWindowController = new MainWindowController();
 
     ElectronApp.disableHardwareAcceleration();
+
     return new Application(gepService, mainWindowController)
 }
 
