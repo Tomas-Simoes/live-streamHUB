@@ -51,16 +51,7 @@ export class GameEventsService extends EventEmitter {
         }))
     }
 
-    public registerOverwolfPackageManager() {
-        let platform = process.platform;
-
-        if (!(platform == "darwin" || platform == 'win32')) {
-            this.emit('log', `Running application in ${platform}-mode. Using template data`)
-        } else {
-            this.emit('log', `Running application in ${platform}-mode. Using GEP data`)
-
-        }
-
+    public runOverwolfPackageManager() {
         app.overwolf.packages.on('ready', (e, packageName, version) => {
             if (packageName !== 'gep')
                 return;
@@ -79,7 +70,24 @@ export class GameEventsService extends EventEmitter {
             this.emit('log', 'Package Manager crashed: ', e)
         })
     }
+    
+    public runInTemplateMode() {
+        if (!fs.existsSync("data_templates")) {
+            this.emit('log', 'GEP: There is no templates available to run in template-mode')
+            return
+        }                 
 
+        const dirPath = path.join(__dirname + "data_template")
+        fs.readdir(dirPath, (err, files) => {
+            if(err) {
+                this.emit('log', `GEP: Template directory ${dirPath} not found`)
+                return 
+            }
+
+            this.emit('log', files)
+        })
+    }
+    
     private async onGameEventsPackageReady() {
         this.gepAPI = app.overwolf.packages.gep;
 
@@ -116,6 +124,8 @@ export class GameEventsService extends EventEmitter {
             this.activeGame = 0
         })
     }
+
+    
 
     private saveDataOnFile(json_data) {
         const dirPath = 'data_templates'; // Define the directory path
