@@ -8,10 +8,14 @@ module.exports = {
                 test: /\.ts?$/,
                 use: [{loader: 'ts-loader'}],
                 exclude: /node_modules/,
+                
             },
         ],
     },
     resolve: {
+        alias: {
+            '@template-data': path.resolve(__dirname, 'data_templates'),
+        },
         extensions: ['.tsx', '.ts', '.js', '.json'],
         fallback: {
             fs: false,

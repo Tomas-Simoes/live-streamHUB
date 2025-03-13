@@ -2,6 +2,10 @@ import { EventEmitter } from "events";
 import { overwolf } from "@overwolf/ow-electron";
 import { app as ElectronApp } from "electron";
 
+import template_player_data from '@template-data/live_client_data-all_players.json';
+import template_clock_data  from '@template-data/counters-match_clock.json'
+import template_events_data    from '@template-data/live_client_data-events.json'
+
 import fs from 'fs' // remove after 
 import path from "path";
 
@@ -12,23 +16,17 @@ const GEP_SUPPORTED_GAMES: number[] = [
     22730 // Counter-Strike 2
 ]
 
-const GEP_FEATURES: string[] = [
-    'live_client_data',
-    'matchState',
-    'counters',
-    'death',
-    'respawn',
-    'abilities',
-    'kill',
-    'assist',
-    'gold',
-    'minions',
-    'gameMode',
-    'teams',
-    'level',
-    'announcer',
-    'damage',
-]
+const GEP_FEATURES = {
+    '5426': [
+        'live_client_data',
+        'counters'
+    ],
+    '22730': [
+        'match_info',
+        'live_data'
+    ] 
+}
+
 export class GameEventsService extends EventEmitter {
     private gepAPI !: overwolf.packages.OverwolfGameEventPackage;
     private gepGamesID: number[] = [];
@@ -46,8 +44,8 @@ export class GameEventsService extends EventEmitter {
 
     public async setRequiredFeaturesForAllSuportedGames() {
         await Promise.all(this.gepGamesID.map(async (gameId) => {
-            this.emit('log', `set-required-feature for: ${gameId}`);
-            await this.gepAPI.setRequiredFeatures(gameId, GEP_FEATURES);
+            this.emit('log', `set-required-features ${GEP_FEATURES[gameId]} for: ${gameId}`);
+            await this.gepAPI.setRequiredFeatures(gameId, GEP_FEATURES[gameId]);
         }))
     }
 
@@ -72,20 +70,11 @@ export class GameEventsService extends EventEmitter {
     }
     
     public runInTemplateMode() {
-        if (!fs.existsSync("data_templates")) {
-            this.emit('log', 'GEP: There is no templates available to run in template-mode')
-            return
-        }                 
+        let index = 0;
 
-        const dirPath = path.join(__dirname + "data_template")
-        fs.readdir(dirPath, (err, files) => {
-            if(err) {
-                this.emit('log', `GEP: Template directory ${dirPath} not found`)
-                return 
-            }
-
-            this.emit('log', files)
-        })
+        const sendTemplateData = setInterval(()  => {
+            index = (index + 1) % template_player_data.length;
+        }, 1000)
     }
     
     private async onGameEventsPackageReady() {
