@@ -69,6 +69,8 @@ export class DataProcessorService {
                     return
                 }
 
+                console.log(`Got a nested filter ${keyFilter}, ${valueToFilter}`)
+
                 return {
                     [keyFilter]: this.processData(unprocessedData[keyFilter], currentDataMap[currentKey])
                 }
