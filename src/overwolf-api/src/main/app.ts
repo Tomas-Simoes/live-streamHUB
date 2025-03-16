@@ -1,19 +1,19 @@
 import { app as ElectronApp, BrowserWindow } from 'electron'
-import  MainWindowController  from './controllers/main-window.controller'
+import  MainWindowController  from './controllers/window.controller'
+import GameDataController  from './controllers/game-data.controller';
 import { GameEventsService } from './services/game-events.service'
+import { eventEmitter } from './services/event-emitter.service';
 
 export class Application {
-    private readonly gepService: GameEventsService;
+    private readonly gameDataController: GameDataController
     private readonly mainWindowController: MainWindowController;
+
     private readonly platform;
 
     constructor (
-        gepService: GameEventsService,
-        mainWindowController: MainWindowController
     ){
-        this.gepService = gepService
-        this.mainWindowController = mainWindowController
-        this.platform = process.platform
+        this.mainWindowController = new MainWindowController()
+        this.gameDataController = new GameDataController()
     }
 
     public run(){
@@ -21,18 +21,12 @@ export class Application {
     }
 
     private async initialize(): Promise<void> {
-        const { gepService, mainWindowController, platform} = this
+        const { mainWindowController, platform} = this
 
         await mainWindowController.createWindow();
+        this.gameDataController.startGameDataService()
     
-        gepService.on('log', mainWindowController.printLogMessage.bind(mainWindowController))
-        
-        if (platform == "darwin" || platform == 'win32') {
-            gepService.emit('log', `Running application in ${platform}-mode. Using GEP data`)
-            gepService.runOverwolfPackageManager()
-        } else {
-            gepService.emit('log', `Linux is not supported, using template data for debugging`)
-            gepService.runInTemplateMode()
-        }
+        //eventEmitter.on('log', mainWindowController.printLogMessage.bind(mainWindowController))
+
     }
 }

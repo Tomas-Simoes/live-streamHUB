@@ -1,15 +1,13 @@
 import { app as ElectronApp } from 'electron'
 import { Application } from "./app"
-import MainWindowController from "./controllers/main-window.controller"
-import { GameEventsService } from "./services/game-events.service";
+
+import MainWindowController from "./controllers/window.controller"
+import GameDataController  from './controllers/game-data.controller';
 
 const bootstrap = (): Application => {
-    const gepService = new GameEventsService();    
-    const mainWindowController = new MainWindowController();
-
     ElectronApp.disableHardwareAcceleration();
 
-    return new Application(gepService, mainWindowController)
+    return new Application()
 }
 
 const app = bootstrap()

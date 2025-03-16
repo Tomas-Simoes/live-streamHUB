@@ -1,0 +1,15 @@
+{
+    "*category": {
+        "live_client_data": {
+            ">value": {
+                "championName": null,
+                "items[*]": {
+                    "rawName": null
+                }
+            }
+        },
+        "clock": {
+            "value": null
+        }
+    }
+}

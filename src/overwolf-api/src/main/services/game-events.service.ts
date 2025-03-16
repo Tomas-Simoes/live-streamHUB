@@ -8,6 +8,7 @@ import template_events_data    from '@template-data/live_client_data-events.json
 
 import fs from 'fs' // remove after 
 import path from "path";
+import { eventEmitter } from "./event-emitter.service";
 
 const app = ElectronApp as overwolf.OverwolfApp;
 
@@ -30,7 +31,9 @@ const GEP_FEATURES = {
 export class GameEventsService extends EventEmitter {
     private gepAPI !: overwolf.packages.OverwolfGameEventPackage;
     private gepGamesID: number[] = [];
-    private activeGame = 0
+    private gepActiveGame = 0
+
+    private saveOnFile = false
 
     constructor() {
         super();
@@ -73,6 +76,9 @@ export class GameEventsService extends EventEmitter {
         let index = 0;
 
         const sendTemplateData = setInterval(()  => {
+            eventEmitter.emit('dataReceived', { key: template_player_data[index] })
+            eventEmitter.emit('dataReceived', { key: template_clock_data[index] })
+
             index = (index + 1) % template_player_data.length;
         }, 1000)
     }
@@ -93,30 +99,34 @@ export class GameEventsService extends EventEmitter {
 
             this.emit('log', 'GEP: register game-detected ', gameId, name, gameInfo);
             e.enable();
-            this.activeGame = gameId
+            this.gepActiveGame = gameId
         })
 
         this.gepAPI.on('new-game-event', (e, gameId, ...args) => {
             this.emit('log', 'GEP: new-event for game ', gameId, ...args)
-
+            
+            eventEmitter.emit('dataReceived', { key: args[0] })
             this.saveDataOnFile(args[0])
         })
 
         this.gepAPI.on('new-info-update', (e, gameId, ...args) => {
             this.emit('log', 'GEP: info-update for game ', gameId, args[0])
 
+            eventEmitter.emit('dataReceived', { key: args[0] })
             this.saveDataOnFile(args[0])
         })
 
         this.gepAPI.on('error', (e, gameId, error, ...args) => {
             this.emit('log', 'gep-error', gameId, error, args[0]);
-            this.activeGame = 0
+            this.gepActiveGame = 0
         })
     }
 
     
 
     private saveDataOnFile(json_data) {
+        if (!this.saveOnFile) return;
+        
         const dirPath = 'data_templates'; // Define the directory path
         const filePath = path.join(dirPath, `${json_data['category']}-${json_data['key']}.json`); // Ensure it's a file
 
