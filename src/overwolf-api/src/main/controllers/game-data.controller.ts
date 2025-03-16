@@ -9,13 +9,13 @@ export default class GameDataController {
     public readonly dataProcessorService: DataProcessorService;
     public readonly gameEventService: GameEventsService;
 
-    constructor (
+    constructor(
     ) {
         this.dataProcessorService = new DataProcessorService()
         this.gameEventService = new GameEventsService()
 
         eventEmitter.on('dataReceived', (unprocessedData) => {
-            this.receivedData(unprocessedData)            
+            this.receivedData(unprocessedData)
         })
     }
 
@@ -34,6 +34,7 @@ export default class GameDataController {
     private receivedData(unprocessedData) {
         eventEmitter.emit('log', "Data Controller: Received unprocessed data, passing it to DataProcessorService.", unprocessedData)
 
-        this.dataProcessorService.processData(unprocessedData, LeagueDataMap)
+        let processedData = this.dataProcessorService.processData(unprocessedData, LeagueDataMap)
+        console.log(processedData)
     }
 }

@@ -1,4 +1,5 @@
-const path = require('path')
+const path = require('path');
+const webpack = require('webpack');
 
 module.exports = {
     mode: 'development',
@@ -15,6 +16,7 @@ module.exports = {
     resolve: {
         alias: {
             '@template-data': path.resolve(__dirname, 'data_templates'),
+            '@data-map': path.resolve(__dirname, 'src/main/config')
         },
         extensions: ['.tsx', '.ts', '.js', '.json'],
         fallback: {
@@ -27,7 +29,11 @@ module.exports = {
         filename: '[name]/[name].js',
         clean: true,
     },
-    plugins: [],
+    plugins: [
+        new webpack.IgnorePlugin({
+            resourceRegExp: /^fsevents$/
+        })
+    ],
     externals: {
         bufferutil: 'bufferutil',
         'utf-8-validate': 'utf-8-validate',

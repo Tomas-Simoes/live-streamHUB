@@ -1,7 +1,10 @@
 {
+    "*gameID": "5426",    
     "*category": {
         "live_client_data": {
-            ">value": {
+            "test": null,
+            
+            ">value[*]": {
                 "championName": null,
                 "items[*]": {
                     "rawName": null

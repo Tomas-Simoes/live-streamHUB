@@ -1,14 +1,14 @@
-import { app as ElectronApp } from 'electron'
+import Electron from 'electron'
 import { Application } from "./app"
 
-import MainWindowController from "./controllers/window.controller"
-import GameDataController  from './controllers/game-data.controller';
+const ElectronApp = Electron.app
 
 const bootstrap = (): Application => {
     ElectronApp.disableHardwareAcceleration();
 
     return new Application()
 }
+
 
 const app = bootstrap()
 

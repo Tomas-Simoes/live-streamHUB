@@ -1,43 +1,96 @@
 import LeagueDataMap from "@data-map/LeagueDataMap.json"
 import { eventEmitter } from "./event-emitter.service"
 
+export type DataMap = typeof LeagueDataMap
+
 export class DataProcessorService {
     private processedData
 
-    constructor () {
+    constructor() {
 
     }
 
-    public processData(unprocessedData, dataMap) {
-        const { currentDataMap } = dataMap
-        let keyFilter;
+    public processData(unprocessedData, dataMap: DataMap) {
+        const currentDataMap: DataMap = dataMap
 
-        Object.keys(currentDataMap).forEach((key, index) => {
-            switch (key[0]) {
-                case "*":
-                    keyFilter = key.slice(1)
-                    
-                    if (!(unprocessedData[keyFilter] in currentDataMap[keyFilter])) {
-                        return
-                    }
-                    
-                    let valueFilter = unprocessedData[keyFilter]
-                    let nextDataMap = currentDataMap['*' + keyFilter][valueFilter]
+        let dataMapKeys = Object.keys(currentDataMap)
 
-                    this.processedData[keyFilter][valueFilter] = this.processData(unprocessedData, nextDataMap)
+        for (let i = 0; i < dataMapKeys.length; i++) {
+            let currentKey = dataMapKeys[i]
 
-                    break;
-                case ">":
-                    return {
-                        keyFilter: this.processData(unprocessedData[keyFilter], currentDataMap[">" + keyFilter])
-                    }
-                default:
-                    return {
-                        key: unprocessedData[key]
-                    }
+            if (!currentKey.includes("[")) {
+                return this.processCurrentKey(dataMapKeys, i, unprocessedData, currentDataMap)
             }
-        })
+        }
+    }
 
-        console.log(this.processedData)
+    private processCurrentKey(dataMapKeys, keyIndex, unprocessedData, currentDataMap) {
+        let currentKey = dataMapKeys[keyIndex]
+
+        let keyTag = currentKey[0]
+        let keyFilter = currentKey.slice(1)
+
+        let valueToFilter = unprocessedData[keyTag == "*" || keyTag == ">" ? keyFilter : currentKey]
+        let filterKeys = currentDataMap[currentKey]
+
+        if (valueToFilter == undefined) {
+            console.log(`Found invalid key entry ${keyFilter} for ${valueToFilter}`)
+            return
+        }
+
+        switch (keyTag) {
+            case "*":
+                let isFilterMatch = filterKeys == valueToFilter
+                let isNestedFilterMatch = filterKeys instanceof Object && valueToFilter in filterKeys
+
+                if (isFilterMatch) {
+                    delete currentDataMap[currentKey]
+
+                    console.log(`Got filter match ${keyFilter}, ${valueToFilter}`)
+
+                    return {
+                        [valueToFilter]: this.processData(unprocessedData, currentDataMap)
+                    }
+
+                } else if (isNestedFilterMatch) {
+                    console.log(`Got a nested filter ${keyFilter}, ${valueToFilter}`)
+
+                    return {
+                        [valueToFilter]: this.processData(unprocessedData, filterKeys[valueToFilter])
+                    }
+                }
+
+                break;
+            case ">":
+                let isNestedValue = filterKeys instanceof Object
+
+                if (!isNestedValue) {
+                    console.log(`Got a invalid nested value ${keyFilter}, ${filterKeys}. If ${keyFilter} is the final value, don't use flag '>'`)
+                    return
+                }
+
+                return {
+                    [keyFilter]: this.processData(unprocessedData[keyFilter], currentDataMap[currentKey])
+                }
+
+                break;
+            default:
+                let isLastKeyFilter = keyIndex + 1 >= dataMapKeys.length
+
+                console.log(`Got ${isLastKeyFilter ? "a last key " : "a key "} value {key:${currentKey},  value: ${valueToFilter}}`)
+
+                if (!isLastKeyFilter) {
+                    delete currentDataMap[currentKey]
+
+                    return {
+                        [currentKey]: valueToFilter,
+                        [dataMapKeys[keyIndex + 1]]: this.processData(unprocessedData, currentDataMap)
+                    }
+                }
+
+                return {
+                    [keyFilter]: valueToFilter
+                }
+        }
     }
 }
