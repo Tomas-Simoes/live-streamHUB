@@ -35,6 +35,6 @@ export default class GameDataController {
         eventEmitter.emit('log', "Data Controller: Received unprocessed data, passing it to DataProcessorService.", unprocessedData)
 
         let processedData = this.dataProcessorService.processData(unprocessedData, LeagueDataMap)
-        console.log(processedData)
+        console.log(JSON.stringify(processedData, null, 2))
     }
 }

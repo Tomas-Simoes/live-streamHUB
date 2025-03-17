@@ -1,18 +1,20 @@
 {
-    "*gameID": "5426",    
     "*category": {
         "live_client_data": {
-            "test": null,
-            
+            "*test": "This is a test",
+            ">placeholder": {
+                "anotherTest": null
+            },
             ">value[*]": {
                 "championName": null,
-                "items[*]": {
+                ">itens[*]": {
                     "rawName": null
                 }
             }
         },
-        "clock": {
+        "counters": {
             "value": null
         }
-    }
+    },
+    "*gameId": "5426"    
 }
