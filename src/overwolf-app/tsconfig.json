@@ -4,6 +4,7 @@
     "module": "commonjs",                                
     "esModuleInterop": true,                            
     "moduleResolution": "node",
+    "jsx": "react-jsx",
     
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
@@ -16,7 +17,8 @@
     "baseUrl": ".",
     "paths": {
       "@template-data/*": ["data_templates/*"],
-      "@data-map/*": ["src/main/config/*"]
+      "@data-map/*": ["src/main/config/*"],
+      "@frontend/*": ["../frontend/*"]
     }
   },
   
@@ -31,5 +33,5 @@
     "**/*spec.ts"
   ],
 
-  "include": ["src/**/*.ts", "src/globals.d.ts"]
+  "include": ["src/**/*.ts", "src/globals.d.ts", "src/renderer/renderer.tsx"]
 }

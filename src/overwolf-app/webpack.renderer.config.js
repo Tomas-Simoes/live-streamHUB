@@ -8,7 +8,7 @@ const rendererConfig = { ...config };
 rendererConfig.target = 'electron-renderer';
 
 rendererConfig.entry = {
-  'renderer': './src/renderer/renderer.ts',
+  'renderer': './src/renderer/renderer.tsx',
   'preload': './src/preload/preload.ts',
 };
 
@@ -18,12 +18,26 @@ rendererConfig.output = {
     clean: true
 }
 
+rendererConfig.module.rules.push({
+  test: /\.tsx?$/,
+  exclude: /node_modules/,
+  use: {
+    loader: 'ts-loader',
+    options: {
+      transpileOnly: true
+    }
+  }
+});
+
+
 rendererConfig.plugins.push(new HtmlWebpackPlugin({
-  template: './src/renderer/index.html',
-  filename: path.join(__dirname, '.webpack/renderer/index.html'),
+  template: '../frontend/public/index.html',
+  filename: 'index.html',
   chunks: ['renderer'],
   publicPath: '',
-  inject: false
+  inject: true
 }));
+
+
 
 module.exports = rendererConfig;
