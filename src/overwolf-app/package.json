@@ -5,14 +5,19 @@
   "main": ".webpack/main/index.js",
   "scripts": {
     "build:ow-electron": "ow-electron-builder --c.extraMetadata.name=GameEventsTester --publish=never",
+    
     "build:renderer": "npx webpack --config ./webpack.renderer.config.js",
     "watch:renderer": "npx webpack --config ./webpack.renderer.config.js --watch",
+    
     "build:main": "npx webpack --config ./webpack.main.config.js",
     "watch:main": "npx webpack --config ./webpack.main.config.js --watch",
+    
     "build": "concurrently \"npm run build:ow-electron\" \"npm run build:main\" \"npm run build:renderer\"",
     "watch": "concurrently \"npm run build:ow-electron\" \"npm run watch:main\" \"npm run watch:renderer\"",
+    
     "build:start": " npm run build && npm run start",
     "watch:start": "npm run watch && npm run start",
+    
     "start": "ow-electron ."
   },
   "overwolf": {
@@ -59,66 +64,38 @@
   "author": "C57",
   "license": "ISC",
   "devDependencies": {
+    "electron": "21.1.0",
     "@electron/fuses": "^1.8.0",
+    
     "@overwolf/ow-electron": "latest",
     "@overwolf/ow-electron-builder": "latest",
     "@overwolf/ow-electron-packages-types": "^0.0.13",
-    "@types/electron": "^1.6.12",
-    "@types/node": "^22.13.10",
-    "@types/react": "^19.0.11",
-    "@types/react-dom": "^19.0.4",
+    
     "concurrently": "^9.1.2",
     "cross-env": "^7.0.3",
-    "css-loader": "^7.1.2",
-    "electron": "21.1.0",
-    "html-webpack-plugin": "^5.6.3",
-    "style-loader": "^4.0.0",
-    "ts-loader": "^9.5.2",
+    
     "typescript": "^5.8.2",
     "typescript-logging": "^2.0.2",
+    
     "webpack": "^5.98.0",
     "webpack-cli": "^6.0.1",
     "webpack-dev-server": "^5.2.0",
-    "wrapper-webpack-plugin": "^2.1.0"
+    "wrapper-webpack-plugin": "^2.1.0",
+    
+    "html-webpack-plugin": "^5.6.3",
+    "ts-loader": "^9.5.2",
+    "css-loader": "^7.1.2",
+    "style-loader": "^4.0.0",
+    
+    "@types/electron": "^1.6.12",
+    "@types/node": "^22.13.10",
+    "@types/react": "^19.0.11",
+    "@types/react-dom": "^19.0.4"
   },
   "dependencies": {
     "dotenv": "^16.4.7",
     "path-browserify": "^1.0.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
-  },
-  "config": {
-    "forge": {
-      "makers": [
-        {
-          "name": "@electron-forge/maker-deb",
-          "platforms": [
-            "linux"
-          ]
-        }
-      ],
-      "publishers": [],
-      "plugins": [
-        {
-          "name": "@electron-forge/plugin-webpack",
-          "config": {
-            "mainConfig": "./webpack.main.config.js",
-            "renderer": {
-              "config": "./webpack.renderer.config.js",
-              "entryPoints": [
-                {
-                  "name": "main_window",
-                  "html": "../frontend/public/index.html",
-                  "js": "./src/renderer.ts",
-                  "preload": {
-                    "js": "./src/preload.ts"
-                  }
-                }
-              ]
-            }
-          }
-        }
-      ]
-    }
   }
 }
