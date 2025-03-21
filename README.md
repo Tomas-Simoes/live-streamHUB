@@ -44,7 +44,11 @@ npm install
 #### Overwolf API Module
 To start the Overwolf API module, run:
 ```sh
+# if you are in root directory
 npm run start:overwolf
+
+# if you are in src/overwolf-app directory
+npm run build:start
 ```
 This bundles everything related to Overwolf into `src/overwolf-api/.webpack`, structured as:
 - `.webpack/main`: Core functionalities
