@@ -1,0 +1,7 @@
+{
+    "name": "live-hub",
+    "version": "0.1",
+    "scripts": {
+        "start:overwolf": "cd src/overwolf-app && npm run build:start"
+    }
+}
