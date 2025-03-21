@@ -30,12 +30,16 @@ These instructions will help you set up the project on your local machine for de
 ### Installation
 **Before installing**, make sure you meet the [prerequisites](#prerequisites).
 
-Clone the repository and install dependencies:
+Clone the repository and install dependencies for each of our modules:
 
 ```sh
 git clone https://github.com/Tomas-Simoes/live-streamHUB
-cd live-streamHUB/src/overwolf-api
-npm install
+cd live-streamHUB
+
+npm install --prefix ./src/backend/
+npm install --prefix ./src/frontend/
+npm install --prefix ./src/overwolf-app/
+npm install --prefix ./src/web
 ```
 
 ## Usage
@@ -44,11 +48,19 @@ npm install
 #### Overwolf API Module
 To start the Overwolf API module, run:
 ```sh
-npm run start
+# if you are in root directory
+npm run start:overwolf
+
+# if you are in src/overwolf-app directory
+npm run build:start
 ```
 This bundles everything related to Overwolf into `src/overwolf-api/.webpack`, structured as:
 - `.webpack/main`: Core functionalities
 - `.webpack/renderer`: Renderer HTML files
+
+#### Backend Module
+
+#### Web Module
 
 ### Building the Application
 
