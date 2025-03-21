@@ -2,8 +2,14 @@
     "name": "live-hub",
     "version": "0.1",
     "scripts": {
-        "start:web": "webpack --config web/webpack.config.js --mode development",
-        "build:web": "webpack --config web/webpack.config.js --mode production",
+        "start:web": "webpack --config src/web/webpack/webpack.config.js --mode development",
+        "build:web": "webpack --config src/web/webpack/webpack.config.js --mode production",
         "start:overwolf": "cd src/overwolf-app && npm run build:start"
+    },
+    "dependencies": {
+        "@types/react": "^19.0.12",
+        "@types/react-dom": "^19.0.4",
+        "react": "^19.0.0",
+        "react-dom": "^19.0.0"
     }
 }

@@ -19,7 +19,8 @@
       // "checkJs": true /* Report errors in .js files. Works in tandem with allowJs. */,
     },
     "paths": {
-        "@frontend/*": ["../frontend/*"]
+      "baseUrl": ".", 
+      "@frontend/*": ["../frontend/*"]
     },
     "include": ["src/**/*"]
   }
