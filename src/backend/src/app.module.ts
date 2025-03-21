@@ -5,13 +5,18 @@ import { HubsModule } from './hubs/hubs.module';
 import { CommonModule } from './common/common.module';
 import { MongooseModule } from '@nestjs/mongoose';
 
+import { ConfigModule } from '@nestjs/config';
+
 @Module({
   imports: [
     UserModule,
     AuthModule,
     HubsModule,
     CommonModule,
-    MongooseModule
+    MongooseModule.forRoot(''),
+    ConfigModule.forRoot({
+      envFilePath: ['.env.development']
+    })
   ],
   controllers: [],
   providers: [],
