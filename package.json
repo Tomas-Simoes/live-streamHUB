@@ -2,6 +2,8 @@
     "name": "live-hub",
     "version": "0.1",
     "scripts": {
+        "start:web": "webpack --config web/webpack.config.js --mode development",
+        "build:web": "webpack --config web/webpack.config.js --mode production",
         "start:overwolf": "cd src/overwolf-app && npm run build:start"
     }
 }
