@@ -1,23 +1,28 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, InternalServerErrorException } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import { User } from "./schema/users.schema";
-import { Model } from "mongoose";
-import { CreateUserDto } from "./dto/CreateUser.dto";
+import { HydratedDocument, Model } from "mongoose";
+import { RegisterDto } from "src/auth/dto/Register.dto";
+
+
+export type UserDocument = HydratedDocument<User>
 
 @Injectable()
 export class UsersService {
     constructor(@InjectModel(User.name) private userModel: Model<User>) { }
 
-    createUser(createUserDto: CreateUserDto) {
-        const newUser = new this.userModel(createUserDto)
+    createUser(registerDto: RegisterDto): Promise<UserDocument> {
+        const newUser = new this.userModel(registerDto)
+
         return newUser.save()
+            .catch(error => { throw new InternalServerErrorException("Error creating a new user: ", error) })
     }
 
-    async findOne(username: string): Promise<User | undefined> {
-        return this.userModel.findOne({ username })
+    async findOne(key: keyof User, value: any): Promise<User | undefined> {
+        return this.userModel.findOne({ [key]: value })
     }
 
-    async findUserById(id: string): Promise<User | undefined> {
+    async findById(id: string): Promise<User | undefined> {
         return this.userModel.findById(id)
     }
 }
