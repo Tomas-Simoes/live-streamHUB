@@ -10,6 +10,9 @@ export class User {
     @Prop({ required: true })
     password: string
 
+    @Prop({ unique: true, required: true })
+    email: string
+
     @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Hub' }] })
     hubs: Hub[]
 
