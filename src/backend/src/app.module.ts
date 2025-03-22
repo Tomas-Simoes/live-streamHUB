@@ -6,7 +6,6 @@ import { CommonModule } from './common/common.module';
 
 import { ConfigModule } from '@nestjs/config';
 import { DatabaseModule } from './database/database.module';
-import { SessionModule } from './session/session.module';
 
 @Module({
   imports: [
@@ -14,7 +13,6 @@ import { SessionModule } from './session/session.module';
     AuthModule,
     HubsModule,
     CommonModule,
-    SessionModule,
     ConfigModule.forRoot({
       envFilePath: ['.env.development']
     }),
