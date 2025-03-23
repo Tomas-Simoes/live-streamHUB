@@ -6,7 +6,7 @@ import { RegisterDto } from "./dto/Register.dto";
 import * as bcrypt from 'bcrypt'
 import { User } from "src/users/schema/users.schema";
 import { SessionService } from "src/session/session.service";
-import { TokenDto } from "src/session/dto/Token.dto";
+import { SecurityTokensDto } from "src/session/dto/Token.dto";
 
 @Injectable()
 export class AuthService {
@@ -36,10 +36,11 @@ export class AuthService {
         return this.usersService.createUser(registerDto)
     }
 
-    async login(loginDto: LoginDto, userAgent: string, ipAddress: string): Promise<TokenDto> {
-        const user: User | undefined = await this.usersService.findOne('username', loginDto.username)
+    async login(loginDto: LoginDto, userAgent: string, ipAddress: string): Promise<SecurityTokensDto> {
+        const user: User | undefined = await this.usersService.findOne('email', loginDto.email)
+
         if (!user) {
-            throw new NotFoundException("Username not found.")
+            throw new NotFoundException("User not found. Credentials are invalid.")
         }
 
         const isMatch: boolean = await bcrypt.compare(loginDto.password, user.password)

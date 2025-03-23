@@ -4,13 +4,13 @@ import { Hub } from "src/hubs/schema/hubs.schema";
 
 @Schema()
 export class User {
-    @Prop({ unique: true, required: true })
+    @Prop({ required: true })
     username: string
 
     @Prop({ required: true })
     password: string
 
-    @Prop({ unique: true, required: true })
+    @Prop({ unique: true, required: true, index: true })
     email: string
 
     @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Hub' }] })

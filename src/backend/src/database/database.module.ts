@@ -3,7 +3,7 @@ import { DatabaseService } from './database.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 
-interface DatabaseConfig {
+interface IDatabaseConfig {
   user: string,
   password: string,
   host: string,
@@ -15,7 +15,7 @@ interface DatabaseConfig {
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => {
-        const dbConfig = configService.get<DatabaseConfig>('database')
+        const dbConfig = configService.get<IDatabaseConfig>('database')
         const dbURI = `mongodb+srv://${dbConfig.user}:${dbConfig.password}@${dbConfig.host}${dbConfig.options}`
 
         console.log('Connecting to MongoDB at:', dbURI)

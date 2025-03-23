@@ -7,7 +7,7 @@ import { UsersService } from "src/users/users.service";
 import { CreateSessionDto } from "./dto/CreateSession.dto";
 import * as crypto from 'crypto'
 import { RefreshSessionDto } from "./dto/RefreshSession.dto";
-import { TokenDto } from "./dto/Token.dto";
+import { SecurityTokensDto } from "./dto/Token.dto";
 
 export type SessionDocument = HydratedDocument<Session>
 
@@ -20,21 +20,26 @@ export class SessionService {
         private usersService: UsersService
     ) { }
 
-    async createSession(createSessionDto: CreateSessionDto): Promise<TokenDto> {
+    async createSession(createSessionDto: CreateSessionDto): Promise<SecurityTokensDto> {
         const { user, userAgent, ipAddress } = createSessionDto
 
-        const accessToken = await this.generateAccessToken({ sub: user._id, username: user.username })
+        // TODO change role to an actual role
+        const accessToken = await this.generateJWTToken({ sub: user._id, role: 'admin' })
+        const idToken = await this.generateJWTToken({ sub: user._id, username: user.username, email: user.email })
         const refreshToken = this.generateRefreshToken()
 
+        const createdAt = new Date()
         const expiresAt = new Date()
         expiresAt.setDate(expiresAt.getDate() + 30)
 
         const session = new this.sessionModel({
-            userId: user._id,
             refreshToken,
+            userId: user._id,
             userAgent,
             ipAddress,
-            expiresAt
+            expiresAt,
+            createdAt,
+            updatedAt: createdAt
         })
 
         await session.save()
@@ -42,12 +47,13 @@ export class SessionService {
 
         return {
             accessToken,
-            refreshToken
+            refreshToken,
+            idToken
         }
     }
 
-    async refreshToken(refreshTokenDto: RefreshSessionDto): Promise<{ accessToken: string }> {
-        const { refreshToken, userAgent, ipAddress } = refreshTokenDto
+    async refreshToken(refreshSessionDto: RefreshSessionDto): Promise<{ accessToken: string, newRefreshToken: string }> {
+        const { refreshToken, userAgent, ipAddress } = refreshSessionDto
 
         const session = await this.sessionModel.findOne({ refreshToken })
 
@@ -64,22 +70,31 @@ export class SessionService {
             throw new UnauthorizedException("Session revoked. User agent was changed.")
         }
 
+        if (session.ipAddress !== ipAddress) {
+            await this.revokeSession(session._id)
+            throw new UnauthorizedException("Session revoked. IP Address was changed.")
+        }
+
         const user = await this.usersService.findById(session.userId)
 
         if (!user) {
             throw new NotFoundException("User not found.")
         }
 
-        const accessToken = await this.generateAccessToken({ sub: user._id, username: user.username })
+        const accessToken = await this.generateJWTToken({ sub: user._id, role: 'admin' })
+        const newRefreshToken = await this.generateRefreshToken()
 
+        session.refreshToken = newRefreshToken
         session.updatedAt = new Date()
-        await session.save()
 
-        return { accessToken }
+        await session.save()
+            .catch((error => { throw new InternalServerErrorException("Error refreshing session: ", error) }))
+
+        return { accessToken, newRefreshToken }
     }
 
     async revokeSession(sessionId: Types.ObjectId): Promise<void> {
-        const session = await this.sessionModel.findOne({ sessionId })
+        const session = await this.sessionModel.findOne({ "_id": sessionId })
 
         if (!session) {
             throw new NotFoundException("Session not found.")
@@ -87,6 +102,7 @@ export class SessionService {
 
         session.isRevoked = true
         await session.save()
+            .catch(error => { throw new InternalServerErrorException("Error revoking session: ", error) })
     }
 
     async validateSession(refreshToken): Promise<boolean> {
@@ -98,10 +114,10 @@ export class SessionService {
     }
 
     private generateRefreshToken(): string {
-        return crypto.randomBytes(8).toString('hex')
+        return crypto.randomBytes(16).toString('hex')
     }
 
-    private async generateAccessToken(payload): Promise<string> {
+    private async generateJWTToken(payload): Promise<string> {
         return await this.jwtService.signAsync(payload)
     }
 }

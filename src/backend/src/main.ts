@@ -19,6 +19,9 @@ async function bootstrap() {
   app.use(helmet())
   app.use(cookieParser())
 
+  console.log(process.env.DB_HOST)
+  console.log(process.env.JWT_SECRET)
+
   await app.listen(process.env.PORT ?? 3000);
 }
 

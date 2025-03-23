@@ -2,10 +2,10 @@ import { Module } from "@nestjs/common";
 import { MongooseModule } from "@nestjs/mongoose";
 import { Session, SessionSchema } from "./schema/session.schema";
 import { JwtModule } from "@nestjs/jwt";
-import { jwtConstants } from "src/auth/constants";
 import { UsersModule } from "src/users/users.module";
 import { SessionService } from "./session.service";
 import { SessionController } from "./session.controller";
+import { ConfigModule, ConfigService } from "@nestjs/config";
 
 @Module({
     imports: [
@@ -13,10 +13,14 @@ import { SessionController } from "./session.controller";
             name: Session.name,
             schema: SessionSchema
         }]),
-        JwtModule.register({
-            global: true,
-            secret: jwtConstants.secret,
-            signOptions: { expiresIn: '60s' }
+        JwtModule.registerAsync({
+            imports: [ConfigModule],
+            inject: [ConfigService],
+            useFactory: async (configService: ConfigService) => ({
+                secret: configService.get<string>('jwt.secret'),
+                signOptions: { expiresIn: '60s' },
+            }),
+            global: true
         }),
         UsersModule
     ],

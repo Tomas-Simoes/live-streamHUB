@@ -12,6 +12,4 @@ export class RefreshSessionDto {
     @IsNotEmpty()
     @IsString()
     ipAddress: string
-
-
 }

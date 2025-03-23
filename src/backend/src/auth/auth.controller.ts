@@ -3,7 +3,7 @@ import { AuthService } from './auth.service';
 import { LoginDto } from './dto/Login.dto';
 import { AuthGuard } from './guard/auth.guard';
 import { RegisterDto } from './dto/Register.dto';
-import { TokenDto } from 'src/session/dto/Token.dto';
+import { SecurityTokensDto } from 'src/session/dto/Token.dto';
 import { Request, Response } from 'express';
 
 @Controller('auth')
@@ -21,15 +21,17 @@ export class AuthController {
         @Body() loginDto: LoginDto,
         @Req() request: Request,
         @Res({ passthrough: true }) response: Response
-    ): Promise<TokenDto> {
+    ): Promise<SecurityTokensDto> {
         const userAgent = request.headers['user-agent'] || 'unknown'
         const ipAddress = request.ip || 'unknown'
 
-        response.cookie
+        const { accessToken, refreshToken, idToken } = await this.authService.login(loginDto, userAgent, ipAddress)
 
-        const { accessToken, refreshToken } = await this.authService.login(loginDto, userAgent, ipAddress)
-
-        // TODO change secure to true when we get https
+        /*
+        TODO.
+            * change secure to true when we get https
+            * add domain and path attributes to cookies
+        */
         response.cookie('accessToken', accessToken, {
             httpOnly: true,
             secure: false,
@@ -44,7 +46,14 @@ export class AuthController {
             maxAge: 7 * 24 * 60 * 60 * 1000 // 1 week
         })
 
-        return { accessToken, refreshToken }
+        response.cookie('idToken', idToken, {
+            httpOnly: true,
+            secure: false,
+            sameSite: 'strict',
+            maxAge: 15 * 60 * 1000 // 15 min
+        })
+
+        return { accessToken, refreshToken, idToken }
     }
 
     @UseGuards(AuthGuard)

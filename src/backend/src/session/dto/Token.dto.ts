@@ -1,10 +1,15 @@
-import { IsNotEmpty, IsString } from "class-validator"
+import { isNotEmpty, IsNotEmpty, IsString } from "class-validator"
 
-export class TokenDto {
+export class SecurityTokensDto {
     @IsNotEmpty()
     @IsString()
     accessToken: string
 
     @IsString()
-    refreshToken?: string
+    @IsNotEmpty()
+    refreshToken: string
+
+    @IsString()
+    @IsNotEmpty()
+    idToken: string
 }

@@ -2,14 +2,14 @@ import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 
 @Schema()
 export class Session {
-    @Prop({ required: true })
-    userId: string
-
-    @Prop({ required: true, unique: true })
+    @Prop({ required: true, unique: true, index: true })
     refreshToken: string
 
     @Prop({ default: false })
     isRevoked: boolean
+
+    @Prop()
+    userId: string
 
     @Prop()
     userAgent: string
