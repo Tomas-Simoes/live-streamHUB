@@ -1,34 +1,35 @@
 {
   "name": "web",
-  "version": "1.0.0",
-  "description": "",
-  "license": "ISC",
-  "author": "",
-  "type": "commonjs",
-  "main": "index.js",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
   "scripts": {
-    "start": "webpack-dev-server --mode development --open",
-    "build": "webpack --mode production"
+    "dev": "vite",
+    "build": "tsc -b && vite build --emptyOutDir",
+    "lint": "eslint .",
+    "preview": "vite preview"
   },
   "dependencies": {
-    "html-webpack-plugin": "^5.6.3",
+    "@tailwindcss/vite": "^4.0.15",
+    "fs": "^0.0.1-security",
+    "path": "^0.12.7",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react-dom": "^19.0.0",
+    "tailwindcss": "^4.0.15"
   },
   "devDependencies": {
-    "@babel/core": "^7.26.10",
-    "@babel/preset-env": "^7.26.9",
-    "@babel/preset-react": "^7.26.3",
-    "@babel/preset-typescript": "^7.26.0",
-    "@types/react": "^19.0.12",
+    "@eslint/js": "^9.21.0",
+    "@types/node": "^22.13.11",
+    "@types/react": "^19.0.10",
     "@types/react-dom": "^19.0.4",
-    "babel-loader": "^10.0.0",
-    "css-loader": "^7.1.2",
-    "path-browserify": "^1.0.1",
-    "style-loader": "^4.0.0",
-    "typescript": "^5.8.2",
-    "webpack": "^5.98.0",
-    "webpack-cli": "^6.0.1",
-    "webpack-dev-server": "^5.2.0"
+    "@vitejs/plugin-react": "^4.3.4",
+    "eslint": "^9.21.0",
+    "eslint-plugin-react-hooks": "^5.1.0",
+    "eslint-plugin-react-refresh": "^0.4.19",
+    "globals": "^15.15.0",
+    "typescript": "~5.7.2",
+    "typescript-eslint": "^8.24.1",
+    "vite": "^6.2.0",
+    "vite-tsconfig-paths": "^5.1.4"
   }
 }
