@@ -1,7 +1,8 @@
 import { Type } from "class-transformer";
 import { IsArray, IsOptional, IsString, ValidateNested } from "class-validator";
-import { HubIMGDto } from "./hub-img-dto";
-import { HubFeatureDto } from "./hub-feature-dto";
+import { HubIMGDto, UpdateHubImgDto } from "../common/hub-img-dto";
+import { HubFeatureDto, UpdateHubFeatureDto } from "../common/hub-feature-dto";
+import { PartialType } from "@nestjs/mapped-types";
 
 export class UpdateHubDto {
     @IsOptional()
@@ -14,13 +15,13 @@ export class UpdateHubDto {
 
     @IsArray()
     @ValidateNested({ each: true })
-    @Type(() => HubIMGDto)
+    @Type(() => UpdateHubImgDto)
     @IsOptional()
-    img?: HubIMGDto[]
+    imgs?: UpdateHubImgDto[]
 
     @IsArray()
     @ValidateNested({ each: true })
-    @Type(() => HubFeatureDto)
+    @Type(() => UpdateHubFeatureDto)
     @IsOptional()
-    features?: HubIMGDto[]
+    features?: UpdateHubFeatureDto[]
 }

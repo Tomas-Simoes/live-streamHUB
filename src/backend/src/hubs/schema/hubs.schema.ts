@@ -7,6 +7,9 @@ export class HubIMG {
     @Prop({ required: true })
     imgUrl: string
 
+    @Prop({ required: true })
+    htmlId: string
+
     @Prop({ type: Object, required: true })
     position: {
         x: number,
@@ -18,7 +21,10 @@ export const HubIMGSchema = SchemaFactory.createForClass(HubIMG)
 @Schema()
 export class HubFeature {
     @Prop({ required: true })
-    featureName: string
+    feature: string
+
+    @Prop({ required: true })
+    htmlId: string
 
     @Prop({ type: Object, required: true })
     position: {
@@ -37,7 +43,7 @@ export class Hub {
     user: User
 
     @Prop({ type: [HubIMGSchema], required: true })
-    img: HubIMG[]
+    imgs: HubIMG[]
 
     @Prop({ type: [HUBFeatureSchema], required: true })
     features: HubFeature[]
