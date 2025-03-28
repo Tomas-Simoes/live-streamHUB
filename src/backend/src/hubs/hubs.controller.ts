@@ -1,8 +1,7 @@
 import { Body, Controller, Delete, Get, Param, Patch, Post, UsePipes, ValidationPipe } from "@nestjs/common";
-import { HubsService } from "./hubs.service";
-import { CreateHubDto } from "./dto/create-hub.dto";
-import { GetHubByUserIdDto } from "./dto/get-hub-user_id.dto";
-import { UpdateHubDto } from "./dto/update-hub.dto";
+import { HubDocument, HubsService } from "./hubs.service";
+import { CreateHubDto } from "./dto/create/create-hub.dto";
+import { UpdateHubDto } from "./dto/update/update-hub.dto";
 
 // TODO add guards on there endpoints
 @Controller('hub')
@@ -16,22 +15,20 @@ export class HubsController {
         return this.hubsService.createHUB(createHubDto)
     }
 
-    @Get(':userId')
+    @Get('get/:userId')
     @UsePipes(new ValidationPipe())
-    getHubByUserId(@Param() params: GetHubByUserIdDto) {
-        return this.hubsService.getByUserID(params)
+    getHubsByUserId(@Param() params: { userId: string }) {
+        return this.hubsService.getUserHubs(params.userId)
     }
 
-    // TODO get a way to update changes on img[] and feature[]
     @Patch('update/:hubId')
     @UsePipes(new ValidationPipe({ whitelist: true }))
-    updateHub(
+    async updateHub(
         @Param() params: { hubId: string },
         @Body() updateHubDto: UpdateHubDto
     ) {
-        console.log(params.hubId)
-
-        return this.hubsService.updateHub(params.hubId, updateHubDto)
+        const { hubId } = params;
+        return this.hubsService.updateHub(hubId, updateHubDto)
     }
 
     @Delete('delete/:hubId')

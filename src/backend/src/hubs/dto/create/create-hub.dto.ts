@@ -1,7 +1,7 @@
 import { IsArray, IsNotEmpty, IsOptional, IsString, ValidateNested } from "class-validator";
-import { HubIMGDto } from "./hub-img-dto";
+import { HubIMGDto } from "../common/hub-img-dto";
 import { Type } from "class-transformer";
-import { HubFeatureDto } from "./hub-feature-dto";
+import { HubFeatureDto } from "../common/hub-feature-dto";
 
 export class CreateHubDto {
     @IsNotEmpty()
@@ -16,11 +16,11 @@ export class CreateHubDto {
     @ValidateNested({ each: true })
     @Type(() => HubIMGDto)
     @IsOptional()
-    img?: HubIMGDto[]
+    imgs?: HubIMGDto[]
 
     @IsArray()
     @ValidateNested({ each: true })
     @Type(() => HubFeatureDto)
     @IsOptional()
-    features?: HubIMGDto[]
+    features?: HubFeatureDto[]
 }
