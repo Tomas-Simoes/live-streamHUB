@@ -66,7 +66,7 @@ eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpac
   \*******************************/
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
-eval("\nObject.defineProperty(exports, \"__esModule\", ({ value: true }));\nexports[\"default\"] = App;\nconst jsx_runtime_1 = __webpack_require__(/*! react/jsx-runtime */ \"../frontend/node_modules/react/jsx-runtime.js\");\n__webpack_require__(/*! ./app.css */ \"../frontend/src/app.css\");\nfunction App() {\n    return ((0, jsx_runtime_1.jsxs)(\"div\", { children: [(0, jsx_runtime_1.jsx)(\"h1\", { className: 'text-amber-950', children: \"Welcome dwadaw my dwa\" }), (0, jsx_runtime_1.jsx)(\"h2\", { className: 'text-amber-950', children: \"Welcome dwadaw my dwa\" })] }));\n}\n\n\n//# sourceURL=webpack://overwolf-api/../frontend/src/app.tsx?");
+eval("\nObject.defineProperty(exports, \"__esModule\", ({ value: true }));\nexports[\"default\"] = App;\nconst jsx_runtime_1 = __webpack_require__(/*! react/jsx-runtime */ \"../frontend/node_modules/react/jsx-runtime.js\");\n__webpack_require__(/*! ./app.css */ \"../frontend/src/app.css\");\nfunction App() {\n    return ((0, jsx_runtime_1.jsxs)(\"div\", { children: [(0, jsx_runtime_1.jsx)(\"h1\", { className: 'text-amber-950', children: \"Welcome dwadaw my dwa\" }), (0, jsx_runtime_1.jsx)(\"h2\", { className: 'text-amber-950', children: \"Welcome dwadaw my dwa\" }), (0, jsx_runtime_1.jsx)(\"img\", { src: \"cristiano.jpg\" })] }));\n}\n\n\n//# sourceURL=webpack://overwolf-api/../frontend/src/app.tsx?");
 
 /***/ }),
 

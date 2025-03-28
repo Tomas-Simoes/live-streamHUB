@@ -17,6 +17,8 @@ export default defineConfig({
     outDir: '../../web/dist',
   },
 
+  publicDir: path.resolve(__dirname, '../frontend/public/assets'),
+
   server: {
     port: 3000,
     fs: {
@@ -32,6 +34,8 @@ export default defineConfig({
   ],
 
   base: '',
+
+  assetsInclude: ['../src/assets/*'],
 
   resolve: {
     alias: {

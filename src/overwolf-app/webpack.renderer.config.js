@@ -2,6 +2,7 @@
 const config = require('./webpack.base.config');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const path = require('path');
+const ASSET_PATH = process.env.ASSET_PATH || '/';
 
 const rendererConfig = { ...config };
 
