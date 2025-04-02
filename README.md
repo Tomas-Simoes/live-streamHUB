@@ -6,9 +6,9 @@
 Live StreamHUB enables broadcasters to create a fully customizable streaming HUB with dynamic in-game data integration. The system consists of a web application, an Overwolf-powered data client, and a server-side component.
 
 ## Features
-- **Web Application**: Allows users to create and customize their streaming HUB.
-- **Overwolf API**: A standalone application that fetches real-time game data.
-- **Server-side**: **TODO**
+- **Web Application**: Allows users to create and customize their streaming HUB (React).
+- **Overwolf API**: A standalone application that fetches real-time game data (Electron).
+- **Server-side**: A backend application which makes connection between the web application and our MongoDB database (Nest).
 
 ## Prerequisites
 Ensure you have the following installed on your machine:
@@ -39,7 +39,7 @@ cd live-streamHUB
 npm install --prefix ./src/backend/
 npm install --prefix ./src/frontend/
 npm install --prefix ./src/overwolf-app/
-npm install --prefix ./src/web
+npm install --prefix ./src/web/
 ```
 
 ## Usage
@@ -47,6 +47,7 @@ npm install --prefix ./src/web
 
 #### Overwolf API Module
 To start the Overwolf API module, run:
+
 ```sh
 # if you are in root directory
 npm run start:overwolf
@@ -59,7 +60,14 @@ This bundles everything related to Overwolf into `src/overwolf-api/.webpack`, st
 - `.webpack/renderer`: Renderer HTML files
 
 #### Backend Module
+To start the Backend module, run:
 
+```sh
+# if you are in root directory
+ 
+
+# if you are in src/backend directory
+npm run start:dev
 #### Web Module
 
 ### Building the Application
