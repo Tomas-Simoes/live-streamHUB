@@ -1,4 +1,5 @@
 # Live StreamHUB
+*disclaimer: this project is uncompleted and stopped*
 
 **Live StreamHUB** is an application that integrates with Overwolf to provide a HUB broadcast in OBS with in-game real-time statistics and analytics for spectator mode in League of Legends and CS2.
 
