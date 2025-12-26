@@ -88,8 +88,3 @@ This generates a `.deb` package for Linux distributions in `src/overwolf-api/out
 - **Tomás Simões** - [GitHub](https://github.com/Tomas-Simoes)
 - **Rafael** - [GitHub](https://github.com/Rafasta236)
 - **Leonardo** - [GitHub](https://github.com/leorcf)
-
-See the list of [contributors](https://github.com/your/project/contributors) who participated in this project.
-
-## License
-**TODO** - Specify the license under which the project is distributed.
