@@ -1,5 +1,5 @@
 import { Type } from "class-transformer";
-import { IsArray, IsOptional, IsString, ValidateNested } from "class-validator";
+import { IsArray, IsObject, IsOptional, IsString, ValidateNested } from "class-validator";
 import { HubIMGDto, UpdateHubImgDto } from "../common/hub-img-dto";
 import { HubFeatureDto, UpdateHubFeatureDto } from "../common/hub-feature-dto";
 import { PartialType } from "@nestjs/mapped-types";
@@ -24,4 +24,8 @@ export class UpdateHubDto {
     @Type(() => UpdateHubFeatureDto)
     @IsOptional()
     features?: UpdateHubFeatureDto[]
+
+    @IsObject()
+    @IsOptional()
+    layout?: Record<string, any>
 }

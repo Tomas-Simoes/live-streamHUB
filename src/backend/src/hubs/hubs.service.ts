@@ -1,7 +1,7 @@
-import { HttpException, Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Hub, HubFeature, HubIMG } from './schema/hubs.schema';
-import { HydratedDocument, Model } from 'mongoose';
+import { Hub } from './schema/hubs.schema';
+import { HydratedDocument, isValidObjectId, Model } from 'mongoose';
 import { CreateHubDto } from './dto/create/create-hub.dto';
 import { User } from 'src/users/schema/users.schema';
 import { UpdateHubDto } from './dto/update/update-hub.dto';
@@ -15,29 +15,47 @@ export class HubsService {
         @InjectModel(User.name) private userModel: Model<User>
     ) { }
 
-    async createHUB(createHubDto: CreateHubDto): Promise<HubDocument> {
-        const user = await this.userModel.findById(createHubDto.userId)
+    async getAllHubs(): Promise<HubDocument[]> {
+        return this.hubModel.find().sort({ _id: -1 })
+    }
 
-        if (!user) throw new NotFoundException("User not found.")
-        const newHub = new this.hubModel(createHubDto)
-        newHub.user = user
+    async createHUB(createHubDto: CreateHubDto): Promise<HubDocument> {
+        const owner = createHubDto.userId ? await this.userModel.findById(createHubDto.userId) : null
+        const newHub = new this.hubModel({
+            ...createHubDto,
+            imgs: createHubDto.imgs ?? [],
+            features: createHubDto.features ?? []
+        })
+
+        if (createHubDto.userId && !owner) {
+            throw new NotFoundException("User not found.")
+        }
+
+        if (owner) {
+            newHub.user = owner
+        }
+
         const savedHub = await newHub.save()
 
-        await user.updateOne({
-            $push: {
-                hubs: savedHub._id
-            }
-        })
+        if (owner) {
+            await owner.updateOne({
+                $push: {
+                    hubs: savedHub._id
+                }
+            })
+        }
 
         return savedHub
     }
 
     async getUserHubs(userId: string): Promise<HubDocument[]> {
-        return this.hubModel.find({ user: userId })
+        return this.hubModel.find({ user: userId }).sort({ _id: -1 })
     }
 
     async getHubById(hubId: string): Promise<HubDocument> {
-        const hub = this.hubModel.findById(hubId)
+        const hub = isValidObjectId(hubId)
+            ? await this.hubModel.findById(hubId)
+            : await this.hubModel.findOne({ 'layout.id': hubId })
 
         if (!hub) throw new NotFoundException(`Hub ${hubId} not found`)
 
@@ -45,54 +63,60 @@ export class HubsService {
     }
 
     async updateHub(hubId: string, updateHubDto: UpdateHubDto): Promise<HubDocument> {
-        const { imgs, features, ...hubData } = updateHubDto
+        const updateQuery: Record<string, any> = {}
 
-        const updateQuery: any = { $set: {} }
+        Object.entries(updateHubDto).forEach(([key, value]) => {
+            if (value !== undefined) {
+                updateQuery[key] = value
+            }
+        })
 
-        if (hubData) {
-            Object.assign(updateQuery.$set, hubData)
-        }
-
-        if (imgs) {
-            imgs.forEach((img, index) => {
-                Object.keys(img).forEach((key) => {
-                    if (img[key] !== undefined) {
-                        updateQuery.$set[`imgs.$[img${index}].${key}`] = img[key]
-                    }
-                })
-            })
-        }
-
-        if (features) {
-            features.forEach((feature, index) => {
-                Object.keys(feature).forEach((key) => {
-                    if (feature[key] !== undefined) {
-                        updateQuery.$set[`features.$[feature${index}].${key}`] = feature[key]
-                    }
-                })
-            })
-        }
-
-        return await this.hubModel.findOneAndUpdate(
+        const updatedHub = await this.hubModel.findOneAndUpdate(
             { _id: hubId },
-            updateQuery,
+            { $set: updateQuery },
             {
                 new: true,
-                runValidators: true,
-                arrayFilters: [
-                    ...imgs?.map((img, index) => ({
-                        [`img${index}.htmlId`]: img.htmlId
-                    })) || [],
-
-                    ...features?.map((feature, index) => ({
-                        [`feature${index}.htmlId`]: feature.htmlId
-                    })) || []
-                ]
+                runValidators: true
             }
         )
+
+        if (!updatedHub) throw new NotFoundException(`Hub ${hubId} not found`)
+
+        return updatedHub
+    }
+
+    async updateUserHub(hubId: string, userId: string, updateHubDto: UpdateHubDto): Promise<HubDocument> {
+        const updateQuery: Record<string, any> = {}
+
+        Object.entries(updateHubDto).forEach(([key, value]) => {
+            if (value !== undefined && key !== 'userId') {
+                updateQuery[key] = value
+            }
+        })
+
+        const updatedHub = await this.hubModel.findOneAndUpdate(
+            { _id: hubId, user: userId },
+            { $set: updateQuery },
+            {
+                new: true,
+                runValidators: true
+            }
+        )
+
+        if (!updatedHub) throw new NotFoundException(`Hub ${hubId} not found for this user`)
+
+        return updatedHub
     }
 
     async deleteHub(hubId: string) {
         return await this.hubModel.findByIdAndDelete(hubId)
+    }
+
+    async deleteUserHub(hubId: string, userId: string) {
+        const deletedHub = await this.hubModel.findOneAndDelete({ _id: hubId, user: userId })
+
+        if (!deletedHub) throw new NotFoundException(`Hub ${hubId} not found for this user`)
+
+        return deletedHub
     }
 }

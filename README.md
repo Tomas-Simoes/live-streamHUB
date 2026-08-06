@@ -43,6 +43,14 @@ npm install --prefix ./src/overwolf-app/
 npm install --prefix ./src/web/
 ```
 
+Or on Linux from the repository root:
+
+```sh
+make install
+# or
+npm run install:all
+```
+
 ## Usage
 ### Starting the Application
 
@@ -65,13 +73,53 @@ To start the Backend module, run:
 
 ```sh
 # if you are in root directory
- 
+make dev-backend
+# or
+npm run dev:backend
 
 # if you are in src/backend directory
 npm run start:dev
+```
+
 #### Web Module
+To start the web editor:
+
+```sh
+# if you are in root directory
+make dev-web
+# or
+npm run dev:web
+
+# if you are in src/web directory
+npm run dev
+```
+
+#### Backend + Web together
+
+```sh
+make dev
+# or
+npm run dev
+```
+
+The web app runs on `http://localhost:5173` and the backend API on `http://localhost:3000` by default.
+
+Useful routes:
+
+```sh
+http://localhost:5173/login
+http://localhost:5173/register
+http://localhost:5173/layouts
+http://localhost:5173/editor
+```
 
 ### Building the Application
+
+```sh
+make build
+# or
+npm run build
+```
 
 #### Overwolf API Module
 To create a production-ready build:

@@ -24,8 +24,9 @@ export class SessionService {
         const { user, userAgent, ipAddress } = createSessionDto
 
         // TODO change role to an actual role
-        const accessToken = await this.generateJWTToken({ sub: user._id, role: 'admin' })
-        const idToken = await this.generateJWTToken({ sub: user._id, username: user.username, email: user.email })
+        const userId = String(user._id)
+        const accessToken = await this.generateJWTToken({ sub: userId, role: 'user' })
+        const idToken = await this.generateJWTToken({ sub: userId, username: user.username, email: user.email })
         const refreshToken = this.generateRefreshToken()
 
         const createdAt = new Date()
@@ -81,7 +82,7 @@ export class SessionService {
             throw new NotFoundException("User not found.")
         }
 
-        const accessToken = await this.generateJWTToken({ sub: user._id, role: 'admin' })
+        const accessToken = await this.generateJWTToken({ sub: String(user._id), role: 'user' })
         const newRefreshToken = await this.generateRefreshToken()
 
         session.refreshToken = newRefreshToken

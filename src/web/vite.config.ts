@@ -11,16 +11,16 @@ const __dirname = path.dirname(__filename);
 
 
 export default defineConfig({
-  root: path.resolve(__dirname, '../frontend/public'),
+  root: path.resolve(__dirname),
 
   build: {
-    outDir: '../../web/dist',
+    outDir: 'dist',
   },
 
   publicDir: path.resolve(__dirname, '../frontend/public/assets'),
 
   server: {
-    port: 3000,
+    port: 5173,
     fs: {
       strict: false,
       allow: ['.']
@@ -41,6 +41,13 @@ export default defineConfig({
     alias: {
       '@web': path.resolve(__dirname, '../web'),
       '@frontend': path.resolve(__dirname, '../frontend')
+    },
+    dedupe: ['react', 'react-dom']
+  },
+  optimizeDeps: {
+    include: ['react', 'react-dom'],
+    esbuildOptions: {
+      preserveSymlinks: false
     }
   }
 })

@@ -2,9 +2,16 @@
     "name": "live-hub",
     "version": "0.1",
     "scripts": {
-        "start:web": "webpack --config src/web/webpack/webpack.config.js --mode development",
-        "build:web": "webpack --config src/web/webpack/webpack.config.js --mode production",
-        "start:overwolf": "cd src/overwolf-app && npm run build:start"
+        "install:all": "npm install --prefix ./src/backend && npm install --prefix ./src/frontend && npm install --prefix ./src/overwolf-app && npm install --prefix ./src/web",
+        "dev": "sh -c 'npm run dev:backend & backend=$!; npm run dev:web & web=$!; trap \"kill $backend $web\" INT TERM EXIT; wait'",
+        "dev:backend": "npm run start:dev --prefix ./src/backend",
+        "dev:web": "npm run dev --prefix ./src/web",
+        "dev:overwolf": "npm run build:start --prefix ./src/overwolf-app",
+        "build": "npm run build --prefix ./src/backend && npm run build --prefix ./src/web",
+        "build:backend": "npm run build --prefix ./src/backend",
+        "build:web": "npm run build --prefix ./src/web",
+        "lint:web": "npm run lint --prefix ./src/web",
+        "start:overwolf": "npm run dev:overwolf"
     },
     "dependencies": {
         "@types/react": "^19.0.12",

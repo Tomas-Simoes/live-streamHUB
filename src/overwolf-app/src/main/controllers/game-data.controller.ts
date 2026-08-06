@@ -1,6 +1,8 @@
 import { DataProcessorService } from "../services/data-processor.service";
 import { eventEmitter } from "../services/event-emitter.service";
 import { GameEventsService } from "../services/game-events.service";
+import http from "http";
+import https from "https";
 
 import LeagueDataMap from "@data-map/LeagueDataMap.json"
 
@@ -36,5 +38,47 @@ export default class GameDataController {
 
         let processedData = this.dataProcessorService.processData(unprocessedData, LeagueDataMap)
         console.log(JSON.stringify(processedData, null, 2))
+
+        void this.forwardToBackend(unprocessedData, processedData)
+    }
+
+    private async forwardToBackend(rawData, processedData) {
+        const backendBaseUrl = (process.env.HUB_BACKEND_URL || 'http://localhost:3000').replace(/\/$/, '')
+
+        try {
+            await this.postJson(`${backendBaseUrl}/game-data/ingest`, {
+                source: 'overwolf-electron',
+                raw: rawData,
+                processed: processedData
+            })
+        } catch (error) {
+            eventEmitter.emit('log', 'Data Controller: backend ingest failed.', error)
+        }
+    }
+
+    private postJson(urlString: string, payload): Promise<void> {
+        return new Promise((resolve, reject) => {
+            const url = new URL(urlString)
+            const body = JSON.stringify(payload)
+            const requestModule = url.protocol === 'https:' ? https : http
+
+            const request = requestModule.request({
+                method: 'POST',
+                hostname: url.hostname,
+                port: url.port,
+                path: `${url.pathname}${url.search}`,
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Content-Length': Buffer.byteLength(body)
+                }
+            }, (response) => {
+                response.resume()
+                response.on('end', () => resolve())
+            })
+
+            request.on('error', reject)
+            request.write(body)
+            request.end()
+        })
     }
 }

@@ -36,7 +36,7 @@ export class AuthController {
             httpOnly: true,
             secure: false,
             sameSite: 'strict',
-            maxAge: 60 * 1000 // 1 min
+            maxAge: 2 * 60 * 60 * 1000 // 2 hours
         })
 
         response.cookie('refreshToken', refreshToken, {
@@ -57,8 +57,8 @@ export class AuthController {
     }
 
     @UseGuards(AuthGuard)
-    @Get('protected')
+    @Get('me')
     getProfile(@Req() req) {
-        return req.user
+        return this.authService.getMe(req.user.sub)
     }
 }

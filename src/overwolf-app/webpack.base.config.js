@@ -25,7 +25,8 @@ module.exports = {
         alias: {
             '@template-data': path.resolve(__dirname, 'data_templates'),
             '@data-map': path.resolve(__dirname, 'src/main/config'),
-            '@frontend': path.resolve(__dirname, '../frontend')
+            '@frontend': path.resolve(__dirname, '../frontend'),
+            '@web': path.resolve(__dirname, '../web')
         },
         extensions: ['.tsx', '.ts', '.js', '.jsx', '.json'],
         fallback: {

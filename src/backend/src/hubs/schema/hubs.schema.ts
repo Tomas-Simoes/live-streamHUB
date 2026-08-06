@@ -39,14 +39,17 @@ export class Hub {
     @Prop({ required: true })
     hubName: string;
 
-    @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true })
+    @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User', required: false })
     user: User
 
-    @Prop({ type: [HubIMGSchema], required: true })
+    @Prop({ type: [HubIMGSchema], default: [] })
     imgs: HubIMG[]
 
-    @Prop({ type: [HUBFeatureSchema], required: true })
+    @Prop({ type: [HUBFeatureSchema], default: [] })
     features: HubFeature[]
+
+    @Prop({ type: Object, default: null })
+    layout: Record<string, any>
 }
 
 export const HubSchema = SchemaFactory.createForClass(Hub)

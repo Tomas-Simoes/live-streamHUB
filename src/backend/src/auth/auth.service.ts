@@ -8,6 +8,20 @@ import { User } from "src/users/schema/users.schema";
 import { SessionService } from "src/session/session.service";
 import { SecurityTokensDto } from "src/session/dto/Token.dto";
 
+export interface PublicUser {
+    id: string;
+    username: string;
+    email: string;
+}
+
+function toPublicUser(user: User | UserDocument): PublicUser {
+    return {
+        id: String(user._id),
+        username: user.username,
+        email: user.email
+    }
+}
+
 @Injectable()
 export class AuthService {
     constructor(
@@ -15,7 +29,7 @@ export class AuthService {
         private sessionService: SessionService
     ) { }
 
-    async register(registerDto: RegisterDto): Promise<UserDocument> {
+    async register(registerDto: RegisterDto): Promise<PublicUser> {
         const existingUsername = await this.usersService.findOne('username', registerDto.username)
 
         if (existingUsername) {
@@ -33,7 +47,8 @@ export class AuthService {
 
         registerDto.password = hashedPassword
 
-        return this.usersService.createUser(registerDto)
+        const user = await this.usersService.createUser(registerDto)
+        return toPublicUser(user)
     }
 
     async login(loginDto: LoginDto, userAgent: string, ipAddress: string): Promise<SecurityTokensDto> {
@@ -49,5 +64,15 @@ export class AuthService {
         }
 
         return this.sessionService.createSession({ user, userAgent, ipAddress })
+    }
+
+    async getMe(userId: string): Promise<PublicUser> {
+        const user = await this.usersService.findById(userId)
+
+        if (!user) {
+            throw new NotFoundException("User not found.")
+        }
+
+        return toPublicUser(user)
     }
 }
