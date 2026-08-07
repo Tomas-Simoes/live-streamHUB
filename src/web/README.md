@@ -1,54 +1,25 @@
-# React + TypeScript + Vite
+# Live StreamHUB Web
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+This web app is now an Angular application organized by feature modules.
 
-Currently, two official plugins are available:
+## Commands
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- `npm run dev` starts Angular on `http://localhost:4200/`.
+- `npm run build` creates a production build in `dist/`.
 
-## Expanding the ESLint configuration
+From the repository root, use `npm run dev:web` and `npm run build:web`.
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## Structure
 
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
-```
+- `src/app/core/models` contains shared domain types such as `HubLayout`, `HubElement`, and game-state models.
+- `src/app/core/services` contains state and integration boundaries: auth, hub storage, game data, data bindings, language, and OBS.
+- `src/app/features/editor` contains the editor feature module and its component split.
+- `src/app/features/renderer` contains the hub renderer used by the editor, layout previews, and OBS overlay route.
+- `src/app/features/layouts`, `auth`, `landing`, and `overlay` own their page components.
+- `src/styles` contains global styles migrated from the previous app. Feature-specific style entry files live beside each module under `features/*/styles`.
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Notes
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+The editor stores element positions in fixed 1920x1080 broadcast-canvas units even though the canvas scales responsively in the browser. See `CanvasEditorComponent.getCanvasPoint` and the pointer handlers in `HubEditorComponent` for the conversion logic.
 
-export default tseslint.config({
-  plugins: {
-    // Add the react-x and react-dom plugins
-    'react-x': reactX,
-    'react-dom': reactDom,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended typescript rules
-    ...reactX.configs['recommended-typescript'].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-})
-```
+Hub editing is local-first. Every layout mutation goes through `HubEditorComponent.updateHub`, which refreshes `updatedAt` and writes a local draft via `HubStorageService.saveHubLocally`. Explicit Save still attempts the backend and falls back to local storage if the API is unavailable.

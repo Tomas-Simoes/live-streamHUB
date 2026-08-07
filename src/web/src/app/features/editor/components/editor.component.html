@@ -1,0 +1,201 @@
+<main class="editor-shell">
+  <header class="editor-topbar">
+    <div class="brand-block">
+      <span class="brand-mark" aria-hidden="true"></span>
+      <span class="brand-name">Live Stream HUB</span>
+    </div>
+
+    <nav class="topbar-nav" aria-label="Main navigation">
+      <a class="topbar-link topbar-link-active" routerLink="/editor">Editor</a>
+      <a class="topbar-link" routerLink="/hubs">Hubs</a>
+    </nav>
+  </header>
+
+  <!----------------------- LEFT SIDE EDITOR PANEL ----------------------->
+  <aside class="editor-sidebar editor-sidebar-left" aria-label="Element editor">
+    <section class="inspector-panel" aria-label="Selected element settings">
+      <div class="panel-header">
+        <h2 class="panel-title">Edit Element</h2>
+      </div>
+
+      <div class="inspector-content">
+        @if(editorStore.selectedLayer(); as selectedLayer){
+        <div class="inspector-summary">
+          <span class="inspector-layer-name">{{ selectedLayer.name }}</span>
+          <span class="inspector-layer-kind">{{ selectedLayer.type }}</span>
+        </div>
+
+        <section class="inspector-section" aria-label="Position settings">
+          <div class="field-grid">
+            <label class="field-label">
+              X
+              <input class="field-input" type="number" [value]="selectedLayer.position.x" />
+            </label>
+
+            <label class="field-label">
+              Y
+              <input class="field-input" type="number" [value]="selectedLayer.position.y" />
+            </label>
+
+            <label class="field-label">
+              W
+              <input class="field-input" type="number" [value]="selectedLayer.width" />
+            </label>
+
+            <label class="field-label">
+              H
+              <input class="field-input" type="number" [value]="selectedLayer.height" />
+            </label>
+          </div>
+        </section>
+
+        @switch(selectedLayer.type){
+        @case(LayerType.Text){
+        <app-text-editor [layer]="selectedLayer"></app-text-editor>
+        }
+        @case(LayerType.Image){
+        <app-image-editor [layer]="selectedLayer"></app-image-editor>
+        }
+        @case(LayerType.Video){
+        <app-video-editor [layer]="selectedLayer"></app-video-editor>
+        }
+        @case(LayerType.Kills){
+        <app-stat-editor [layer]="selectedLayer"></app-stat-editor>
+        }
+        @case(LayerType.Towers){
+        <app-stat-editor [layer]="selectedLayer"></app-stat-editor>
+        }
+        @case(LayerType.Group){
+        <app-group-editor [layer]="selectedLayer"></app-group-editor>
+        }
+        }
+        } @else {
+        <p class="inspector-empty">Select a layer to edit its settings.</p>
+        }
+      </div>
+    </section>
+  </aside>
+
+  <!----------------------- CANVAS ----------------------->
+  <section class="editor-stage" aria-label="Editor canvas">
+    <div class="canvas-base" #canvasBase>
+      @for (layer of editorStore.layers(); track layer.id){
+      <div class="canvas-layer" [class.canvas-layer-selected]="editorStore.selectedLayerId() === layer.id"
+        (pointerdown)="startDrag($event, layer, canvasBase)" [style.left.%]="getCanvasStyleValue(layer.position.x, 'x')"
+        [style.top.%]="getCanvasStyleValue(layer.position.y, 'y')"
+        [style.width.%]="getCanvasStyleValue(layer.width, 'x')"
+        [style.height.%]="getCanvasStyleValue(layer.height, 'y')">
+        @switch(layer.type){
+        @case(LayerType.Text){
+        <app-text-loader [layer]="layer"></app-text-loader>
+        }
+        @case(LayerType.Image){
+        <app-image-loader [layer]="layer"></app-image-loader>
+        }
+        @case(LayerType.Video){
+        <app-video-loader [layer]="layer"></app-video-loader>
+        }
+        @case(LayerType.Kills){
+        <app-kills-loader [layer]="layer"></app-kills-loader>
+        }
+        @case(LayerType.Towers){
+        <app-towers-loader [layer]="layer"></app-towers-loader>
+        }
+        @case(LayerType.Group){
+        <app-group-loader [layer]="layer"></app-group-loader>
+        }
+        }
+        @if(editorStore.selectedLayerId() === layer.id){
+        @for(handle of resizeHandles; track handle){
+        <span class="resize-handle" [class]="'resize-handle resize-handle-' + handle"
+          (pointerdown)="startResize($event, handle, layer, canvasBase)" aria-hidden="true"></span>
+        }
+        }
+      </div>
+      }
+    </div>
+  </section>
+
+  <!----------------------- RIGHT SIDE LAYER PANEL ----------------------->
+  <aside class="editor-sidebar editor-sidebar-right" aria-label="Editor layers">
+    <section class="elements-panel" aria-label="Add elements">
+      <div class="panel-header">
+        <h2 class="panel-title">Add Elements</h2>
+      </div>
+
+      <div class="element-grid" aria-label="Element types">
+        <button class="element-tile" type="button" (click)="createLayer(LayerType.Text)">
+          <span class="element-icon element-icon-text" aria-hidden="true">T</span>
+          <span class="element-name">Text</span>
+        </button>
+
+        <button class="element-tile" type="button" (click)="createLayer(LayerType.Image)">
+          <span class="element-icon element-icon-image" aria-hidden="true"></span>
+          <span class="element-name">Image</span>
+        </button>
+
+        <button class="element-tile" type="button" (click)="createLayer(LayerType.Video)">
+          <span class="element-icon element-icon-video" aria-hidden="true"></span>
+          <span class="element-name">Video</span>
+        </button>
+
+        <button class="element-tile" type="button" (click)="createLayer(LayerType.Kills)">
+          <span class="element-icon element-icon-stat" aria-hidden="true">K</span>
+          <span class="element-name">Kills</span>
+        </button>
+
+        <button class="element-tile" type="button" (click)="createLayer(LayerType.Towers)">
+          <span class="element-icon element-icon-stat" aria-hidden="true">T</span>
+          <span class="element-name">Towers</span>
+        </button>
+      </div>
+    </section>
+
+    <section class="layers-panel" aria-label="Layers">
+      <div class="panel-header">
+        <h2 class="panel-title">Layers</h2>
+        <div class="layer-actions" aria-label="Layer actions">
+          <button class="icon-button" type="button" aria-label="Add group" title="Add group"
+            (click)="createLayer(LayerType.Group)">
+            <svg class="toolbar-icon" aria-hidden="true" focusable="false" viewBox="0 0 16 16">
+              <path
+                d="m.5 3 .04.87a2 2 0 0 0-.342 1.311l.637 7A2 2 0 0 0 2.826 14H9v-1H2.826a1 1 0 0 1-.995-.91l-.637-7A1 1 0 0 1 2.19 4h11.62a1 1 0 0 1 .996 1.09L14.54 8h1.005l.256-2.819A2 2 0 0 0 13.81 3H9.828a2 2 0 0 1-1.414-.586l-.828-.828A2 2 0 0 0 6.172 1H2.5a2 2 0 0 0-2 2m5.672-1a1 1 0 0 1 .707.293L7.586 3H2.19q-.362.002-.683.12L1.5 2.98a1 1 0 0 1 1-.98z" />
+              <path
+                d="M13.5 9a.5.5 0 0 1 .5.5V11h1.5a.5.5 0 1 1 0 1H14v1.5a.5.5 0 1 1-1 0V12h-1.5a.5.5 0 0 1 0-1H13V9.5a.5.5 0 0 1 .5-.5" />
+            </svg>
+          </button>
+          <button class="icon-button" type="button" aria-label="Remove layer">
+            <span aria-hidden="true">-</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="layer-list" aria-label="Canvas layers">
+        @for(layer of editorStore.layers(); track layer.id){
+        <div class="layer-row" [class.layer-row-active]="editorStore.selectedLayerId() === layer.id"
+          [class.layer-row-editing]="editingLayerId() === layer.id" role="button" tabindex="0"
+          (click)="editorStore.selectLayer(layer.id)" (keydown.enter)="editorStore.selectLayer(layer.id)">
+          <span class="visibility-dot" aria-hidden="true"></span>
+          <span class="layer-thumbnail" [class.layer-thumbnail-text]="layer.type === LayerType.Text"
+            [class.layer-thumbnail-image]="layer.type === LayerType.Image"
+            [class.layer-thumbnail-video]="layer.type === LayerType.Video"
+            [class.layer-thumbnail-kills]="layer.type === LayerType.Kills"
+            [class.layer-thumbnail-towers]="layer.type === LayerType.Towers"
+            [class.layer-thumbnail-group]="layer.type === LayerType.Group" aria-hidden="true"></span>
+          <span class="layer-copy">
+            @if(editingLayerId() === layer.id){
+            <input appAutofocus class="layer-name-input" type="text" [value]="draftLayerName()"
+              (input)="draftLayerName.set($any($event.target).value)" (keydown.enter)="commitLayerName(layer.id)"
+              (blur)="commitLayerName(layer.id)" />
+            } @else {
+            <span class="layer-name">{{ layer.name }}</span>
+            <span class="layer-kind">{{ layer.type }}</span>
+            }
+          </span>
+        </div>
+        }
+      </div>
+    </section>
+  </aside>
+  <footer class="editor-status" aria-label="Editor status"></footer>
+</main>

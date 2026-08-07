@@ -1,0 +1,8 @@
+@import 'tailwindcss';
+@import './styles/base.css';
+
+app-root {
+  display: block;
+  min-width: 320px;
+  min-height: 100vh;
+}

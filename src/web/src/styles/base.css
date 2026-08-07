@@ -1,0 +1,170 @@
+@import 'tailwindcss';
+
+:root {
+  --brand-red-990: #080101;
+  --brand-red-970: #120202;
+  --brand-red-950: #1d0303;
+  --brand-red-920: #2a0504;
+  --brand-red-880: #390806;
+  --brand-red-820: #4b0f09;
+  --brand-red-760: #5d1710;
+  --brand-red-680: #6e2318;
+  --brand-beige-50: #fff1d2;
+  --brand-beige-100: #f4dfb7;
+  --brand-beige-180: #dcc08f;
+  --brand-beige-260: #b9915a;
+  --brand-gold-220: #f2ce75;
+  --brand-gold-360: #d5a548;
+  --brand-gold-520: #a66f22;
+  --brand-gold-focus: #c99737;
+  --brand-red-990-rgb: 8 1 1;
+  --brand-red-970-rgb: 18 2 2;
+  --brand-red-950-rgb: 29 3 3;
+  --brand-red-920-rgb: 42 5 4;
+  --brand-red-880-rgb: 57 8 6;
+  --brand-red-820-rgb: 75 15 9;
+  --brand-red-680-rgb: 110 35 24;
+  --brand-beige-50-rgb: 255 241 210;
+  --brand-beige-100-rgb: 244 223 183;
+  --brand-beige-180-rgb: 220 192 143;
+  --brand-gold-220-rgb: 242 206 117;
+  --brand-gold-360-rgb: 213 165 72;
+  --brand-gold-focus-rgb: 201 151 55;
+  --brand-line: rgb(var(--brand-gold-220-rgb) / 22%);
+  --brand-line-strong: rgb(var(--brand-gold-220-rgb) / 44%);
+  --brand-shadow-red: rgb(var(--brand-red-990-rgb) / 48%);
+  --brand-noise-texture: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180' viewBox='0 0 180 180'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.78' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23noise)' opacity='0.58'/%3E%3C/svg%3E");
+  color: var(--brand-beige-50);
+  background: var(--brand-red-950);
+  font-family:
+    Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  min-width: 320px;
+  min-height: 100vh;
+  margin: 0;
+}
+
+body {
+  background: var(--brand-red-950);
+}
+
+body.overlay-body {
+  background: transparent;
+}
+
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: 2px solid var(--brand-gold-220);
+  outline-offset: 2px;
+}
+
+app-editor .field-label {
+  display: grid;
+  gap: 7px;
+  min-width: 0;
+  color: var(--brand-beige-100);
+  font-size: 11px;
+  font-weight: 750;
+  letter-spacing: 0;
+}
+
+app-editor .field-input {
+  min-width: 0;
+  width: 100%;
+  height: 36px;
+  border: 1px solid rgb(var(--brand-gold-220-rgb) / 24%);
+  border-radius: 8px;
+  padding: 0 10px;
+  background: var(--brand-red-970);
+  color: var(--brand-beige-50);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0;
+  outline: none;
+  box-shadow: 0 1px 0 rgb(var(--brand-beige-50-rgb) / 8%) inset;
+}
+
+app-editor .field-input::placeholder {
+  color: rgb(var(--brand-beige-100-rgb) / 48%);
+}
+
+app-editor .field-input:focus {
+  border-color: var(--brand-gold-focus);
+  box-shadow:
+    0 0 0 3px rgb(var(--brand-gold-focus-rgb) / 18%),
+    0 1px 0 rgb(var(--brand-beige-50-rgb) / 10%) inset;
+}
+
+app-editor .field-input-color {
+  width: 56px;
+  padding: 4px;
+}
+
+app-editor input[type='range'].field-input {
+  height: 28px;
+  padding: 0;
+  accent-color: var(--brand-gold-focus);
+  background: transparent;
+  box-shadow: none;
+}
+
+app-editor input[type='checkbox'] {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--brand-gold-focus);
+}
+
+app-editor .file-picker {
+  position: relative;
+  display: grid;
+  min-width: 0;
+}
+
+app-editor .file-input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+  opacity: 0;
+}
+
+app-editor .file-picker-button {
+  display: grid;
+  min-width: 0;
+  height: 36px;
+  place-items: center;
+  border: 1px solid rgb(var(--brand-gold-220-rgb) / 34%);
+  border-radius: 8px;
+  padding: 0 10px;
+  background:
+    linear-gradient(135deg, rgb(var(--brand-gold-220-rgb) / 18%), transparent),
+    var(--brand-red-920);
+  color: var(--brand-beige-50);
+  font-size: 12px;
+  font-weight: 760;
+  letter-spacing: 0;
+  box-shadow: 0 1px 0 rgb(var(--brand-beige-50-rgb) / 10%) inset;
+}
+
+app-editor .file-picker:hover .file-picker-button,
+app-editor .file-input:focus-visible + .file-picker-button {
+  border-color: rgb(var(--brand-gold-220-rgb) / 58%);
+  background:
+    linear-gradient(135deg, rgb(var(--brand-gold-220-rgb) / 24%), transparent),
+    var(--brand-red-880);
+}
