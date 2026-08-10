@@ -1,0 +1,15 @@
+<div class="hub-preview-shell" aria-hidden="true">
+  <div class="broadcast-preview">
+    <span class="preview-grid"></span>
+    @for(layer of hub.layers; track layer.id) {
+    @if(layer.visible) {
+    <span [class]="getLayerPreviewClass(layer)" [style.left.%]="getLayerStyleValue(layer.position.x, 'x')"
+      [style.top.%]="getLayerStyleValue(layer.position.y, 'y')"
+      [style.width.%]="getLayerStyleValue(layer.width, 'x')"
+      [style.height.%]="getLayerStyleValue(layer.height, 'y')">
+      <span class="preview-layer-label">{{ layer.type }}</span>
+    </span>
+    }
+    }
+  </div>
+</div>

@@ -3,8 +3,8 @@ import { GameDataController } from './game-data.controller';
 import { GameDataService } from './game-data.service';
 
 @Module({
-    controllers: [GameDataController],
-    providers: [GameDataService],
-    exports: [GameDataService],
+  controllers: [GameDataController],
+  providers: [GameDataService],
+  exports: [GameDataService],
 })
-export class GameDataModule { }
+export class GameDataModule {}

@@ -2,15 +2,22 @@ import { Injectable, computed, signal } from '@angular/core';
 
 import { CANVAS_SIZE } from './canvas-coordinates';
 import { EditorLayer, Layer, LayerType, Vector2 } from '../../../shared/types/layer.types';
+import { HubStore } from '../../hubs/state/hub.store';
 
 @Injectable()
 export class EditorStore {
-  layers = signal<EditorLayer[]>([]);
+  constructor(private hubStore: HubStore) { }
+
   selectedLayerId = signal<string | null>(null);
   selectedLayer = computed(() => {
     const selectedLayerId = this.selectedLayerId();
+    const selectedHub = this.hubStore.selectedHub();
 
-    return this.layers().find((layer) => layer.id === selectedLayerId) ?? null;
+    if (!selectedHub || selectedLayerId === null) {
+      return null
+    }
+
+    return selectedHub.layers.find(layer => layer.id === selectedLayerId)
   });
 
   createLayer(type: LayerType) {
@@ -35,7 +42,7 @@ export class EditorStore {
           text: 'New text',
           fontSize: 32,
           fontFamily: 'Inter',
-          color: '#fff1d2',
+          color: '#f9d2ba',
         };
         break;
       case LayerType.Image:
@@ -76,65 +83,37 @@ export class EditorStore {
         break;
     }
 
-    this.layers.update((layers) => [layer, ...layers]);
     this.selectLayer(layer.id);
-
     return layer;
   }
 
-  selectLayer(layerId: string) {
+  selectLayer(layerId: string | null) {
     this.selectedLayerId.set(layerId);
   }
 
   moveLayer(layerId: string, position: Vector2) {
-    this.layers.update((layers) =>
-      layers.map((layer) =>
-        layer.id === layerId
-          ? {
-            ...layer,
-            position,
-          }
-          : layer
-      )
-    );
+    this.hubStore.updateLayer(layerId, {
+      position
+    });
   }
 
-  resizeLayer(layerId: string, size: Pick<Layer, 'position' | 'width' | 'height'>) {
-    this.layers.update((layers) =>
-      layers.map((layer) =>
-        layer.id === layerId
-          ? {
-            ...layer,
-            ...size,
-          }
-          : layer
-      )
-    );
+  resizeLayer(
+    layerId: string,
+    size: Pick<Layer, 'position' | 'width' | 'height'>
+  ) {
+    this.hubStore.updateLayer(layerId, size);
   }
 
-  updateLayer(layerId: string, changes: Partial<EditorLayer>) {
-    this.layers.update((layers) =>
-      layers.map((layer) =>
-        layer.id === layerId
-          ? ({
-            ...layer,
-            ...changes,
-          } as EditorLayer)
-          : layer
-      )
-    );
+  updateLayer(
+    layerId: string,
+    changes: Partial<EditorLayer>
+  ) {
+    this.hubStore.updateLayer(layerId, changes);
   }
 
   renameLayer(layerId: string, name: string) {
-    this.layers.update((layers) =>
-      layers.map((layer) =>
-        layer.id === layerId
-          ? {
-            ...layer,
-            name,
-          }
-          : layer
-      )
-    );
+    this.hubStore.updateLayer(layerId, {
+      name
+    });
   }
 }

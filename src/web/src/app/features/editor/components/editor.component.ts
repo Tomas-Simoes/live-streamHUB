@@ -1,4 +1,5 @@
-import { Component, signal } from '@angular/core';
+import { Component, OnInit, signal } from '@angular/core';
+import { Router } from '@angular/router';
 
 import { Layer, LayerType } from '../../../shared/types/layer.types';
 import {
@@ -12,6 +13,8 @@ import {
   getResizedLayer,
 } from './canvas-coordinates';
 import { EditorStore } from './editor.store';
+import { HubStore } from '../../hubs/state/hub.store';
+import { AuthStore } from '../../auth/auth.store';
 
 @Component({
   selector: 'app-editor',
@@ -20,7 +23,7 @@ import { EditorStore } from './editor.store';
   styleUrls: ['../styles/editor.styles.css'],
   providers: [EditorStore],
 })
-export class EditorComponent {
+export class EditorComponent implements OnInit {
   private dragState: DragState | null = null;
   private resizeState: ResizeState | null = null;
 
@@ -32,13 +35,42 @@ export class EditorComponent {
   editingLayerId = signal<string | null>(null);
   draftLayerName = signal('');
 
-  constructor(public editorStore: EditorStore) { }
+  constructor(
+    private router: Router,
+    private authStore: AuthStore,
+    public editorStore: EditorStore,
+    public hubStore: HubStore
+  ) { }
+
+  ngOnInit() {
+    if (!this.hubStore.selectedHub()) {
+      this.router.navigate(['/hubs']);
+    }
+  }
 
   createLayer(type: LayerType) {
+    if (!this.hubStore.selectedHub()) {
+      this.router.navigate(['/hubs']);
+      return;
+    }
+
     const layer = this.editorStore.createLayer(type);
+    const layerAdded = this.hubStore.addLayer(layer);
+
+    if (!layerAdded) {
+      return;
+    }
 
     this.editingLayerId.set(layer.id);
     this.draftLayerName.set(layer.name);
+  }
+
+  logout() {
+    this.authStore.logout().subscribe(() => {
+      this.hubStore.hubs.set([]);
+      this.hubStore.selectedHubId.set(null);
+      this.router.navigate(['/login']);
+    });
   }
 
   commitLayerName(layerId: string) {
@@ -55,7 +87,7 @@ export class EditorComponent {
   }
 
   startDrag(event: PointerEvent, layer: Layer, canvas: HTMLElement) {
-    event.preventDefault();
+    event.stopPropagation();
 
     this.editorStore.selectLayer(layer.id);
     this.resizeState = null;

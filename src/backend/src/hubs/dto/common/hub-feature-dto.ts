@@ -1,24 +1,47 @@
-import { PartialType } from "@nestjs/mapped-types";
-import { Type } from "class-transformer";
-import { IsString, IsNotEmpty, IsObject, ValidateNested, IsNumber, IsOptional } from "class-validator";
-import { PositionDto } from "src/common/dto/PositionDto.dto";
+import { ApiProperty, ApiPropertyOptional, PartialType } from '@nestjs/swagger';
+import { Type } from 'class-transformer';
+import {
+  IsString,
+  IsNotEmpty,
+  IsObject,
+  ValidateNested,
+  IsOptional,
+} from 'class-validator';
+import { PositionDto } from 'src/common/dto/PositionDto.dto';
 
 export class HubFeatureDto {
-    @IsString()
-    @IsNotEmpty()
-    feature: string
+  @ApiProperty({
+    description: 'Game data binding or feature key rendered by this hub layer.',
+    example: 'blueTeam.kills',
+  })
+  @IsString()
+  @IsNotEmpty()
+  feature: string;
 
-    @IsString()
-    @IsNotEmpty()
-    htmlId: string
+  @ApiProperty({
+    description:
+      'HTML element id used by the editor to identify this feature layer.',
+    example: 'blue-kills-counter',
+  })
+  @IsString()
+  @IsNotEmpty()
+  htmlId: string;
 
-    @IsObject()
-    @ValidateNested()
-    @Type(() => PositionDto)
-    position: PositionDto
+  @ApiProperty({
+    description: 'Canvas position where the feature layer should be placed.',
+    type: () => PositionDto,
+  })
+  @IsObject()
+  @ValidateNested()
+  @Type(() => PositionDto)
+  position: PositionDto;
 }
 
 export class UpdateHubFeatureDto extends PartialType(HubFeatureDto) {
-    @IsOptional()
-    position?: PositionDto;
+  @ApiPropertyOptional({
+    description: 'Optional replacement position for the feature layer.',
+    type: () => PositionDto,
+  })
+  @IsOptional()
+  position?: PositionDto;
 }

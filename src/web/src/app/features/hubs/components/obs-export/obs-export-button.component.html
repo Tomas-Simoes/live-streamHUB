@@ -1,0 +1,8 @@
+<button class="action-button" type="button" [disabled]="isExporting()" (click)="exportToObs()">
+  {{ isExporting() ? 'Exporting...' : 'Export to OBS' }}
+</button>
+
+@if(isPasswordDialogOpen()) {
+<app-obs-password-dialog [errorMessage]="exportError()" [isSubmitting]="isExporting()"
+  (cancelled)="closePasswordDialog()" (submitted)="submitPassword($event)"></app-obs-password-dialog>
+}

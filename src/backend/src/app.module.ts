@@ -18,11 +18,11 @@ import { GameDataModule } from './game-data/game-data.module';
     SessionModule,
     GameDataModule,
     ConfigModule.forRoot({
-      envFilePath: ['.env.development']
+      envFilePath: ['.env.development'],
     }),
-    DatabaseModule
+    DatabaseModule,
   ],
   controllers: [],
   providers: [],
 })
-export class AppModule { }
+export class AppModule {}

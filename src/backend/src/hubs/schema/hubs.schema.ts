@@ -1,55 +1,99 @@
-import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose"
-import mongoose from "mongoose";
-import { User } from "src/users/schema/users.schema";
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { User } from 'src/users/schema/users.schema';
 
-@Schema()
 export class HubIMG {
-    @Prop({ required: true })
-    imgUrl: string
+  @ApiProperty({
+    description: 'Public URL or asset path for the image displayed on the hub.',
+    example: 'https://cdn.example.com/assets/team-logo.png',
+  })
+  imgUrl: string;
 
-    @Prop({ required: true })
-    htmlId: string
+  @ApiProperty({
+    description:
+      'HTML element id used by the editor to identify this image layer.',
+    example: 'team-logo-blue',
+  })
+  htmlId: string;
 
-    @Prop({ type: Object, required: true })
-    position: {
-        x: number,
-        y: number
-    }
+  @ApiProperty({
+    description: 'Canvas position where the image layer should be placed.',
+    example: { x: 120, y: 80 },
+  })
+  position: {
+    x: number;
+    y: number;
+  };
 }
-export const HubIMGSchema = SchemaFactory.createForClass(HubIMG)
 
-@Schema()
 export class HubFeature {
-    @Prop({ required: true })
-    feature: string
+  @ApiProperty({
+    description: 'Game data binding or feature key rendered by this hub layer.',
+    example: 'blueTeam.kills',
+  })
+  feature: string;
 
-    @Prop({ required: true })
-    htmlId: string
+  @ApiProperty({
+    description:
+      'HTML element id used by the editor to identify this feature layer.',
+    example: 'blue-kills-counter',
+  })
+  htmlId: string;
 
-    @Prop({ type: Object, required: true })
-    position: {
-        x: number,
-        y: number
-    }
+  @ApiProperty({
+    description: 'Canvas position where the feature layer should be placed.',
+    example: { x: 960, y: 120 },
+  })
+  position: {
+    x: number;
+    y: number;
+  };
 }
-export const HUBFeatureSchema = SchemaFactory.createForClass(HubFeature)
 
-@Schema()
 export class Hub {
-    @Prop({ required: true })
-    hubName: string;
+  @ApiProperty({
+    description: 'Unique hub id.',
+    example: '66b8fa3b54a0f1c6f9d7a101',
+  })
+  _id: string;
 
-    @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User', required: false })
-    user: User
+  id: string;
 
-    @Prop({ type: [HubIMGSchema], default: [] })
-    imgs: HubIMG[]
+  @ApiProperty({
+    description: 'Human-readable name shown for this hub layout.',
+    example: 'League Finals Overlay',
+  })
+  hubName: string;
 
-    @Prop({ type: [HUBFeatureSchema], default: [] })
-    features: HubFeature[]
+  @ApiPropertyOptional({
+    description: 'Owner user id for this hub.',
+    example: '66b8f9a254a0f1c6f9d7a001',
+    type: String,
+  })
+  user?: User | string | null;
 
-    @Prop({ type: Object, default: null })
-    layout: Record<string, any>
+  @ApiProperty({
+    description: 'Image layers rendered in the hub.',
+    type: () => [HubIMG],
+  })
+  imgs: HubIMG[];
+
+  @ApiProperty({
+    description: 'Dynamic game-data feature layers rendered in the hub.',
+    type: () => [HubFeature],
+  })
+  features: HubFeature[];
+
+  @ApiPropertyOptional({
+    description:
+      'Free-form editor layout metadata, such as dimensions, layer order, and style configuration.',
+    example: {
+      id: 'league-finals-overlay',
+      width: 1920,
+      height: 1080,
+      layers: ['team-logo-blue', 'blue-kills-counter'],
+    },
+    type: 'object',
+    additionalProperties: true,
+  })
+  layout: Record<string, any> | null;
 }
-
-export const HubSchema = SchemaFactory.createForClass(Hub)

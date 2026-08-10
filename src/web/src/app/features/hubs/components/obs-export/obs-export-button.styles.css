@@ -1,0 +1,31 @@
+:host {
+  display: contents;
+}
+
+.action-button {
+  display: inline-grid;
+  min-width: 98px;
+  height: 36px;
+  place-items: center;
+  border: 1px solid var(--line-strong);
+  border-radius: 8px;
+  padding: 0 13px;
+  background: rgb(var(--brand-beige-180-rgb) / 6%);
+  color: var(--text-130);
+  cursor: pointer;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 780;
+  letter-spacing: 0;
+  text-decoration: none;
+}
+
+.action-button:hover {
+  border-color: rgb(var(--brand-gold-220-rgb) / 52%);
+  color: var(--text-50);
+}
+
+.action-button:disabled {
+  cursor: default;
+  opacity: 0.62;
+}

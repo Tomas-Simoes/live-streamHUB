@@ -1,30 +1,21 @@
-import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
-
-@Schema()
 export class Session {
-    @Prop({ required: true, unique: true, index: true })
-    refreshToken: string
+  id: string;
 
-    @Prop({ default: false })
-    isRevoked: boolean
+  _id: string;
 
-    @Prop()
-    userId: string
+  refreshToken: string;
 
-    @Prop()
-    userAgent: string
+  isRevoked: boolean;
 
-    @Prop()
-    ipAddress: string
+  userId: string;
 
-    @Prop({ required: true })
-    expiresAt: Date
+  userAgent: string;
 
-    @Prop({ default: Date.now })
-    createdAt: Date
+  ipAddress: string;
 
-    @Prop({ default: Date.now })
-    updatedAt: Date
+  expiresAt: Date;
+
+  createdAt: Date;
+
+  updatedAt: Date;
 }
-
-export const SessionSchema = SchemaFactory.createForClass(Session)

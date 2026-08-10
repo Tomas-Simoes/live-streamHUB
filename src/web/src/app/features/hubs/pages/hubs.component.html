@@ -1,0 +1,93 @@
+<main class="hub-shell">
+  <header class="hub-topbar">
+    <div class="brand-block">
+      <span class="brand-mark" aria-hidden="true"></span>
+      <span class="brand-name">Live Stream HUB</span>
+    </div>
+
+    <nav class="topbar-nav" aria-label="Main navigation">
+      <a class="topbar-link topbar-link-active" routerLink="/hubs">Hubs</a>
+      <button class="topbar-link" type="button" (click)="logout()">Logout</button>
+    </nav>
+  </header>
+
+  <section class="scene-header" aria-label="Hub picker header">
+    <div class="scene-heading">
+      <p class="scene-kicker">Stream Hub Library</p>
+      <h1 class="scene-title">Select Stream Hub</h1>
+    </div>
+  </section>
+
+  <section class="hub-stage" aria-label="Hub carousel">
+    @if(presenter.entries().length) {
+    @if(hubStore.selectedHub(); as selectedHub) {
+    <div class="hub-carousel-layout">
+      <section class="hub-preview-panel" aria-label="Selected hub preview">
+        <app-hub-preview [hub]="selectedHub"></app-hub-preview>
+
+        <div class="hub-actions" aria-label="Hub actions">
+          <button class="action-button action-primary" type="button" (click)="handleEditHub(selectedHub._id)">
+            Open in Editor
+          </button>
+          <button class="action-button" type="button" (click)="handleCreateHub()">Create Hub</button>
+          <app-obs-export-button [hub]="selectedHub" (exported)="presenter.activateHub($event._id)">
+          </app-obs-export-button>
+          <button class="action-button" type="button" (click)="presenter.activateSelectedHub()">Go Live</button>
+          <span class="carousel-position">{{ presenter.selectedPosition() }}/{{ presenter.selectedTotal() }}</span>
+        </div>
+      </section>
+
+      <section class="hub-info-panel" aria-label="Selected hub details">
+        <div class="selected-copy">
+          <div class="selected-title-row">
+            <h2>{{ presenter.selectedCard().name }}</h2>
+            <span class="status-badge">{{ presenter.selectedStatus() }}</span>
+          </div>
+          <p class="selected-category">{{ presenter.selectedCard().category }}</p>
+          <p class="selected-description">{{ presenter.selectedCard().description }}</p>
+        </div>
+
+        <div class="feature-list" aria-label="Hub features">
+          @for(feature of presenter.selectedCard().features; track feature) {
+          <span class="feature-chip">{{ feature }}</span>
+          }
+        </div>
+
+        <div class="selected-meter" aria-label="Selected hub layer count">
+          <span>{{ presenter.getVisibleLayerCount(selectedHub) }}/{{ presenter.getLayerCount(selectedHub) }}</span>
+          <small>Layers</small>
+        </div>
+
+        <div class="carousel-controls" aria-label="Carousel controls">
+          <button class="carousel-button" type="button" aria-label="Previous hub" title="Previous hub"
+            (click)="presenter.selectPreviousHub()">
+            <svg class="carousel-icon" viewBox="0 0 20 20" aria-hidden="true" focusable="false">
+              <path d="M12.7 4.3 7 10l5.7 5.7-1.4 1.4L4.2 10l7.1-7.1 1.4 1.4Z" />
+            </svg>
+          </button>
+          <div class="hub-picker" aria-label="Select hub">
+            @for(entry of presenter.entries(); track entry.index) {
+            <button class="hub-picker-dot" [class.hub-picker-dot-active]="hubStore.selectedHubId() === entry.hub._id"
+              type="button" (click)="hubStore.selectHub(entry.hub._id)"
+              [attr.aria-label]="'Select ' + entry.card.name"></button>
+            }
+          </div>
+          <button class="carousel-button" type="button" aria-label="Next hub" title="Next hub"
+            (click)="presenter.selectNextHub()">
+            <svg class="carousel-icon" viewBox="0 0 20 20" aria-hidden="true" focusable="false">
+              <path d="m7.3 15.7 5.7-5.7-5.7-5.7 1.4-1.4 7.1 7.1-7.1 7.1-1.4-1.4Z" />
+            </svg>
+          </button>
+        </div>
+      </section>
+    </div>
+    }
+    } @else {
+    <section class="empty-state" aria-label="No hubs found">
+      <h2>No hubs found</h2>
+      <button class="action-button" type="button" (click)="handleCreateHub()">Create Hub</button>
+    </section>
+    }
+  </section>
+
+</main>

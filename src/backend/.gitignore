@@ -402,3 +402,5 @@ Temporary Items
 dist
 .webpack
 .serverless/**/*.zip
+
+/generated/prisma

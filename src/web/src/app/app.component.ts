@@ -1,8 +1,24 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
+
+import { AuthStore } from './features/auth/auth.store';
+import { HubStore } from './features/hubs/state/hub.store';
 
 @Component({
   selector: 'app-root',
   standalone: false,
   template: '<router-outlet />',
 })
-export class AppComponent {}
+export class AppComponent implements OnInit {
+  constructor(
+    private authStore: AuthStore,
+    private hubStore: HubStore
+  ) {}
+
+  ngOnInit() {
+    this.authStore.loadCurrentUser().subscribe((user) => {
+      if (user) {
+        this.hubStore.loadMyHubs();
+      }
+    });
+  }
+}

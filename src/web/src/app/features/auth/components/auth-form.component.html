@@ -1,0 +1,70 @@
+<main class="auth-shell">
+  <header class="auth-header">
+    <a class="brand-block" routerLink="/" aria-label="Live Stream HUB home">
+      <span class="brand-mark" aria-hidden="true"></span>
+      <span class="brand-name">Live Stream HUB</span>
+    </a>
+
+    <nav class="auth-nav" aria-label="Authentication navigation">
+      <a class="auth-nav-link" [class.auth-nav-link-active]="!isRegisterMode()" routerLink="/login">Login</a>
+      <a class="auth-nav-link" [class.auth-nav-link-active]="isRegisterMode()" routerLink="/register">Register</a>
+    </nav>
+  </header>
+
+  <section class="auth-layout" aria-label="Authentication">
+    <form class="auth-panel" (ngSubmit)="submit()" #authForm="ngForm">
+      <div class="auth-copy">
+        <p class="auth-kicker">{{ isRegisterMode() ? 'Create account' : 'Welcome back' }}</p>
+        <h1>{{ isRegisterMode() ? 'Register' : 'Login' }}</h1>
+      </div>
+
+      @if(errorMessage(); as error) {
+      <p class="auth-error" role="alert">{{ error }}</p>
+      }
+
+      @if(isRegisterMode()) {
+      <label class="auth-field">
+        <span>Username</span>
+        <input name="username" type="text" autocomplete="username" [(ngModel)]="username" required minlength="3" maxlength="50" />
+      </label>
+      }
+
+      <label class="auth-field">
+        <span>Email</span>
+        <input name="email" type="email" autocomplete="email" [(ngModel)]="email" required />
+      </label>
+
+      <label class="auth-field">
+        <span>Password</span>
+        <input name="password" type="password" [autocomplete]="isRegisterMode() ? 'new-password' : 'current-password'"
+          [(ngModel)]="password" required minlength="8" />
+      </label>
+
+      <button class="auth-submit" type="submit" [disabled]="authForm.invalid || isSubmitting() || authStore.isLoading()">
+        {{ isSubmitting() ? 'Please wait...' : (isRegisterMode() ? 'Create Account' : 'Login') }}
+      </button>
+
+      <p class="auth-switch">
+        {{ isRegisterMode() ? 'Already have an account?' : 'Need an account?' }}
+        <a [routerLink]="isRegisterMode() ? '/login' : '/register'" [queryParams]="route.snapshot.queryParams">
+          {{ isRegisterMode() ? 'Login' : 'Register' }}
+        </a>
+      </p>
+    </form>
+
+    <aside class="auth-preview" aria-label="Broadcast preview">
+      <div class="preview-frame">
+        <div class="preview-topline"></div>
+        <div class="preview-score">
+          <span>LIVE</span>
+          <strong>02:14</strong>
+        </div>
+        <div class="preview-stats">
+          <span>Scenes 04</span>
+          <span>Layers 18</span>
+          <span>Ready</span>
+        </div>
+      </div>
+    </aside>
+  </section>
+</main>

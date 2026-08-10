@@ -6,8 +6,8 @@
     </div>
 
     <nav class="topbar-nav" aria-label="Main navigation">
-      <a class="topbar-link topbar-link-active" routerLink="/editor">Editor</a>
       <a class="topbar-link" routerLink="/hubs">Hubs</a>
+      <button class="topbar-link" type="button" (click)="logout()">Logout</button>
     </nav>
   </header>
 
@@ -78,8 +78,8 @@
 
   <!----------------------- CANVAS ----------------------->
   <section class="editor-stage" aria-label="Editor canvas">
-    <div class="canvas-base" #canvasBase>
-      @for (layer of editorStore.layers(); track layer.id){
+    <div class="canvas-base" #canvasBase (pointerdown)="editorStore.selectLayer(null)">
+      @for (layer of hubStore.selectedHub()?.layers; track layer.id){
       <div class="canvas-layer" [class.canvas-layer-selected]="editorStore.selectedLayerId() === layer.id"
         (pointerdown)="startDrag($event, layer, canvasBase)" [style.left.%]="getCanvasStyleValue(layer.position.x, 'x')"
         [style.top.%]="getCanvasStyleValue(layer.position.y, 'y')"
@@ -171,7 +171,7 @@
       </div>
 
       <div class="layer-list" aria-label="Canvas layers">
-        @for(layer of editorStore.layers(); track layer.id){
+        @for(layer of hubStore.selectedHub()?.layers; track layer.id){
         <div class="layer-row" [class.layer-row-active]="editorStore.selectedLayerId() === layer.id"
           [class.layer-row-editing]="editingLayerId() === layer.id" role="button" tabindex="0"
           (click)="editorStore.selectLayer(layer.id)" (keydown.enter)="editorStore.selectLayer(layer.id)">

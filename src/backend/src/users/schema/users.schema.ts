@@ -1,22 +1,15 @@
-import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
-import mongoose from "mongoose";
-import { Hub } from "src/hubs/schema/hubs.schema";
+import { Hub } from 'src/hubs/schema/hubs.schema';
 
-@Schema()
 export class User {
-    @Prop({ required: true })
-    username: string
+  id: string;
 
-    @Prop({ required: true })
-    password: string
+  _id: string;
 
-    @Prop({ unique: true, required: true, index: true })
-    email: string
+  username: string;
 
-    @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Hub' }] })
-    hubs: Hub[]
+  password: string;
 
-    _id: mongoose.Types.ObjectId
+  email: string;
+
+  hubs?: Hub[];
 }
-
-export const UserSchema = SchemaFactory.createForClass(User)

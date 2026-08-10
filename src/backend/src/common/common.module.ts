@@ -3,6 +3,6 @@ import { AppConfigModule } from './config/app.config.module';
 
 @Global()
 @Module({
-  imports: [AppConfigModule]
+  imports: [AppConfigModule],
 })
-export class CommonModule { }
+export class CommonModule {}

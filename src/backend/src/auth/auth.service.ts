@@ -1,78 +1,99 @@
-import { ConflictException, Injectable, NotFoundException, UnauthorizedException } from "@nestjs/common";
-import { UserDocument, UsersService } from "src/users/users.service";
-import { LoginDto } from "./dto/Login.dto";
-import { RegisterDto } from "./dto/Register.dto";
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
+import { UserDocument, UsersService } from 'src/users/users.service';
+import { LoginDto } from './dto/Login.dto';
+import { RegisterDto } from './dto/Register.dto';
 
-import * as bcrypt from 'bcrypt'
-import { User } from "src/users/schema/users.schema";
-import { SessionService } from "src/session/session.service";
-import { SecurityTokensDto } from "src/session/dto/Token.dto";
+import * as bcrypt from 'bcrypt';
+import { User } from 'src/users/schema/users.schema';
+import { SessionService } from 'src/session/session.service';
+import { SecurityTokensDto } from 'src/session/dto/Token.dto';
 
 export interface PublicUser {
-    id: string;
-    username: string;
-    email: string;
+  id: string;
+  username: string;
+  email: string;
 }
 
 function toPublicUser(user: User | UserDocument): PublicUser {
-    return {
-        id: String(user._id),
-        username: user.username,
-        email: user.email
-    }
+  return {
+    id: String(user._id),
+    username: user.username,
+    email: user.email,
+  };
 }
 
 @Injectable()
 export class AuthService {
-    constructor(
-        private usersService: UsersService,
-        private sessionService: SessionService
-    ) { }
+  constructor(
+    private usersService: UsersService,
+    private sessionService: SessionService,
+  ) {}
 
-    async register(registerDto: RegisterDto): Promise<PublicUser> {
-        const existingUsername = await this.usersService.findOne('username', registerDto.username)
+  async register(registerDto: RegisterDto): Promise<PublicUser> {
+    const existingUsername = await this.usersService.findOne(
+      'username',
+      registerDto.username,
+    );
 
-        if (existingUsername) {
-            throw new ConflictException("Username already exists.")
-        }
-
-        const existingEmail = await this.usersService.findOne('email', registerDto.email)
-
-        if (existingEmail) {
-            throw new ConflictException("Email already exists.")
-        }
-
-        const salt = await bcrypt.genSalt()
-        const hashedPassword = await bcrypt.hash(registerDto.password, salt)
-
-        registerDto.password = hashedPassword
-
-        const user = await this.usersService.createUser(registerDto)
-        return toPublicUser(user)
+    if (existingUsername) {
+      throw new ConflictException('Username already exists.');
     }
 
-    async login(loginDto: LoginDto, userAgent: string, ipAddress: string): Promise<SecurityTokensDto> {
-        const user: User | undefined = await this.usersService.findOne('email', loginDto.email)
+    const existingEmail = await this.usersService.findOne(
+      'email',
+      registerDto.email,
+    );
 
-        if (!user) {
-            throw new NotFoundException("User not found. Credentials are invalid.")
-        }
-
-        const isMatch: boolean = await bcrypt.compare(loginDto.password, user.password)
-        if (!isMatch) {
-            throw new UnauthorizedException("Invalid credentials.")
-        }
-
-        return this.sessionService.createSession({ user, userAgent, ipAddress })
+    if (existingEmail) {
+      throw new ConflictException('Email already exists.');
     }
 
-    async getMe(userId: string): Promise<PublicUser> {
-        const user = await this.usersService.findById(userId)
+    const salt = await bcrypt.genSalt();
+    const hashedPassword = await bcrypt.hash(registerDto.password, salt);
 
-        if (!user) {
-            throw new NotFoundException("User not found.")
-        }
+    registerDto.password = hashedPassword;
 
-        return toPublicUser(user)
+    const user = await this.usersService.createUser(registerDto);
+    return toPublicUser(user);
+  }
+
+  async login(
+    loginDto: LoginDto,
+    userAgent: string,
+    ipAddress: string,
+  ): Promise<SecurityTokensDto> {
+    const user: User | undefined = await this.usersService.findOne(
+      'email',
+      loginDto.email,
+    );
+
+    if (!user) {
+      throw new NotFoundException('User not found. Credentials are invalid.');
     }
+
+    const isMatch: boolean = await bcrypt.compare(
+      loginDto.password,
+      user.password,
+    );
+    if (!isMatch) {
+      throw new UnauthorizedException('Invalid credentials.');
+    }
+
+    return this.sessionService.createSession({ user, userAgent, ipAddress });
+  }
+
+  async getMe(userId: string): Promise<PublicUser> {
+    const user = await this.usersService.findById(userId);
+
+    if (!user) {
+      throw new NotFoundException('User not found.');
+    }
+
+    return toPublicUser(user);
+  }
 }

@@ -5,11 +5,8 @@ import { AuthService } from './auth.service';
 import { SessionModule } from 'src/session/session.module';
 
 @Module({
-  imports: [
-    UsersModule,
-    SessionModule
-  ],
+  imports: [UsersModule, SessionModule],
   providers: [AuthService],
-  controllers: [AuthController]
+  controllers: [AuthController],
 })
-export class AuthModule { }
+export class AuthModule {}

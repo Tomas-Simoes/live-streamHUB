@@ -2,13 +2,18 @@ import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 
 import { EditorComponent } from './features/editor/components/editor.component';
-import { HubsComponent } from './features/hubs/components/hubs.component';
+import { AuthFormComponent } from './features/auth/components/auth-form.component';
+import { HomeComponent } from './features/home/components/home.component';
+import { HubsComponent } from './features/hubs/pages/hubs.component';
+import { authGuard } from './core/guards/auth.guard';
 
 const routes: Routes = [
-  { path: '', redirectTo: 'editor', pathMatch: 'full' },
-  { path: 'editor', component: EditorComponent },
-  { path: 'hubs', component: HubsComponent },
-  { path: '**', redirectTo: 'editor' },
+  { path: '', component: HomeComponent },
+  { path: 'login', component: AuthFormComponent },
+  { path: 'register', component: AuthFormComponent },
+  { path: 'editor', component: EditorComponent, canActivate: [authGuard] },
+  { path: 'hubs', component: HubsComponent, canActivate: [authGuard] },
+  { path: '**', redirectTo: '' },
 ];
 
 @NgModule({
