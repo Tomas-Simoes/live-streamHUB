@@ -1,11 +1,20 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { CreateHubDto } from './dto/create/create-hub.dto';
 import { UpdateHubDto } from './dto/update/update-hub.dto';
 import { DatabaseService } from 'src/database/database.service';
 import { Prisma } from '../../generated/prisma/client';
 import { Hub } from './schema/hubs.schema';
 
+const publicUserSelect = {
+  id: true,
+  username: true,
+  email: true,
+} satisfies Prisma.UserSelect;
+
 const hubInclude = {
+  user: {
+    select: publicUserSelect,
+  },
   imgs: true,
   features: true,
 } satisfies Prisma.HubInclude;
@@ -18,6 +27,8 @@ export type HubDocument = Hub;
 
 @Injectable()
 export class HubsService {
+  private readonly logger = new Logger(HubsService.name);
+
   constructor(private readonly database: DatabaseService) {}
 
   async getAllHubs(): Promise<HubDocument[]> {
@@ -80,6 +91,40 @@ export class HubsService {
     });
 
     return hubs.map((hub) => this.toHubDocument(hub));
+  }
+
+  async getHubByOwner(userId: string, hubId: string): Promise<HubDocument> {
+    this.logger.log(`Owner-scoped hub lookup userId=${userId} hubId=${hubId}`);
+
+    const hub = await this.database.hub.findFirst({
+      where: {
+        userId,
+        ...(this.isUuid(hubId)
+          ? { id: hubId }
+          : {
+              layout: {
+                path: ['id'],
+                equals: hubId,
+              },
+            }),
+      },
+      include: hubInclude,
+    });
+
+    if (!hub) {
+      throw new NotFoundException(`Hub ${hubId} not found for user ${userId}`);
+    }
+
+    const layout = hub.layout as Record<string, any> | null;
+    const layers = Array.isArray(layout?.['layers'])
+      ? layout['layers'].length
+      : 0;
+
+    this.logger.log(
+      `Owner-scoped hub loaded userId=${userId} hubId=${hubId} hubName=${hub.hubName} layers=${layers}`,
+    );
+
+    return this.toHubDocument(hub);
   }
 
   async getHubById(hubId: string): Promise<HubDocument> {
@@ -244,7 +289,7 @@ export class HubsService {
     return {
       ...hub,
       _id: hub.id,
-      user: hub.userId,
+      user: hub.user,
       imgs: hub.imgs.map((img) => ({
         imgUrl: img.imgUrl,
         htmlId: img.htmlId,

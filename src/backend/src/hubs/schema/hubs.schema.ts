@@ -1,5 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { User } from 'src/users/schema/users.schema';
+import { PublicUserDto } from 'src/users/dto/public-user.dto';
 
 export class HubIMG {
   @ApiProperty({
@@ -65,11 +65,11 @@ export class Hub {
   hubName: string;
 
   @ApiPropertyOptional({
-    description: 'Owner user id for this hub.',
-    example: '66b8f9a254a0f1c6f9d7a001',
-    type: String,
+    description: 'Public owner profile for this hub.',
+    type: () => PublicUserDto,
+    nullable: true,
   })
-  user?: User | string | null;
+  user?: PublicUserDto | null;
 
   @ApiProperty({
     description: 'Image layers rendered in the hub.',

@@ -2,13 +2,16 @@
     "name": "live-hub",
     "version": "0.1",
     "scripts": {
-        "install:all": "npm install --prefix ./src/backend && npm install --prefix ./src/frontend && npm install --prefix ./src/overwolf-app && npm install --prefix ./src/web",
+        "install:all": "npm install --prefix ./src/backend && npm install --prefix ./src/local-server && npm install --prefix ./src/overwolf-app && npm install --prefix ./src/web",
         "dev": "sh -c 'npm run dev:backend & backend=$!; npm run dev:web & web=$!; trap \"kill $backend $web\" INT TERM EXIT; wait'",
         "dev:backend": "npm run start:dev --prefix ./src/backend",
+        "dev:local-server": "npm run start:dev --prefix ./src/local-server",
         "dev:web": "npm run dev --prefix ./src/web",
         "dev:overwolf": "npm run build:start --prefix ./src/overwolf-app",
-        "build": "npm run build --prefix ./src/backend && npm run build --prefix ./src/web",
+        "dev:overwolf:local-server": "npm run build:start:local-server --prefix ./src/overwolf-app",
+        "build": "npm run build --prefix ./src/backend && npm run build --prefix ./src/local-server && npm run build --prefix ./src/web",
         "build:backend": "npm run build --prefix ./src/backend",
+        "build:local-server": "npm run build --prefix ./src/local-server",
         "build:web": "npm run build --prefix ./src/web",
         "lint:web": "npm run lint --prefix ./src/web",
         "start:overwolf": "npm run dev:overwolf"

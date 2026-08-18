@@ -10,7 +10,7 @@
     "start": "nest start",
     "start:dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",
-    "start:prod": "node dist/main",
+    "start:prod": "node dist/src/main",
     "prebuild": "prisma generate",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
     "db:start": "docker start live-streamhub-postgres || docker run --name live-streamhub-postgres -e POSTGRES_USER=livehub_dev -e POSTGRES_PASSWORD=livehub_dev_password -e POSTGRES_DB=live_stream_hub -p 5432:5432 -v live-streamhub-postgres-data:/var/lib/postgresql/data -d postgres:16-alpine",

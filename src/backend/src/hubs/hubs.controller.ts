@@ -91,6 +91,28 @@ export class HubsController {
   }
 
   @ApiOperation({
+    summary: 'Get one hub owned by a specific user',
+    description:
+      'Finds one hub by UUID or layout.id, scoped to the provided owner user id.',
+  })
+  @ApiParam({
+    name: 'userId',
+    description: 'UUID of the user who owns the hub.',
+    example: '93b35cc5-c510-4cb3-a8d1-6fbd71544c4f',
+  })
+  @ApiParam({
+    name: 'hubId',
+    description: 'Hub UUID or a layout.id value.',
+    example: 'f47ac10b-58cc-4372-a567-0e02b2c3d479',
+  })
+  @ApiOkResponse({ type: Hub })
+  @Get('owner/:userId/:hubId')
+  @UsePipes(new ValidationPipe())
+  getHubByOwner(@Param() params: { userId: string; hubId: string }) {
+    return this.hubsService.getHubByOwner(params.userId, params.hubId);
+  }
+
+  @ApiOperation({
     summary: 'Get one hub',
     description:
       'Finds a hub by UUID. If the value is not a UUID, it falls back to matching layout.id.',

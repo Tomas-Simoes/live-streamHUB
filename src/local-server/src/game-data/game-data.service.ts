@@ -1,4 +1,5 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, OnModuleDestroy } from '@nestjs/common';
+import { ReplaySubject } from 'rxjs';
 
 type TeamSide = 'blue' | 'red';
 
@@ -108,17 +109,28 @@ const bindings = [
 ];
 
 @Injectable()
-export class GameDataService {
+export class GameDataService implements OnModuleDestroy {
+  private readonly updatesSubject = new ReplaySubject<NormalizedGameState>(1);
+  readonly updates$ = this.updatesSubject.asObservable();
+
   private tick = 0;
   private state: NormalizedGameState = this.createMockState(0);
+  private readonly mockInterval: ReturnType<typeof setInterval>;
 
   constructor() {
-    setInterval(() => {
+    this.updatesSubject.next(this.state);
+
+    this.mockInterval = setInterval(() => {
       if (this.state.source === 'overwolf') return;
 
       this.tick += 1;
       this.state = this.createMockState(this.tick);
+      this.updatesSubject.next(this.state);
     }, 1000);
+  }
+
+  onModuleDestroy() {
+    clearInterval(this.mockInterval);
   }
 
   getState(): NormalizedGameState {
@@ -138,6 +150,8 @@ export class GameDataService {
       connected: true,
       updatedAt: new Date().toISOString(),
     };
+
+    this.updatesSubject.next(this.state);
 
     return this.state;
   }
