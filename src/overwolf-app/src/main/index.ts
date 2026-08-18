@@ -27,6 +27,6 @@ ElectronApp.whenReady().then(() => {
 
 ElectronApp.on('window-all-closed', () => {
     if (process.platform !== 'darwin') {
-        ElectronApp.quit();
+        void app.shutdown().finally(() => ElectronApp.quit());
     }
 })

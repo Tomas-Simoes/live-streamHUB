@@ -25,8 +25,7 @@ module.exports = {
         alias: {
             '@template-data': path.resolve(__dirname, 'data_templates'),
             '@data-map': path.resolve(__dirname, 'src/main/config'),
-            '@frontend': path.resolve(__dirname, '../frontend'),
-            '@web': path.resolve(__dirname, '../web')
+            '@local-server': path.resolve(__dirname, '../local-server/src')
         },
         extensions: ['.tsx', '.ts', '.js', '.jsx', '.json'],
         fallback: {
@@ -42,6 +41,12 @@ module.exports = {
     plugins: [
         new webpack.IgnorePlugin({
             resourceRegExp: /^fsevents$/
+        }),
+        new webpack.IgnorePlugin({
+            resourceRegExp: /^@nestjs\/microservices(\/microservices-module)?$/
+        }),
+        new webpack.IgnorePlugin({
+            resourceRegExp: /^@nestjs\/websockets\/socket-module$/
         })
     ],
     externals: {

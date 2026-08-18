@@ -32,7 +32,7 @@ rendererConfig.module.rules.push({
 
 
 rendererConfig.plugins.push(new HtmlWebpackPlugin({
-  template: '../frontend/public/index.html',
+  template: path.resolve(__dirname, 'src/renderer/index.html'),
   filename: 'index.html',
   chunks: ['renderer'],
   publicPath: '',

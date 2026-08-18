@@ -43,10 +43,14 @@ export default class GameDataController {
     }
 
     private async forwardToBackend(rawData, processedData) {
-        const backendBaseUrl = (process.env.HUB_BACKEND_URL || 'http://localhost:3000').replace(/\/$/, '')
+        const localServerBaseUrl = (
+            process.env.HUB_LOCAL_SERVER_URL ||
+            process.env.HUB_BACKEND_URL ||
+            'http://localhost:3001'
+        ).replace(/\/$/, '')
 
         try {
-            await this.postJson(`${backendBaseUrl}/game-data/ingest`, {
+            await this.postJson(`${localServerBaseUrl}/game-data/ingest`, {
                 source: 'overwolf-electron',
                 raw: rawData,
                 processed: processedData

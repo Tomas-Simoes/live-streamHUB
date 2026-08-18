@@ -18,7 +18,7 @@
     "paths": {
       "@template-data/*": ["data_templates/*"],
       "@data-map/*": ["src/main/config/*"],
-      "@frontend/*": ["../frontend/*"]
+      "@local-server/*": ["../local-server/src/*"]
     }
   },
   
@@ -33,5 +33,5 @@
     "**/*spec.ts"
   ],
 
-  "include": ["src/**/*.ts", "src/globals.d.ts", "src/renderer/renderer.tsx"]
+  "include": ["src/**/*.ts", "src/globals.d.ts", "src/renderer/**/*.tsx", "../local-server/src/**/*.ts"]
 }
