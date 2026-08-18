@@ -11,9 +11,12 @@
   width: 100%;
   aspect-ratio: 16 / 9;
   overflow: hidden;
-  border: 1px solid var(--line-strong);
+  border: 1px solid rgb(55 79 78 / 24%);
   border-radius: 8px;
-  background: var(--surface-900);
+  background: #1f302e;
+  box-shadow:
+    0 20px 46px rgb(55 79 78 / 14%),
+    0 1px 0 rgb(245 239 233 / 10%) inset;
 }
 
 .broadcast-preview {
@@ -24,14 +27,15 @@
   min-height: 0;
   overflow: hidden;
   background:
-    linear-gradient(180deg, rgb(var(--brand-gold-220-rgb) / 10%) 0 2px, transparent 2px),
-    var(--surface-900);
+    linear-gradient(180deg, rgb(237 189 149 / 12%) 0 2px, transparent 2px),
+    linear-gradient(135deg, #1f302e, #374f4e);
 }
 
 .broadcast-preview::after {
   position: absolute;
-  inset: 10%;
-  border: 1px dashed rgb(var(--brand-beige-180-rgb) / 16%);
+  inset: 9%;
+  border: 1px dashed rgb(237 189 149 / 22%);
+  border-radius: 8px;
   content: '';
   pointer-events: none;
 }
@@ -39,10 +43,10 @@
 .preview-grid {
   position: absolute;
   inset: 0;
-  opacity: 0.09;
+  opacity: 0.1;
   background:
-    linear-gradient(rgb(var(--brand-beige-50-rgb) / 22%) 1px, transparent 1px),
-    linear-gradient(90deg, rgb(var(--brand-beige-50-rgb) / 22%) 1px, transparent 1px);
+    linear-gradient(rgb(245 239 233 / 24%) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(245 239 233 / 24%) 1px, transparent 1px);
   background-size: 10% 16.666%;
 }
 
@@ -52,10 +56,10 @@
   min-width: 18px;
   min-height: 14px;
   place-items: center;
-  border: 1px solid rgb(var(--brand-gold-220-rgb) / 58%);
+  border: 1px solid rgb(237 189 149 / 64%);
   border-radius: 6px;
-  background: rgb(var(--brand-gold-220-rgb) / 17%);
-  color: var(--text-50);
+  background: rgb(237 189 149 / 18%);
+  color: #f5efe9;
   transform: translate(-50%, -50%);
 }
 
@@ -63,30 +67,30 @@
   overflow: hidden;
   max-width: 100%;
   padding: 0 5px;
-  color: var(--text-50);
+  color: #f5efe9;
   font-size: 9px;
-  font-weight: 760;
+  font-weight: 780;
   letter-spacing: 0;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
 .preview-layer-text {
-  border-color: rgb(var(--brand-gold-360-rgb) / 68%);
+  border-color: rgb(209 128 30 / 68%);
   border-style: dashed;
-  background: rgb(var(--brand-gold-360-rgb) / 14%);
+  background: rgb(209 128 30 / 16%);
 }
 
 .preview-layer-video {
-  border-color: rgb(var(--brand-green-680-rgb) / 70%);
+  border-color: rgb(170 133 82 / 78%);
   background:
-    repeating-linear-gradient(90deg, rgb(var(--brand-green-680-rgb) / 18%) 0 14px, transparent 14px 28px),
-    rgb(var(--brand-green-680-rgb) / 13%);
+    repeating-linear-gradient(90deg, rgb(170 133 82 / 20%) 0 14px, transparent 14px 28px),
+    rgb(170 133 82 / 14%);
 }
 
 .preview-layer-image {
-  border-color: rgb(var(--brand-beige-180-rgb) / 62%);
+  border-color: rgb(218 204 196 / 66%);
   background:
-    linear-gradient(135deg, transparent 0 47%, rgb(var(--brand-beige-180-rgb) / 58%) 47% 53%, transparent 53%),
-    rgb(var(--brand-beige-180-rgb) / 10%);
+    linear-gradient(135deg, transparent 0 47%, rgb(218 204 196 / 58%) 47% 53%, transparent 53%),
+    rgb(218 204 196 / 12%);
 }

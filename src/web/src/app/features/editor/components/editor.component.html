@@ -1,14 +1,32 @@
 <main class="editor-shell">
   <header class="editor-topbar">
-    <div class="brand-block">
+    <a class="brand-block" routerLink="/" aria-label="Live Stream HUB home">
       <span class="brand-mark" aria-hidden="true"></span>
       <span class="brand-name">Live Stream HUB</span>
-    </div>
+    </a>
 
-    <nav class="topbar-nav" aria-label="Main navigation">
-      <a class="topbar-link" routerLink="/hubs">Hubs</a>
-      <button class="topbar-link" type="button" (click)="logout()">Logout</button>
-    </nav>
+    <div class="topbar-actions">
+      <div class="save-controls" aria-live="polite">
+        @if(hubStore.saveError()){
+        <span class="save-state save-state-error">{{ hubStore.saveError() }}</span>
+        } @else if(hubStore.isSaving()){
+        <span class="save-state">Saving...</span>
+        } @else if(hubStore.hasUnsavedChanges()){
+        <span class="save-state save-state-unsaved">Unsaved changes</span>
+        } @else {
+        <span class="save-state">Saved</span>
+        }
+
+        <button class="save-button" type="button" [disabled]="!hubStore.canSave()" (click)="saveHub()">
+          Save
+        </button>
+      </div>
+
+      <nav class="topbar-nav" aria-label="Main navigation">
+        <a class="topbar-link" routerLink="/hubs">Hubs</a>
+        <button class="topbar-link" type="button" (click)="logout()">Logout</button>
+      </nav>
+    </div>
   </header>
 
   <!----------------------- LEFT SIDE EDITOR PANEL ----------------------->
@@ -78,41 +96,56 @@
 
   <!----------------------- CANVAS ----------------------->
   <section class="editor-stage" aria-label="Editor canvas">
-    <div class="canvas-base" #canvasBase (pointerdown)="editorStore.selectLayer(null)">
-      @for (layer of hubStore.selectedHub()?.layers; track layer.id){
-      <div class="canvas-layer" [class.canvas-layer-selected]="editorStore.selectedLayerId() === layer.id"
-        (pointerdown)="startDrag($event, layer, canvasBase)" [style.left.%]="getCanvasStyleValue(layer.position.x, 'x')"
-        [style.top.%]="getCanvasStyleValue(layer.position.y, 'y')"
-        [style.width.%]="getCanvasStyleValue(layer.width, 'x')"
-        [style.height.%]="getCanvasStyleValue(layer.height, 'y')">
-        @switch(layer.type){
-        @case(LayerType.Text){
-        <app-text-loader [layer]="layer"></app-text-loader>
-        }
-        @case(LayerType.Image){
-        <app-image-loader [layer]="layer"></app-image-loader>
-        }
-        @case(LayerType.Video){
-        <app-video-loader [layer]="layer"></app-video-loader>
-        }
-        @case(LayerType.Kills){
-        <app-kills-loader [layer]="layer"></app-kills-loader>
-        }
-        @case(LayerType.Towers){
-        <app-towers-loader [layer]="layer"></app-towers-loader>
-        }
-        @case(LayerType.Group){
-        <app-group-loader [layer]="layer"></app-group-loader>
-        }
-        }
-        @if(editorStore.selectedLayerId() === layer.id){
-        @for(handle of resizeHandles; track handle){
-        <span class="resize-handle" [class]="'resize-handle resize-handle-' + handle"
-          (pointerdown)="startResize($event, handle, layer, canvasBase)" aria-hidden="true"></span>
-        }
+    <div class="stage-header">
+      <div class="stage-heading">
+        <span class="stage-kicker">Overlay canvas</span>
+        <h1>{{ hubStore.selectedHub()?.hubName || 'Untitled hub' }}</h1>
+      </div>
+
+      <div class="stage-meta" aria-label="Canvas metadata">
+        <span>16:9</span>
+        <span>{{ hubStore.selectedHub()?.layers?.length || 0 }} layers</span>
+      </div>
+    </div>
+
+    <div class="canvas-viewport">
+      <div class="canvas-base" #canvasBase (pointerdown)="editorStore.selectLayer(null)">
+        @for (layer of hubStore.selectedHub()?.layers; track layer.id){
+        <div class="canvas-layer" [class.canvas-layer-selected]="editorStore.selectedLayerId() === layer.id"
+          (pointerdown)="startDrag($event, layer, canvasBase)"
+          [style.left.%]="getCanvasStyleValue(layer.position.x, 'x')"
+          [style.top.%]="getCanvasStyleValue(layer.position.y, 'y')"
+          [style.width.%]="getCanvasStyleValue(layer.width, 'x')"
+          [style.height.%]="getCanvasStyleValue(layer.height, 'y')">
+          @switch(layer.type){
+          @case(LayerType.Text){
+          <app-text-loader [layer]="layer"></app-text-loader>
+          }
+          @case(LayerType.Image){
+          <app-image-loader [layer]="layer"></app-image-loader>
+          }
+          @case(LayerType.Video){
+          <app-video-loader [layer]="layer"></app-video-loader>
+          }
+          @case(LayerType.Kills){
+          <app-kills-loader [layer]="layer"></app-kills-loader>
+          }
+          @case(LayerType.Towers){
+          <app-towers-loader [layer]="layer"></app-towers-loader>
+          }
+          @case(LayerType.Group){
+          <app-group-loader [layer]="layer"></app-group-loader>
+          }
+          }
+          @if(editorStore.selectedLayerId() === layer.id){
+          @for(handle of resizeHandles; track handle){
+          <span class="resize-handle" [class]="'resize-handle resize-handle-' + handle"
+            (pointerdown)="startResize($event, handle, layer, canvasBase)" aria-hidden="true"></span>
+          }
+          }
+        </div>
         }
       </div>
-      }
     </div>
   </section>
 
@@ -197,5 +230,8 @@
       </div>
     </section>
   </aside>
-  <footer class="editor-status" aria-label="Editor status"></footer>
+  <footer class="editor-status" aria-label="Editor status">
+    <span>{{ hubStore.selectedHub()?.hubName || 'No hub selected' }}</span>
+    <span>{{ hubStore.hasUnsavedChanges() ? 'Unsaved changes' : 'Saved' }}</span>
+  </footer>
 </main>

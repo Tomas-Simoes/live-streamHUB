@@ -1,0 +1,19 @@
+<div class="overlay-root">
+  @for (layer of layers(); track layer.id) {
+    @if (layer.visible) {
+      <div class="overlay-layer" [ngStyle]="getLayerStyle(layer)">
+        @switch (layer.type) {
+          @case (LayerType.Image) {
+            <img class="overlay-media" [src]="layer.src" [alt]="layer.alt" [style.opacity]="layer.opacity" />
+          }
+          @case (LayerType.Video) {
+            <video class="overlay-media" [src]="layer.src" [autoplay]="layer.autoplay" [muted]="layer.muted" loop playsinline></video>
+          }
+          @default {
+            {{ getLayerText(layer) }}
+          }
+        }
+      </div>
+    }
+  }
+</div>

@@ -1,0 +1,23 @@
+.overlay-root {
+  width: 1920px;
+  height: 1080px;
+  position: relative;
+  overflow: hidden;
+  background: transparent;
+}
+
+.overlay-layer {
+  position: absolute;
+  color: white;
+  font:
+    700 48px Arial,
+    sans-serif;
+  text-shadow: 0 2px 8px black;
+}
+
+.overlay-media {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}

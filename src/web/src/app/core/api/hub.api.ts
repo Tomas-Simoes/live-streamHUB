@@ -1,11 +1,11 @@
 import { HttpClient } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 import { CreateHubRequest, HubResponse, UpdateHubRequest } from "src/app/shared/types/hub.types";
-import { env } from "src/env/env";
+import { getBackendApiUrl } from "./url.helpers";
 
 @Injectable({ providedIn: 'root' })
 export class HubsApi {
-    private readonly baseUrl = `${env.apiUrl}/hub`;
+    private readonly baseUrl = `${getBackendApiUrl()}/hub`;
     private readonly httpOptions = { withCredentials: true };
 
 

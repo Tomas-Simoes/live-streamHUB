@@ -1,17 +1,17 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit } from "@angular/core";
 
-import { AuthStore } from './features/auth/auth.store';
-import { HubStore } from './features/hubs/state/hub.store';
+import { AuthStore } from "./features/auth/auth.store";
+import { HubStore } from "./core/hub.store";
 
 @Component({
-  selector: 'app-root',
+  selector: "app-root",
   standalone: false,
-  template: '<router-outlet />',
+  template: "<router-outlet />",
 })
 export class AppComponent implements OnInit {
   constructor(
     private authStore: AuthStore,
-    private hubStore: HubStore
+    private hubStore: HubStore,
   ) {}
 
   ngOnInit() {

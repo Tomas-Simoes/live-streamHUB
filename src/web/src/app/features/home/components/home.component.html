@@ -20,11 +20,14 @@
   </header>
 
   <section class="hero-section" aria-label="Home">
+    <img class="hero-backdrop" src="/hero-studio-backdrop.png" alt="" aria-hidden="true" />
+    <span class="hero-screen" aria-hidden="true"></span>
+
     <div class="hero-copy">
       <p class="hero-kicker">Broadcast overlays for modern streams</p>
-      <h1>Design clean live-stream hubs in minutes.</h1>
+      <h1>Live Stream HUB</h1>
       <p class="hero-text">
-        Create reusable stream scenes, arrange dynamic layers, and keep every overlay ready for the next match.
+        Build clean overlay hubs, arrange live game layers, and keep every scene ready for OBS before the match starts.
       </p>
 
       <div class="hero-actions">
@@ -36,41 +39,94 @@
         </a>
         <a class="secondary-button" routerLink="/login">Login</a>
       </div>
-    </div>
 
-    <div class="hero-preview" aria-label="Stream hub preview">
-      <div class="preview-toolbar">
-        <span></span>
-        <span></span>
-        <span></span>
-      </div>
-      <div class="preview-stage">
-        <img src="/cristiano.jpg" alt="Live stream player preview" />
-        <div class="scoreboard">
-          <span>HOME</span>
-          <strong>2 : 1</strong>
-          <span>AWAY</span>
-        </div>
-        <div class="stat-strip">
-          <span>Kills 18</span>
-          <span>Towers 6</span>
-          <span>Gold +2.4k</span>
-        </div>
-        <div class="live-badge">
-          <span aria-hidden="true"></span>
-          Live
-        </div>
+      <div class="hero-signal" aria-label="Live production signal">
+        <span class="signal-node">
+          <span class="signal-icon signal-icon-editor" aria-hidden="true"></span>
+          Editor
+        </span>
+        <span class="signal-arrow" aria-hidden="true">-&gt;</span>
+        <span class="signal-node signal-node-obs">
+          <span class="signal-icon signal-icon-obs" aria-hidden="true"></span>
+          OBS
+        </span>
+        <span class="signal-arrow" aria-hidden="true">&lt;-</span>
+        <span class="signal-node">
+          <span class="signal-icon signal-icon-data" aria-hidden="true"></span>
+          Game Data
+        </span>
       </div>
     </div>
   </section>
 
-  <section class="feature-section" aria-label="Live Stream HUB features">
-    @for(feature of features; track feature.label) {
-    <article class="feature-card">
-      <span class="feature-label">{{ feature.label }}</span>
-      <h2>{{ feature.title }}</h2>
-      <p>{{ feature.description }}</p>
-    </article>
-    }
+  <section class="feature-section" aria-label="Live Stream HUB workflow">
+    <div class="feature-heading">
+      <p>Built for match night</p>
+      <h2>One workspace for the parts that usually slow a stream down.</h2>
+    </div>
+
+    <div class="capability-stack">
+      <article class="capability-card capability-card-editor">
+        <div class="capability-copy">
+          <span class="feature-label">01</span>
+          <h3>Design the overlay in the editor.</h3>
+          <p>Place text, images, video, and live stat layers on a canvas that mirrors the broadcast output.</p>
+        </div>
+        <div class="capability-visual editor-mockup" role="img" aria-label="Placeholder image of the editor tool">
+          <span class="mock-sidebar mock-sidebar-left"></span>
+          <span class="mock-topbar"></span>
+          <span class="mock-canvas">
+            <span class="mock-score">2 : 1</span>
+            <span class="mock-lower">Match overlay</span>
+          </span>
+          <span class="mock-sidebar mock-sidebar-right">
+            <span></span>
+            <span></span>
+            <span></span>
+          </span>
+        </div>
+      </article>
+
+      <article class="capability-card capability-card-obs">
+        <div class="capability-copy">
+          <span class="feature-label">02</span>
+          <h3>Load a prepared hub in OBS.</h3>
+          <p>Keep reusable hub layouts organized, export the selected scene, and switch to the right package quickly.</p>
+        </div>
+        <div class="capability-visual obs-mockup" role="img" aria-label="Placeholder image of a hub inside OBS">
+          <span class="obs-preview">
+            <span class="obs-score">HOME 2 : 1 AWAY</span>
+            <span class="obs-lower">Live Stream HUB</span>
+          </span>
+          <span class="obs-dock obs-dock-scenes"></span>
+          <span class="obs-dock obs-dock-mixer"></span>
+        </div>
+      </article>
+
+      <article class="capability-card capability-card-flow">
+        <div class="capability-copy">
+          <span class="feature-label">03</span>
+          <h3>Send live data into the broadcast.</h3>
+          <p>Game events move through the local service into overlay layers, keeping OBS updated while the stream runs.</p>
+        </div>
+        <div class="capability-visual flow-mockup" role="img" aria-label="Placeholder image of live data transferring to OBS">
+          <span class="flow-node">Game</span>
+          <span class="flow-pulse"></span>
+          <span class="flow-node">Server</span>
+          <span class="flow-pulse"></span>
+          <span class="flow-node flow-node-active">OBS</span>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section class="contact-section" aria-label="Contact">
+    <div class="contact-panel">
+      <div>
+        <p>Want to shape the next build?</p>
+        <h2>Tell us what your stream setup needs.</h2>
+      </div>
+      <a class="contact-button" href="mailto:hello@livestreamhub.local">Contact</a>
+    </div>
   </section>
 </main>

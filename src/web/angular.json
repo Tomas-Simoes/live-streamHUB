@@ -20,11 +20,6 @@
             "assets": [
               {
                 "glob": "**/*",
-                "input": "../frontend/public/assets",
-                "output": "."
-              },
-              {
-                "glob": "**/*",
                 "input": "public",
                 "output": "."
               }

@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, Output, signal } from "@angular/core";
 import { OBSApi } from "src/app/core/api/obs.api";
-import { OBSPasswordStore } from "src/app/features/hubs/state/obs.store";
+import { OBSPasswordStore } from "src/app/core/obs.store";
 import { Hub } from "src/app/shared/types/hub.types";
 
 import { OBSPasswordDialogSubmit } from "./obs-password-dialog.component";
@@ -64,25 +64,44 @@ export class OBSExportButtonComponent {
     this.exportError.set(null);
 
     try {
-      await this.obsApi.createConnection(password);
+      const isConnected = await this.obsApi.createConnection(password);
+
+      if (!isConnected) {
+        this.obsPasswordStore.clearSession();
+        this.obsPasswordStore.forgetRemembered();
+        this.exportError.set(this.getObsConnectionErrorMessage());
+        this.isPasswordDialogOpen.set(true);
+        return;
+      }
+
+      this.isPasswordDialogOpen.set(false);
       await this.obsApi.exportHub(this.hub);
 
       this.exported.emit(this.hub);
-      this.isPasswordDialogOpen.set(false);
     } catch (error) {
-      this.obsPasswordStore.clearSession();
-      this.exportError.set(this.getObsConnectionErrorMessage(error));
-      this.isPasswordDialogOpen.set(true);
+      this.exportError.set(this.getObsExportErrorMessage(error));
     } finally {
       this.isExporting.set(false);
     }
   }
 
-  private getObsConnectionErrorMessage(error: unknown) {
+  private getObsConnectionErrorMessage(error?: unknown) {
     if (error instanceof Error && error.message) {
       return error.message;
     }
 
     return "Could not connect to OBS. Check that OBS is open and WebSocket is enabled.";
+  }
+
+  private getObsExportErrorMessage(error: unknown) {
+    if (error instanceof Error && error.message) {
+      if (error.message.toLowerCase().includes("input kind is not supported")) {
+        return "Your current OBS version does not support Browser Sources. Enable the OBS Browser Source then try again.";
+      }
+
+      return error.message;
+    }
+
+    return "Connected to OBS, but could not export this hub.";
   }
 }

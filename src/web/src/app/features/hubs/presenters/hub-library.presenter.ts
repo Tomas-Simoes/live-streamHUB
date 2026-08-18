@@ -1,7 +1,7 @@
-import { Injectable, computed, signal } from '@angular/core';
+import { Injectable, computed, signal } from "@angular/core";
 
-import { Hub } from '../../../shared/types/hub.types';
-import { HubStore } from '../state/hub.store';
+import { Hub } from "../../../shared/types/hub.types";
+import { HubStore } from "../../../core/hub.store";
 
 type HubCard = {
   name: string;
@@ -26,35 +26,51 @@ export class HubLibraryPresenter {
     this.hubStore.hubs().map((hub, index) => ({
       hub,
       index,
-      card: this.getHubCard(index),
-    }))
+      card: this.getHubCard(hub, index),
+    })),
   );
 
   readonly selectedEntry = computed(() => {
     const selectedHubId = this.hubStore.selectedHubId();
 
-    return this.entries().find((entry) => entry.hub._id === selectedHubId) ?? null;
+    return (
+      this.entries().find((entry) => entry.hub._id === selectedHubId) ?? null
+    );
   });
 
-  readonly selectedCard = computed(() => this.selectedEntry()?.card ?? this.getHubCard(0));
+  readonly selectedIndex = computed(() => {
+    const selectedHubId = this.hubStore.selectedHubId();
+
+    return this.entries().findIndex((entry) => entry.hub._id === selectedHubId);
+  });
+
+  readonly selectedCard = computed(
+    () => this.selectedEntry()?.card ?? this.getHubCard(null, 0),
+  );
 
   readonly selectedStatus = computed(() => {
     const selectedHubId = this.hubStore.selectedHubId();
 
     return selectedHubId && selectedHubId === this.liveHubId()
-      ? 'Active'
+      ? "Active"
       : this.selectedCard().status;
   });
 
   readonly selectedPosition = computed(() => {
     const selectedHubId = this.hubStore.selectedHubId();
 
-    return this.entries().findIndex((entry) => entry.hub._id === selectedHubId) + 1;
+    return (
+      this.entries().findIndex((entry) => entry.hub._id === selectedHubId) + 1
+    );
   });
 
   readonly selectedTotal = computed(() => this.entries().length);
 
-  constructor(private hubStore: HubStore) { }
+  readonly previousEntry = computed(() => this.getEntryByOffset(-1));
+
+  readonly nextEntry = computed(() => this.getEntryByOffset(1));
+
+  constructor(private hubStore: HubStore) {}
 
   selectNextHub() {
     this.selectHubByOffset(1);
@@ -85,29 +101,45 @@ export class HubLibraryPresenter {
   }
 
   private selectHubByOffset(offset: 1 | -1) {
-    const entries = this.entries();
+    const entry = this.getEntryByOffset(offset);
 
-    if (!entries.length) {
-      return;
+    if (entry) {
+      this.hubStore.selectHub(entry.hub._id);
     }
-
-    const selectedHubId = this.hubStore.selectedHubId();
-    const currentPosition = entries.findIndex((entry) => entry.hub._id === selectedHubId);
-    const fallbackPosition = offset === 1 ? 0 : entries.length - 1;
-    const nextPosition = currentPosition === -1
-      ? fallbackPosition
-      : (currentPosition + offset + entries.length) % entries.length;
-
-    this.hubStore.selectHub(entries[nextPosition].hub._id);
   }
 
-  private getHubCard(index: number): HubCard {
-    return this.hubCards[index] ?? {
-      name: `Hub ${index + 1}`,
-      category: 'Custom',
-      description: 'Custom hub layout.',
-      features: ['Custom'],
-      status: 'Draft',
+  private getEntryByOffset(offset: 1 | -1): HubEntry | null {
+    const entries = this.entries();
+
+    if (entries.length < 2) {
+      return null;
+    }
+
+    const currentPosition = this.selectedIndex();
+    const fallbackPosition = offset === 1 ? 0 : entries.length - 1;
+    const nextPosition =
+      currentPosition === -1
+        ? fallbackPosition
+        : (currentPosition + offset + entries.length) % entries.length;
+
+    return entries[nextPosition];
+  }
+
+  private getHubCard(hub: Hub | null, index: number): HubCard {
+    const storedCard = this.hubCards[index];
+    const name = hub?.hubName?.trim() || storedCard?.name || `Hub ${index + 1}`;
+    const layerCount = hub?.layers.length ?? 0;
+
+    return {
+      name,
+      category: storedCard?.category ?? "Custom stream hub",
+      description:
+        storedCard?.description ??
+        "A reusable overlay scene for match coverage, stream moments, and live broadcast updates.",
+      features:
+        storedCard?.features ??
+        (layerCount ? ["Layered canvas", "OBS ready", "Live controls"] : ["Blank canvas"]),
+      status: storedCard?.status ?? "Draft",
     };
   }
 }

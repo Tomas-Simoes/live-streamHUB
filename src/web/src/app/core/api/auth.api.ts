@@ -1,12 +1,12 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 
-import { env } from 'src/env/env';
+import { getBackendApiUrl } from './url.helpers';
 import { LoginRequest, RegisterRequest, SecurityTokens, User } from 'src/app/shared/types/user.types';
 
 @Injectable({ providedIn: 'root' })
 export class AuthApi {
-  private readonly baseUrl = `${env.apiUrl}/auth`;
+  private readonly baseUrl = `${getBackendApiUrl()}/auth`;
   private readonly httpOptions = { withCredentials: true };
 
   constructor(private http: HttpClient) {}

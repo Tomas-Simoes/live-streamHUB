@@ -1,90 +1,118 @@
 <main class="hub-shell">
   <header class="hub-topbar">
-    <div class="brand-block">
+    <a class="brand-block" routerLink="/" aria-label="Live Stream HUB home">
       <span class="brand-mark" aria-hidden="true"></span>
       <span class="brand-name">Live Stream HUB</span>
-    </div>
+    </a>
 
     <nav class="topbar-nav" aria-label="Main navigation">
+      <a class="topbar-link" routerLink="/">Home</a>
       <a class="topbar-link topbar-link-active" routerLink="/hubs">Hubs</a>
       <button class="topbar-link" type="button" (click)="logout()">Logout</button>
     </nav>
   </header>
 
   <section class="scene-header" aria-label="Hub picker header">
+    @if(hubStore.selectedHub(); as selectedHub) {
     <div class="scene-heading">
       <p class="scene-kicker">Stream Hub Library</p>
-      <h1 class="scene-title">Select Stream Hub</h1>
+      <h1 class="scene-title">{{ presenter.selectedCard().name }}</h1>
+      <p class="scene-copy">
+        {{ presenter.getVisibleLayerCount(selectedHub) }}/{{ presenter.getLayerCount(selectedHub) }} visible layers
+      </p>
+    </div>
+    } @else {
+    <div class="scene-heading">
+      <p class="scene-kicker">Stream Hub Library</p>
+      <h1 class="scene-title">No hubs found</h1>
+      <p class="scene-copy">Create your first reusable stream scene.</p>
+    </div>
+    }
+
+    <div class="scene-actions">
+      <span class="library-count">{{ presenter.selectedTotal() }} hubs</span>
+      <button class="action-button action-primary" type="button" (click)="handleCreateHub()">Create Hub</button>
     </div>
   </section>
 
   <section class="hub-stage" aria-label="Hub carousel">
     @if(presenter.entries().length) {
     @if(hubStore.selectedHub(); as selectedHub) {
-    <div class="hub-carousel-layout">
+    <div class="hub-carousel-layout" [class.carousel-animating]="isCarouselAnimating"
+      [class.carousel-next]="carouselDirection === 'next'" [class.carousel-previous]="carouselDirection === 'previous'">
+      @if(presenter.previousEntry(); as previousEntry) {
+      <button class="hub-peek hub-peek-previous" type="button" (click)="handleSelectPreviousHub()"
+        [attr.aria-label]="'Select previous hub, ' + previousEntry.card.name">
+        <span class="peek-label">Previous</span>
+        <span class="peek-title">{{ previousEntry.card.name }}</span>
+        <app-hub-preview [hub]="previousEntry.hub"></app-hub-preview>
+        <span class="peek-meta">
+          {{ presenter.getVisibleLayerCount(previousEntry.hub) }}/{{ presenter.getLayerCount(previousEntry.hub) }}
+          visible
+        </span>
+      </button>
+      }
+
       <section class="hub-preview-panel" aria-label="Selected hub preview">
-        <app-hub-preview [hub]="selectedHub"></app-hub-preview>
+        <div class="hub-preview-frame">
+          <app-hub-preview [hub]="selectedHub"></app-hub-preview>
+        </div>
+
+        <div class="hub-information" aria-label="Selected hub details">
+          <span>
+            <strong>{{ presenter.selectedPosition() }}/{{ presenter.selectedTotal() }}</strong>
+            in library
+          </span>
+          <span>
+            <strong>{{ presenter.getVisibleLayerCount(selectedHub) }}</strong>
+            visible layers
+          </span>
+          <span>
+            <strong>{{ presenter.getLayerCount(selectedHub) }}</strong>
+            total layers
+          </span>
+          <span>
+            <strong>{{ presenter.selectedStatus() }}</strong>
+            status
+          </span>
+        </div>
 
         <div class="hub-actions" aria-label="Hub actions">
           <button class="action-button action-primary" type="button" (click)="handleEditHub(selectedHub._id)">
             Open in Editor
           </button>
-          <button class="action-button" type="button" (click)="handleCreateHub()">Create Hub</button>
           <app-obs-export-button [hub]="selectedHub" (exported)="presenter.activateHub($event._id)">
           </app-obs-export-button>
           <button class="action-button" type="button" (click)="presenter.activateSelectedHub()">Go Live</button>
-          <span class="carousel-position">{{ presenter.selectedPosition() }}/{{ presenter.selectedTotal() }}</span>
         </div>
       </section>
 
-      <section class="hub-info-panel" aria-label="Selected hub details">
-        <div class="selected-copy">
-          <div class="selected-title-row">
-            <h2>{{ presenter.selectedCard().name }}</h2>
-            <span class="status-badge">{{ presenter.selectedStatus() }}</span>
-          </div>
-          <p class="selected-category">{{ presenter.selectedCard().category }}</p>
-          <p class="selected-description">{{ presenter.selectedCard().description }}</p>
-        </div>
+      @if(presenter.nextEntry(); as nextEntry) {
+      <button class="hub-peek hub-peek-next" type="button" (click)="handleSelectNextHub()"
+        [attr.aria-label]="'Select next hub, ' + nextEntry.card.name">
+        <span class="peek-label">Next</span>
+        <span class="peek-title">{{ nextEntry.card.name }}</span>
+        <app-hub-preview [hub]="nextEntry.hub"></app-hub-preview>
+        <span class="peek-meta">
+          {{ presenter.getVisibleLayerCount(nextEntry.hub) }}/{{ presenter.getLayerCount(nextEntry.hub) }}
+          visible
+        </span>
+      </button>
+      }
 
-        <div class="feature-list" aria-label="Hub features">
-          @for(feature of presenter.selectedCard().features; track feature) {
-          <span class="feature-chip">{{ feature }}</span>
-          }
-        </div>
-
-        <div class="selected-meter" aria-label="Selected hub layer count">
-          <span>{{ presenter.getVisibleLayerCount(selectedHub) }}/{{ presenter.getLayerCount(selectedHub) }}</span>
-          <small>Layers</small>
-        </div>
-
-        <div class="carousel-controls" aria-label="Carousel controls">
-          <button class="carousel-button" type="button" aria-label="Previous hub" title="Previous hub"
-            (click)="presenter.selectPreviousHub()">
-            <svg class="carousel-icon" viewBox="0 0 20 20" aria-hidden="true" focusable="false">
-              <path d="M12.7 4.3 7 10l5.7 5.7-1.4 1.4L4.2 10l7.1-7.1 1.4 1.4Z" />
-            </svg>
-          </button>
-          <div class="hub-picker" aria-label="Select hub">
-            @for(entry of presenter.entries(); track entry.index) {
-            <button class="hub-picker-dot" [class.hub-picker-dot-active]="hubStore.selectedHubId() === entry.hub._id"
-              type="button" (click)="hubStore.selectHub(entry.hub._id)"
-              [attr.aria-label]="'Select ' + entry.card.name"></button>
-            }
-          </div>
-          <button class="carousel-button" type="button" aria-label="Next hub" title="Next hub"
-            (click)="presenter.selectNextHub()">
-            <svg class="carousel-icon" viewBox="0 0 20 20" aria-hidden="true" focusable="false">
-              <path d="m7.3 15.7 5.7-5.7-5.7-5.7 1.4-1.4 7.1 7.1-7.1 7.1-1.4-1.4Z" />
-            </svg>
-          </button>
-        </div>
-      </section>
+      <div class="hub-picker" aria-label="Select hub">
+        @for(entry of presenter.entries(); track entry.index) {
+        <button class="hub-picker-dot" [class.hub-picker-dot-active]="hubStore.selectedHubId() === entry.hub._id"
+          type="button" (click)="handleSelectHub(entry.hub._id)"
+          [attr.aria-label]="'Select ' + entry.card.name"></button>
+        }
+      </div>
     </div>
     }
     } @else {
     <section class="empty-state" aria-label="No hubs found">
       <h2>No hubs found</h2>
+      <p>Create your first reusable scene and start building the stream library.</p>
       <button class="action-button" type="button" (click)="handleCreateHub()">Create Hub</button>
     </section>
     }

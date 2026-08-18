@@ -15,7 +15,7 @@
     <form class="auth-panel" (ngSubmit)="submit()" #authForm="ngForm">
       <div class="auth-copy">
         <p class="auth-kicker">{{ isRegisterMode() ? 'Create account' : 'Welcome back' }}</p>
-        <h1>{{ isRegisterMode() ? 'Register' : 'Login' }}</h1>
+        <h1>{{ isRegisterMode() ? 'Create your hub' : 'Back to the hub' }}</h1>
       </div>
 
       @if(errorMessage(); as error) {
@@ -41,7 +41,7 @@
       </label>
 
       <button class="auth-submit" type="submit" [disabled]="authForm.invalid || isSubmitting() || authStore.isLoading()">
-        {{ isSubmitting() ? 'Please wait...' : (isRegisterMode() ? 'Create Account' : 'Login') }}
+        {{ isSubmitting() ? 'Please wait...' : (isRegisterMode() ? 'Create account' : 'Login') }}
       </button>
 
       <p class="auth-switch">
@@ -52,19 +52,8 @@
       </p>
     </form>
 
-    <aside class="auth-preview" aria-label="Broadcast preview">
-      <div class="preview-frame">
-        <div class="preview-topline"></div>
-        <div class="preview-score">
-          <span>LIVE</span>
-          <strong>02:14</strong>
-        </div>
-        <div class="preview-stats">
-          <span>Scenes 04</span>
-          <span>Layers 18</span>
-          <span>Ready</span>
-        </div>
-      </div>
+    <aside class="auth-mascot-area" aria-hidden="true">
+      <img class="auth-mascot" src="/mascot.png" alt="" />
     </aside>
   </section>
 </main>
