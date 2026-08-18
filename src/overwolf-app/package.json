@@ -15,7 +15,7 @@
     "build": "concurrently \"npm run build:ow-electron\" \"npm run build:main\" \"npm run build:renderer\"",
     "watch": "concurrently \"npm run build:ow-electron\" \"npm run watch:main\" \"npm run watch:renderer\"",
     
-    "build:start": " npm run build && npm run start",
+    "build:start": "npm run build:main && npm run build:renderer && npm run start",
     "build:start:local-server": "cross-env HUB_LOCAL_SERVER_ONLY=1 npm run build:start",
     "watch:start": "npm run watch && npm run start",
     

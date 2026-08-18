@@ -1,0 +1,186 @@
+:root {
+  color-scheme: dark;
+  font-family: Inter, "Segoe UI", Arial, sans-serif;
+  background: #101219;
+  color: #f4f7fb;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-width: 640px;
+  background: #101219;
+}
+
+.shell {
+  min-height: 100vh;
+  padding: 20px;
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid #293244;
+  cursor: move;
+  user-select: none;
+  -webkit-app-region: drag;
+}
+
+.no-drag,
+button {
+  -webkit-app-region: no-drag;
+}
+
+h1,
+h2,
+p {
+  margin: 0;
+}
+
+h1 {
+  font-size: 24px;
+  font-weight: 700;
+}
+
+h2 {
+  font-size: 15px;
+  font-weight: 700;
+}
+
+p {
+  margin-top: 4px;
+  color: #9ca8ba;
+  font-size: 13px;
+}
+
+button {
+  height: 34px;
+  padding: 0 14px;
+  border: 1px solid #375071;
+  border-radius: 6px;
+  background: #17243a;
+  color: #f4f7fb;
+  cursor: pointer;
+  font: inherit;
+}
+
+button:hover {
+  border-color: #4f8fcf;
+}
+
+.status-grid,
+.streams {
+  display: grid;
+  gap: 14px;
+  margin-top: 16px;
+}
+
+.status-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.streams {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: start;
+}
+
+.players-panel {
+  margin-top: 16px;
+}
+
+.panel {
+  border: 1px solid #273147;
+  border-radius: 8px;
+  background: #171b25;
+  padding: 16px;
+}
+
+dl {
+  display: grid;
+  gap: 10px;
+  margin: 14px 0 0;
+}
+
+dl div {
+  display: grid;
+  grid-template-columns: 96px minmax(0, 1fr);
+  gap: 12px;
+  align-items: baseline;
+}
+
+dt {
+  color: #8f9bb0;
+  font-size: 12px;
+  text-transform: uppercase;
+}
+
+dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+  font-size: 13px;
+}
+
+.log-list {
+  display: grid;
+  gap: 10px;
+  height: 340px;
+  margin: 14px 0 0;
+  padding: 0;
+  overflow: auto;
+  list-style: none;
+}
+
+.log-list li {
+  border-left: 3px solid #4f8fcf;
+  background: #111722;
+  padding: 10px;
+  font-family: Consolas, "Courier New", monospace;
+  font-size: 12px;
+  line-height: 1.45;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.empty {
+  color: #8f9bb0;
+}
+
+.table-wrap {
+  max-height: 260px;
+  margin-top: 14px;
+  overflow: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+th,
+td {
+  padding: 9px 10px;
+  border-bottom: 1px solid #263147;
+  text-align: left;
+  vertical-align: top;
+}
+
+th {
+  color: #9ca8ba;
+  font-size: 11px;
+  text-transform: uppercase;
+}
+
+td {
+  overflow-wrap: anywhere;
+}
+
+.muted {
+  color: #8f9bb0;
+}

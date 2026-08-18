@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>League Live Desk</title>
+    <link rel="stylesheet" href="ow-desktop.css" />
+  </head>
+  <body>
+    <main class="shell">
+      <header id="drag-handle" class="topbar" title="Drag to move window">
+        <div>
+          <h1>League Live Desk</h1>
+          <p>Live Overwolf data monitor</p>
+        </div>
+        <button id="refresh" class="no-drag" type="button" title="Refresh backend state">Refresh</button>
+      </header>
+
+      <section class="status-grid">
+        <article class="panel">
+          <h2>Game</h2>
+          <dl>
+            <div>
+              <dt>Detection</dt>
+              <dd id="game-status">Waiting</dd>
+            </div>
+            <div>
+              <dt>Features</dt>
+              <dd id="feature-status">Not registered</dd>
+            </div>
+          </dl>
+        </article>
+
+        <article class="panel">
+          <h2>Backend</h2>
+          <dl>
+            <div>
+              <dt>URL</dt>
+              <dd>localhost:3000</dd>
+            </div>
+            <div>
+              <dt>State</dt>
+              <dd id="backend-status">Checking</dd>
+            </div>
+          </dl>
+        </article>
+      </section>
+
+      <section class="streams">
+        <article class="panel">
+          <h2>Live Events</h2>
+          <ol id="event-log" class="log-list"></ol>
+        </article>
+
+        <article class="panel">
+          <h2>Info Updates</h2>
+          <ol id="info-log" class="log-list"></ol>
+        </article>
+      </section>
+
+      <section class="players-panel panel">
+        <h2>Players Snapshot</h2>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Champion</th>
+                <th>Summoner</th>
+                <th>KDA</th>
+                <th>CS</th>
+                <th>Gold</th>
+                <th>Items</th>
+              </tr>
+            </thead>
+            <tbody id="players-body">
+              <tr>
+                <td colspan="6" class="muted">Waiting for all_players data</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+
+    <script src="ow-desktop.js"></script>
+  </body>
+</html>

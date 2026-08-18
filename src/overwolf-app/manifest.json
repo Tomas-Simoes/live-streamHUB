@@ -1,0 +1,86 @@
+{
+  "manifest_version": 1,
+  "type": "WebApp",
+  "meta": {
+    "name": "League Live Desk",
+    "author": "Simoes",
+    "version": "3.0.3",
+    "minimum-overwolf-version": "0.160.0",
+    "description": "Overwolf app to retrieve League of Legends live data and forward it to Live StreamHUB.",
+    "dock_button_title": "League Live Desk",
+    "icon": "assets/icons/app-icon.png",
+    "icon_gray": "assets/icons/app-icon-gray.png",
+    "launcher_icon": "assets/icons/app-icon.ico",
+    "window_icon": "assets/icons/app-icon.png"
+  },
+  "permissions": [
+    "GameInfo",
+    "Hotkeys"
+  ],
+    "data": {
+      "start_window": "background",
+    "hotkeys": {
+      "league_live_desk_showhide": {
+        "title": "Show/Hide League Live Desk",
+        "action-type": "toggle",
+        "default": "Ctrl+F"
+      }
+    },
+    "windows": {
+      "background": {
+        "file": "ow-background.html",
+        "is_background_page": true,
+        "background_optimization": true
+      },
+      "desktop": {
+        "file": "ow-desktop.html",
+        "desktop_only": true,
+        "native_window": true,
+        "resizable": true,
+        "transparent": false,
+        "override_on_update": true,
+        "size": {
+          "width": 980,
+          "height": 640
+        },
+        "min_size": {
+          "width": 720,
+          "height": 460
+        }
+      },
+      "in_game": {
+        "file": "ow-desktop.html",
+        "native_window": true,
+        "focus_game_takeover": "ReleaseOnHidden",
+        "focus_game_takeover_release_hotkey": "league_live_desk_showhide",
+        "resizable": true,
+        "transparent": false,
+        "override_on_update": true,
+        "size": {
+          "width": 980,
+          "height": 640
+        },
+        "min_size": {
+          "width": 720,
+          "height": 460
+        }
+      }
+    },
+    "game_targeting": {
+      "type": "dedicated",
+      "game_ids": [
+        5426,
+        10902
+      ]
+    },
+    "game_events": [
+      5426,
+      10902
+    ],
+    "developer": {
+      "enable_auto_refresh": true,
+      "reload_delay": 1000,
+      "filter": "*.*"
+    }
+  }
+}

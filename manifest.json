@@ -8,10 +8,10 @@
     "minimum-overwolf-version": "0.160.0",
     "description": "Overwolf app to retrive data from League of Legends and integrate it with OBS",
     "dock_button_title": "League Live Desk",
-    "icon": "old-stable/overwolf_client/dist/icons/IconMouseOver.png",
-    "icon_gray": "old-stable/overwolf_client/dist/icons/IconMouseNormal.png",
-    "launcher_icon": "old-stable/overwolf_client/dist/icons/desktop-icon.ico",
-    "window_icon": "old-stable/overwolf_client/dist/icons/IconMouseOver.png"
+    "icon": "assets/icons/app-icon.png",
+    "icon_gray": "assets/icons/app-icon-gray.png",
+    "launcher_icon": "assets/icons/app-icon.ico",
+    "window_icon": "assets/icons/app-icon.png"
   },
   "permissions": [
     "Hotkeys",
