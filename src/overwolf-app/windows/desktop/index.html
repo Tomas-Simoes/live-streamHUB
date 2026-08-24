@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>League Live Desk</title>
+    <link rel="stylesheet" href="desktop.css" />
+  </head>
+  <body>
+    <main class="shell">
+      <header id="drag-handle" class="topbar" title="Drag to move window">
+        <div>
+          <h1>League Live Desk</h1>
+          <p>Live Overwolf data monitor</p>
+        </div>
+        <button id="refresh" class="no-drag" type="button" title="Refresh backend state">Refresh</button>
+      </header>
+
+      <section class="status-grid">
+        <article class="panel">
+          <h2>Game</h2>
+          <dl>
+            <div>
+              <dt>Detection</dt>
+              <dd id="game-status">Waiting</dd>
+            </div>
+            <div>
+              <dt>Features</dt>
+              <dd id="feature-status">Not registered</dd>
+            </div>
+            <div>
+              <dt>Live data</dt>
+              <dd id="data-status">Waiting</dd>
+            </div>
+          </dl>
+        </article>
+
+        <article class="panel">
+          <h2>OBS Updates</h2>
+          <dl>
+            <div>
+              <dt>Status</dt>
+              <dd id="obs-status">Not prepared</dd>
+            </div>
+            <div>
+              <dt>Scene</dt>
+              <dd id="obs-scene">-</dd>
+            </div>
+            <div>
+              <dt>Hub</dt>
+              <dd id="obs-hub">-</dd>
+            </div>
+            <div>
+              <dt>Overlay</dt>
+              <dd id="obs-layers">-</dd>
+            </div>
+          </dl>
+          <div class="obs-controls no-drag">
+            <button id="prepare-render" type="button">Prepare OBS Render</button>
+          </div>
+        </article>
+      </section>
+
+      <section class="streams">
+        <article class="panel">
+          <h2>Live Events</h2>
+          <ol id="event-log" class="log-list"></ol>
+        </article>
+
+        <article class="panel">
+          <h2>Info Updates</h2>
+          <ol id="info-log" class="log-list"></ol>
+        </article>
+      </section>
+
+      <section class="players-panel panel">
+        <h2>Players Snapshot</h2>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Champion</th>
+                <th>Summoner</th>
+                <th>KDA</th>
+                <th>CS</th>
+                <th>Gold</th>
+                <th>Items</th>
+              </tr>
+            </thead>
+            <tbody id="players-body">
+              <tr>
+                <td colspan="6" class="muted">Waiting for all_players data</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+
+    <div id="obs-password-dialog" class="dialog-backdrop dialog-hidden no-drag" role="presentation">
+      <section class="dialog-panel" role="dialog" aria-modal="true" aria-labelledby="obs-password-title">
+        <header class="dialog-header">
+          <h2 id="obs-password-title">OBS WebSocket Password</h2>
+          <button id="obs-dialog-close" class="dialog-icon-button" type="button" aria-label="Close" title="Close">
+            <span aria-hidden="true">x</span>
+          </button>
+        </header>
+
+        <label class="dialog-field">
+          <span>Password</span>
+          <input id="obs-dialog-password" type="password" autocomplete="current-password" />
+        </label>
+
+        <label class="dialog-check">
+          <input id="obs-dialog-remember" type="checkbox" />
+          <span>Remember password on this device</span>
+        </label>
+
+        <p id="obs-dialog-error" class="dialog-error dialog-hidden"></p>
+
+        <footer class="dialog-actions">
+          <button id="obs-dialog-cancel" class="dialog-button" type="button">Cancel</button>
+          <button id="obs-dialog-submit" class="dialog-button dialog-button-primary" type="button">Connect</button>
+        </footer>
+      </section>
+    </div>
+
+    <script src="../../obs/ObsPasswordStore.js"></script>
+    <script src="desktop.js"></script>
+  </body>
+</html>

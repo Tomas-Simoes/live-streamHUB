@@ -2,7 +2,7 @@ import { HttpErrorResponse } from "@angular/common/http";
 import { Component, computed, signal } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 
-import { HubStore } from "../../../core/hub.store";
+import { HubStore } from "../../../core/store/hub.store";
 import { AuthStore } from "../auth.store";
 
 type AuthMode = "login" | "register";

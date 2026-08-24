@@ -1,7 +1,7 @@
 import { Injectable, computed, signal } from "@angular/core";
 
 import { Hub } from "../../../shared/types/hub.types";
-import { HubStore } from "../../../core/hub.store";
+import { HubStore } from "../../../core/store/hub.store";
 
 type HubCard = {
   name: string;
@@ -138,7 +138,9 @@ export class HubLibraryPresenter {
         "A reusable overlay scene for match coverage, stream moments, and live broadcast updates.",
       features:
         storedCard?.features ??
-        (layerCount ? ["Layered canvas", "OBS ready", "Live controls"] : ["Blank canvas"]),
+        (layerCount
+          ? ["Layered canvas", "OBS ready", "Live controls"]
+          : ["Blank canvas"]),
       status: storedCard?.status ?? "Draft",
     };
   }

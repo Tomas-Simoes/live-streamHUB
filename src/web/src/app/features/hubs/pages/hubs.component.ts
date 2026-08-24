@@ -3,7 +3,7 @@ import { Router } from "@angular/router";
 
 import { AuthStore } from "../../auth/auth.store";
 import { HubLibraryPresenter } from "../presenters/hub-library.presenter";
-import { HubStore } from "../../../core/hub.store";
+import { HubStore } from "../../../core/store/hub.store";
 
 type CarouselDirection = "next" | "previous";
 
@@ -72,7 +72,10 @@ export class HubsComponent implements OnDestroy {
     });
   }
 
-  private animateCarousel(direction: CarouselDirection, updateSelection: () => void) {
+  private animateCarousel(
+    direction: CarouselDirection,
+    updateSelection: () => void,
+  ) {
     this.clearCarouselAnimation();
     this.carouselDirection = direction;
     this.isCarouselAnimating = false;

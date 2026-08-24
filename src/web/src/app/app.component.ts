@@ -1,7 +1,7 @@
 import { Component, OnInit } from "@angular/core";
 
 import { AuthStore } from "./features/auth/auth.store";
-import { HubStore } from "./core/hub.store";
+import { HubStore } from "./core/store/hub.store";
 
 @Component({
   selector: "app-root",

@@ -1,8 +1,10 @@
 import { Component, Input } from '@angular/core';
+import { firstValueFrom } from 'rxjs';
 
 import { fitLayerToNaturalSize } from '../canvas-coordinates';
 import { EditorStore } from '../editor.store';
 import { ImageLayer } from '../../../../shared/types/layer.types';
+import { ImageApi, UploadedMedia } from '../../../../core/api/image.api';
 
 @Component({
   selector: 'app-image-editor',
@@ -37,23 +39,48 @@ import { ImageLayer } from '../../../../shared/types/layer.types';
 export class ImageEditorComponent {
   @Input({ required: true }) layer!: ImageLayer;
 
-  constructor(private editorStore: EditorStore) { }
+  constructor(
+    private editorStore: EditorStore,
+    private imageApi: ImageApi,
+  ) {}
 
   updateSrc(event: Event) {
     this.updateImageSource(getInputValue(event));
   }
 
-  uploadImage(event: Event) {
+  async uploadImage(event: Event) {
     const file = getFileValue(event);
 
     if (!file) {
       return;
     }
 
-    const src = URL.createObjectURL(file);
+    const previewSrc = URL.createObjectURL(file);
 
     revokeBlobUrl(this.layer.src);
-    this.updateImageSource(src, this.layer.alt || file.name);
+    this.updateImageSource(
+      previewSrc,
+      this.layer.alt || file.name,
+      undefined,
+      'uploading',
+    );
+
+    try {
+      const uploaded = await firstValueFrom(this.imageApi.uploadImage(file));
+
+      revokeBlobUrl(previewSrc);
+      this.updateImageSource(
+        uploaded.url,
+        this.layer.alt || uploaded.originalName,
+        uploaded,
+        'ready',
+      );
+    } catch {
+      this.editorStore.updateLayer(this.layer.id, {
+        alt: this.layer.alt || `${file.name} upload failed`,
+        mediaUploadStatus: 'failed',
+      });
+    }
   }
 
   updateAlt(event: Event) {
@@ -64,8 +91,20 @@ export class ImageEditorComponent {
     this.editorStore.updateLayer(this.layer.id, { opacity: getNumberValue(event) });
   }
 
-  private updateImageSource(src: string, alt = this.layer.alt) {
-    this.editorStore.updateLayer(this.layer.id, { src, alt });
+  private updateImageSource(
+    src: string,
+    alt = this.layer.alt,
+    uploaded?: UploadedMedia,
+    mediaUploadStatus?: ImageLayer['mediaUploadStatus'],
+  ) {
+    this.editorStore.updateLayer(this.layer.id, {
+      src,
+      alt,
+      mediaKey: uploaded?.key,
+      mediaStorage: uploaded?.storage,
+      mediaUploadStatus,
+      localFilePath: uploaded?.localFilePath,
+    });
     this.fitLayerToImage(src).catch(() => undefined);
   }
 

@@ -6,7 +6,7 @@
     "author": "Simoes",
     "version": "3.0.3",
     "minimum-overwolf-version": "0.160.0",
-    "description": "Overwolf app to retrieve League of Legends live data and forward it to Live StreamHUB.",
+    "description": "Overwolf app to retrieve League of Legends live data and update a LiveHub OBS browser overlay.",
     "dock_button_title": "League Live Desk",
     "icon": "assets/icons/app-icon.png",
     "icon_gray": "assets/icons/app-icon-gray.png",
@@ -14,11 +14,13 @@
     "window_icon": "assets/icons/app-icon.png"
   },
   "permissions": [
+    "FileSystem",
     "GameInfo",
-    "Hotkeys"
+    "Hotkeys",
+    "Web"
   ],
-    "data": {
-      "start_window": "background",
+  "data": {
+    "start_window": "background",
     "hotkeys": {
       "league_live_desk_showhide": {
         "title": "Show/Hide League Live Desk",
@@ -28,12 +30,12 @@
     },
     "windows": {
       "background": {
-        "file": "ow-background.html",
+        "file": "windows/background/index.html",
         "is_background_page": true,
         "background_optimization": true
       },
       "desktop": {
-        "file": "ow-desktop.html",
+        "file": "windows/desktop/index.html",
         "desktop_only": true,
         "native_window": true,
         "resizable": true,
@@ -49,7 +51,7 @@
         }
       },
       "in_game": {
-        "file": "ow-desktop.html",
+        "file": "windows/desktop/index.html",
         "native_window": true,
         "focus_game_takeover": "ReleaseOnHidden",
         "focus_game_takeover_release_hotkey": "league_live_desk_showhide",
@@ -76,6 +78,18 @@
     "game_events": [
       5426,
       10902
+    ],
+    "launch_events": [
+      {
+        "event": "GameLaunch",
+        "event_data": {
+          "game_ids": [
+            5426,
+            10902
+          ]
+        },
+        "start_minimized": true
+      }
     ],
     "developer": {
       "enable_auto_refresh": true,

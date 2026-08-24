@@ -1,8 +1,10 @@
 import { Component, Input } from '@angular/core';
+import { firstValueFrom } from 'rxjs';
 
 import { fitLayerToNaturalSize } from '../canvas-coordinates';
 import { EditorStore } from '../editor.store';
 import { VideoLayer } from '../../../../shared/types/layer.types';
+import { ImageApi, UploadedMedia } from '../../../../core/api/image.api';
 
 @Component({
   selector: 'app-video-editor',
@@ -37,23 +39,38 @@ import { VideoLayer } from '../../../../shared/types/layer.types';
 export class VideoEditorComponent {
   @Input({ required: true }) layer!: VideoLayer;
 
-  constructor(private editorStore: EditorStore) { }
+  constructor(
+    private editorStore: EditorStore,
+    private imageApi: ImageApi,
+  ) { }
 
   updateSrc(event: Event) {
     this.updateVideoSource(getInputValue(event));
   }
 
-  uploadVideo(event: Event) {
+  async uploadVideo(event: Event) {
     const file = getFileValue(event);
 
     if (!file) {
       return;
     }
 
-    const src = URL.createObjectURL(file);
+    const previewSrc = URL.createObjectURL(file);
 
     revokeBlobUrl(this.layer.src);
-    this.updateVideoSource(src);
+    this.updateVideoSource(previewSrc, undefined, 'uploading');
+
+    try {
+      const uploaded = await firstValueFrom(this.imageApi.uploadVideo(file));
+
+      revokeBlobUrl(previewSrc);
+      this.updateVideoSource(uploaded.url, uploaded, 'ready');
+    } catch {
+      this.editorStore.updateLayer(this.layer.id, {
+        name: `${this.layer.name} upload failed`,
+        mediaUploadStatus: 'failed',
+      });
+    }
   }
 
   updateAutoplay(event: Event) {
@@ -64,8 +81,18 @@ export class VideoEditorComponent {
     this.editorStore.updateLayer(this.layer.id, { muted: getCheckedValue(event) });
   }
 
-  private updateVideoSource(src: string) {
-    this.editorStore.updateLayer(this.layer.id, { src });
+  private updateVideoSource(
+    src: string,
+    uploaded?: UploadedMedia,
+    mediaUploadStatus?: VideoLayer['mediaUploadStatus'],
+  ) {
+    this.editorStore.updateLayer(this.layer.id, {
+      src,
+      mediaKey: uploaded?.key,
+      mediaStorage: uploaded?.storage,
+      mediaUploadStatus,
+      localFilePath: uploaded?.localFilePath,
+    });
     this.fitLayerToVideo(src).catch(() => undefined);
   }
 

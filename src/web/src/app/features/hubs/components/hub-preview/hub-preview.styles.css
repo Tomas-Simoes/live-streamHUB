@@ -26,71 +26,32 @@
   height: 100%;
   min-height: 0;
   overflow: hidden;
-  background:
-    linear-gradient(180deg, rgb(237 189 149 / 12%) 0 2px, transparent 2px),
-    linear-gradient(135deg, #1f302e, #374f4e);
-}
-
-.broadcast-preview::after {
-  position: absolute;
-  inset: 9%;
-  border: 1px dashed rgb(237 189 149 / 22%);
+  container-type: inline-size;
+  border: 1px solid rgb(var(--brand-beige-180-rgb) / 26%);
   border-radius: 8px;
-  content: '';
-  pointer-events: none;
-}
-
-.preview-grid {
-  position: absolute;
-  inset: 0;
-  opacity: 0.1;
   background:
-    linear-gradient(rgb(245 239 233 / 24%) 1px, transparent 1px),
-    linear-gradient(90deg, rgb(245 239 233 / 24%) 1px, transparent 1px);
-  background-size: 10% 16.666%;
+    radial-gradient(circle at 58% 36%, rgb(var(--brand-gold-220-rgb) / 12%), transparent 24rem),
+    linear-gradient(135deg, var(--brand-red-920), var(--brand-red-970) 70%, var(--brand-red-990));
+  box-shadow:
+    0 32px 70px rgb(var(--brand-red-990-rgb) / 26%),
+    0 1px 0 rgb(var(--brand-beige-50-rgb) / 10%) inset;
 }
 
 .preview-layer {
   position: absolute;
   display: grid;
-  min-width: 18px;
-  min-height: 14px;
   place-items: center;
-  border: 1px solid rgb(237 189 149 / 64%);
-  border-radius: 6px;
-  background: rgb(237 189 149 / 18%);
-  color: #f5efe9;
+  color: inherit;
   transform: translate(-50%, -50%);
 }
 
-.preview-layer-label {
-  overflow: hidden;
-  max-width: 100%;
-  padding: 0 5px;
-  color: #f5efe9;
-  font-size: 9px;
-  font-weight: 780;
-  letter-spacing: 0;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.preview-layer-text {
-  border-color: rgb(209 128 30 / 68%);
-  border-style: dashed;
-  background: rgb(209 128 30 / 16%);
-}
-
-.preview-layer-video {
-  border-color: rgb(170 133 82 / 78%);
-  background:
-    repeating-linear-gradient(90deg, rgb(170 133 82 / 20%) 0 14px, transparent 14px 28px),
-    rgb(170 133 82 / 14%);
-}
-
-.preview-layer-image {
-  border-color: rgb(218 204 196 / 66%);
-  background:
-    linear-gradient(135deg, transparent 0 47%, rgb(218 204 196 / 58%) 47% 53%, transparent 53%),
-    rgb(218 204 196 / 12%);
+.preview-layer app-text-loader,
+.preview-layer app-image-loader,
+.preview-layer app-video-loader,
+.preview-layer app-kills-loader,
+.preview-layer app-towers-loader,
+.preview-layer app-stat-loader,
+.preview-layer app-group-loader {
+  width: 100%;
+  height: 100%;
 }

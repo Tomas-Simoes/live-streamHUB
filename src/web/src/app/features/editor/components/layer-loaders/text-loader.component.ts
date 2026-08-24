@@ -11,6 +11,7 @@ import { TextLayer } from '../../../../shared/types/layer.types';
       [style.color]="layer.color"
       [style.--text-font-size]="layer.fontSize"
       [style.font-family]="layer.fontFamily"
+      [style.font-weight]="layer.bold ? 700 : 400"
     >
       {{ layer.text }}
     </span>
@@ -29,7 +30,7 @@ import { TextLayer } from '../../../../shared/types/layer.types';
         overflow: hidden;
         max-width: 100%;
         max-height: 100%;
-        font-size: max(8px, calc(var(--text-font-size) * 100cqw / 1920));
+        font-size: clamp(1px, calc(var(--text-font-size) * 100cqw / 1920), var(--text-font-size));
         line-height: 1.15;
         text-align: center;
         text-overflow: ellipsis;

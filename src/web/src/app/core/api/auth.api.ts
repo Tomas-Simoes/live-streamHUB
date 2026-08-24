@@ -1,10 +1,15 @@
-import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { HttpClient } from "@angular/common/http";
+import { Injectable } from "@angular/core";
 
-import { getBackendApiUrl } from './url.helpers';
-import { LoginRequest, RegisterRequest, SecurityTokens, User } from 'src/app/shared/types/user.types';
+import { getBackendApiUrl } from "../helper/url.helpers";
+import {
+  LoginRequest,
+  RegisterRequest,
+  SecurityTokens,
+  User,
+} from "src/app/shared/types/user.types";
 
-@Injectable({ providedIn: 'root' })
+@Injectable({ providedIn: "root" })
 export class AuthApi {
   private readonly baseUrl = `${getBackendApiUrl()}/auth`;
   private readonly httpOptions = { withCredentials: true };
@@ -12,11 +17,19 @@ export class AuthApi {
   constructor(private http: HttpClient) {}
 
   login(data: LoginRequest) {
-    return this.http.post<SecurityTokens>(`${this.baseUrl}/login`, data, this.httpOptions);
+    return this.http.post<SecurityTokens>(
+      `${this.baseUrl}/login`,
+      data,
+      this.httpOptions,
+    );
   }
 
   register(data: RegisterRequest) {
-    return this.http.post<User>(`${this.baseUrl}/register`, data, this.httpOptions);
+    return this.http.post<User>(
+      `${this.baseUrl}/register`,
+      data,
+      this.httpOptions,
+    );
   }
 
   getMe() {
@@ -24,6 +37,10 @@ export class AuthApi {
   }
 
   logout() {
-    return this.http.post<{ success: boolean }>(`${this.baseUrl}/logout`, {}, this.httpOptions);
+    return this.http.post<{ success: boolean }>(
+      `${this.baseUrl}/logout`,
+      {},
+      this.httpOptions,
+    );
   }
 }

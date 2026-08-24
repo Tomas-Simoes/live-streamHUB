@@ -5,6 +5,8 @@ import { ValidationPipe } from '@nestjs/common';
 import helmet from 'helmet';
 import cookieParser from 'cookie-parser';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { existsSync, mkdirSync } from 'fs';
+import { join } from 'path';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
@@ -25,7 +27,12 @@ async function bootstrap() {
 
   app.enableCors({
     origin: (origin, callback) => {
-      if (!origin || allowedOrigins.includes(origin) || isLocalDevOrigin(origin)) {
+      if (
+        !origin ||
+        allowedOrigins.includes(origin) ||
+        isLocalDevOrigin(origin) ||
+        isOverwolfOrigin(origin)
+      ) {
         callback(null, true);
         return;
       }
@@ -35,8 +42,21 @@ async function bootstrap() {
     credentials: true,
   });
 
-  app.use(helmet({ contentSecurityPolicy: false }));
+  app.use(
+    helmet({
+      contentSecurityPolicy: false,
+      crossOriginResourcePolicy: { policy: 'cross-origin' },
+    }),
+  );
   app.use(cookieParser());
+
+  const uploadsRoot = join(process.cwd(), 'uploads');
+
+  if (!existsSync(uploadsRoot)) {
+    mkdirSync(uploadsRoot, { recursive: true });
+  }
+
+  app.useStaticAssets(uploadsRoot, { prefix: '/uploads/' });
 
   initSwagger(app);
 
@@ -55,6 +75,27 @@ function isLocalDevOrigin(origin: string) {
     );
   } catch {
     return false;
+  }
+}
+
+function isOverwolfOrigin(origin: string) {
+  try {
+    const url = new URL(origin);
+
+    if (url.protocol === 'overwolf:' || url.protocol === 'overwolf-extension:') {
+      return true;
+    }
+
+    return (
+      url.protocol === 'https:' &&
+      url.hostname === 'www.overwolf.com' &&
+      (url.pathname === '/' || /^\/[a-z0-9]+$/i.test(url.pathname))
+    );
+  } catch {
+    return (
+      /^overwolf(?:-extension)?:\/\//i.test(origin) ||
+      /^https:\/\/www\.overwolf\.com\/[a-z0-9]+$/i.test(origin)
+    );
   }
 }
 

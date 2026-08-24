@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, Output, signal } from "@angular/core";
 import { OBSApi } from "src/app/core/api/obs.api";
-import { OBSPasswordStore } from "src/app/core/obs.store";
+import { OBSPasswordStore } from "src/app/core/store/obs.store";
 import { Hub } from "src/app/shared/types/hub.types";
 
 import { OBSPasswordDialogSubmit } from "./obs-password-dialog.component";
@@ -96,7 +96,7 @@ export class OBSExportButtonComponent {
   private getObsExportErrorMessage(error: unknown) {
     if (error instanceof Error && error.message) {
       if (error.message.toLowerCase().includes("input kind is not supported")) {
-        return "Your current OBS version does not support Browser Sources. Enable the OBS Browser Source then try again.";
+        return "OBS does not support one of the source types needed for this hub. Check the layer type and try again.";
       }
 
       return error.message;

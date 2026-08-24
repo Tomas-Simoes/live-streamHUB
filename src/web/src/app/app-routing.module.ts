@@ -6,7 +6,6 @@ import { AuthFormComponent } from "./features/auth/components/auth-form.componen
 import { HomeComponent } from "./features/home/components/home.component";
 import { HubsComponent } from "./features/hubs/pages/hubs.component";
 import { authGuard } from "./core/guards/auth.guard";
-import { OverlayComponent } from "./features/overlay/pages/overlay.component";
 
 const routes: Routes = [
   { path: "", component: HomeComponent },
@@ -14,7 +13,6 @@ const routes: Routes = [
   { path: "register", component: AuthFormComponent },
   { path: "editor", component: EditorComponent, canActivate: [authGuard] },
   { path: "hubs", component: HubsComponent, canActivate: [authGuard] },
-  { path: "overlay/:userId/:hubId", component: OverlayComponent },
   { path: "**", redirectTo: "" },
 ];
 

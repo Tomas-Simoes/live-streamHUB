@@ -1,14 +1,49 @@
 <div class="hub-preview-shell" aria-hidden="true">
-  <div class="broadcast-preview">
-    <span class="preview-grid"></span>
-    @for(layer of hub.layers; track layer.id) {
+  <div class="broadcast-preview" [style.background]="getBackground()" [style.background-image]="getBackgroundImage()"
+    [style.background-position]="'center'" [style.background-size]="'cover'">
+    @for(layer of hub.layers; track layer.id; let layerIndex = $index) {
     @if(layer.visible) {
-    <span [class]="getLayerPreviewClass(layer)" [style.left.%]="getLayerStyleValue(layer.position.x, 'x')"
+    <div [class]="getLayerPreviewClass(layer)" [style.left.%]="getLayerStyleValue(layer.position.x, 'x')"
       [style.top.%]="getLayerStyleValue(layer.position.y, 'y')"
       [style.width.%]="getLayerStyleValue(layer.width, 'x')"
-      [style.height.%]="getLayerStyleValue(layer.height, 'y')">
-      <span class="preview-layer-label">{{ layer.type }}</span>
-    </span>
+      [style.height.%]="getLayerStyleValue(layer.height, 'y')"
+      [style.z-index]="getLayerZIndex(layerIndex)">
+      @switch(layer.type) {
+      @case(LayerType.Text) {
+      <app-text-loader [layer]="layer"></app-text-loader>
+      }
+      @case(LayerType.Image) {
+      <app-image-loader [layer]="layer"></app-image-loader>
+      }
+      @case(LayerType.Video) {
+      <app-video-loader [layer]="layer"></app-video-loader>
+      }
+      @case(LayerType.Kills) {
+      <app-stat-loader [layer]="layer"></app-stat-loader>
+      }
+      @case(LayerType.Towers) {
+      <app-stat-loader [layer]="layer"></app-stat-loader>
+      }
+      @case(LayerType.VoidGrubs) {
+      <app-stat-loader [layer]="layer"></app-stat-loader>
+      }
+      @case(LayerType.RiftHerald) {
+      <app-stat-loader [layer]="layer"></app-stat-loader>
+      }
+      @case(LayerType.Dragon) {
+      <app-stat-loader [layer]="layer"></app-stat-loader>
+      }
+      @case(LayerType.PlayerScore) {
+      <app-stat-loader [layer]="layer"></app-stat-loader>
+      }
+      @case(LayerType.Time) {
+      <app-stat-loader [layer]="layer"></app-stat-loader>
+      }
+      @case(LayerType.Group) {
+      <app-group-loader [layer]="layer"></app-group-loader>
+      }
+      }
+    </div>
     }
     }
   </div>

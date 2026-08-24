@@ -83,6 +83,18 @@
         @case(LayerType.Towers){
         <app-stat-editor [layer]="selectedLayer"></app-stat-editor>
         }
+        @case(LayerType.VoidGrubs){
+        <app-stat-editor [layer]="selectedLayer"></app-stat-editor>
+        }
+        @case(LayerType.RiftHerald){
+        <app-stat-editor [layer]="selectedLayer"></app-stat-editor>
+        }
+        @case(LayerType.Dragon){
+        <app-stat-editor [layer]="selectedLayer"></app-stat-editor>
+        }
+        @case(LayerType.PlayerScore){
+        <app-stat-editor [layer]="selectedLayer"></app-stat-editor>
+        }
         @case(LayerType.Group){
         <app-group-editor [layer]="selectedLayer"></app-group-editor>
         }
@@ -103,16 +115,29 @@
       </div>
 
       <div class="stage-meta" aria-label="Canvas metadata">
+        <label class="background-field">
+          <span>Background</span>
+          <select class="background-select" [value]="getSelectedBackgroundId()"
+            (change)="setBackground($any($event.target).value)">
+            @for(background of backgroundOptions; track background.id) {
+            <option [value]="background.id">{{ background.label }}</option>
+            }
+          </select>
+        </label>
         <span>16:9</span>
         <span>{{ hubStore.selectedHub()?.layers?.length || 0 }} layers</span>
       </div>
     </div>
 
     <div class="canvas-viewport">
-      <div class="canvas-base" #canvasBase (pointerdown)="editorStore.selectLayer(null)">
-        @for (layer of hubStore.selectedHub()?.layers; track layer.id){
+      <div class="canvas-base" #canvasBase [style.background]="getCanvasBackground()"
+        [style.background-image]="getCanvasBackgroundImage()" [style.background-position]="'center'"
+        [style.background-size]="'cover'"
+        (pointerdown)="startCanvasPointerDown($event, canvasBase)">
+        @for (layer of hubStore.selectedHub()?.layers; track layer.id; let layerIndex = $index){
+        @if(layer.visible){
         <div class="canvas-layer" [class.canvas-layer-selected]="editorStore.selectedLayerId() === layer.id"
-          (pointerdown)="startDrag($event, layer, canvasBase)"
+          [style.z-index]="getCanvasLayerZIndex(layerIndex)"
           [style.left.%]="getCanvasStyleValue(layer.position.x, 'x')"
           [style.top.%]="getCanvasStyleValue(layer.position.y, 'y')"
           [style.width.%]="getCanvasStyleValue(layer.width, 'x')"
@@ -128,10 +153,25 @@
           <app-video-loader [layer]="layer"></app-video-loader>
           }
           @case(LayerType.Kills){
-          <app-kills-loader [layer]="layer"></app-kills-loader>
+          <app-stat-loader [layer]="layer"></app-stat-loader>
           }
           @case(LayerType.Towers){
-          <app-towers-loader [layer]="layer"></app-towers-loader>
+          <app-stat-loader [layer]="layer"></app-stat-loader>
+          }
+          @case(LayerType.VoidGrubs){
+          <app-stat-loader [layer]="layer"></app-stat-loader>
+          }
+          @case(LayerType.RiftHerald){
+          <app-stat-loader [layer]="layer"></app-stat-loader>
+          }
+          @case(LayerType.Dragon){
+          <app-stat-loader [layer]="layer"></app-stat-loader>
+          }
+          @case(LayerType.PlayerScore){
+          <app-stat-loader [layer]="layer"></app-stat-loader>
+          }
+          @case(LayerType.Time){
+          <app-stat-loader [layer]="layer"></app-stat-loader>
           }
           @case(LayerType.Group){
           <app-group-loader [layer]="layer"></app-group-loader>
@@ -145,6 +185,7 @@
           }
         </div>
         }
+        }
       </div>
     </div>
   </section>
@@ -156,31 +197,83 @@
         <h2 class="panel-title">Add Elements</h2>
       </div>
 
-      <div class="element-grid" aria-label="Element types">
-        <button class="element-tile" type="button" (click)="createLayer(LayerType.Text)">
-          <span class="element-icon element-icon-text" aria-hidden="true">T</span>
-          <span class="element-name">Text</span>
-        </button>
+      <div class="element-groups" aria-label="Element types">
+        <details class="element-group" open>
+          <summary class="element-group-summary">
+            <span>Core</span>
+            <span class="element-group-count">3</span>
+          </summary>
 
-        <button class="element-tile" type="button" (click)="createLayer(LayerType.Image)">
-          <span class="element-icon element-icon-image" aria-hidden="true"></span>
-          <span class="element-name">Image</span>
-        </button>
+          <div class="element-grid">
+            <button class="element-tile" type="button" (click)="createLayer(LayerType.Text)">
+              <span class="element-icon element-icon-text" aria-hidden="true">T</span>
+              <span class="element-name">Text</span>
+            </button>
 
-        <button class="element-tile" type="button" (click)="createLayer(LayerType.Video)">
-          <span class="element-icon element-icon-video" aria-hidden="true"></span>
-          <span class="element-name">Video</span>
-        </button>
+            <button class="element-tile" type="button" (click)="createLayer(LayerType.Image)">
+              <span class="element-icon element-icon-image" aria-hidden="true"></span>
+              <span class="element-name">Image</span>
+            </button>
 
-        <button class="element-tile" type="button" (click)="createLayer(LayerType.Kills)">
-          <span class="element-icon element-icon-stat" aria-hidden="true">K</span>
-          <span class="element-name">Kills</span>
-        </button>
+            <button class="element-tile" type="button" (click)="createLayer(LayerType.Video)">
+              <span class="element-icon element-icon-video" aria-hidden="true"></span>
+              <span class="element-name">Video</span>
+            </button>
+          </div>
+        </details>
 
-        <button class="element-tile" type="button" (click)="createLayer(LayerType.Towers)">
-          <span class="element-icon element-icon-stat" aria-hidden="true">T</span>
-          <span class="element-name">Towers</span>
-        </button>
+        <details class="element-group" open>
+          <summary class="element-group-summary">
+            <span>Scoreboard</span>
+            <span class="element-group-count">4</span>
+          </summary>
+
+          <div class="element-grid">
+            <button class="element-tile" type="button" (click)="createLayer(LayerType.Kills)">
+              <span class="element-icon element-icon-stat" aria-hidden="true">K</span>
+              <span class="element-name">Kills</span>
+            </button>
+
+            <button class="element-tile" type="button" (click)="createLayer(LayerType.Towers)">
+              <span class="element-icon element-icon-stat" aria-hidden="true">T</span>
+              <span class="element-name">Towers</span>
+            </button>
+
+            <button class="element-tile" type="button" (click)="createLayer(LayerType.PlayerScore)">
+              <span class="element-icon element-icon-stat" aria-hidden="true">KDA</span>
+              <span class="element-name">Player Score</span>
+            </button>
+
+            <button class="element-tile" type="button" (click)="createLayer(LayerType.Time)">
+              <span class="element-icon element-icon-stat" aria-hidden="true">:</span>
+              <span class="element-name">Time</span>
+            </button>
+          </div>
+        </details>
+
+        <details class="element-group" open>
+          <summary class="element-group-summary">
+            <span>Objectives</span>
+            <span class="element-group-count">3</span>
+          </summary>
+
+          <div class="element-grid">
+            <button class="element-tile" type="button" (click)="createLayer(LayerType.Dragon)">
+              <span class="element-icon element-icon-stat" aria-hidden="true">D</span>
+              <span class="element-name">Dragon</span>
+            </button>
+
+            <button class="element-tile" type="button" (click)="createLayer(LayerType.VoidGrubs)">
+              <span class="element-icon element-icon-stat" aria-hidden="true">VG</span>
+              <span class="element-name">Void Grubs</span>
+            </button>
+
+            <button class="element-tile" type="button" (click)="createLayer(LayerType.RiftHerald)">
+              <span class="element-icon element-icon-stat" aria-hidden="true">RH</span>
+              <span class="element-name">Rift Herald</span>
+            </button>
+          </div>
+        </details>
       </div>
     </section>
 
@@ -197,34 +290,77 @@
                 d="M13.5 9a.5.5 0 0 1 .5.5V11h1.5a.5.5 0 1 1 0 1H14v1.5a.5.5 0 1 1-1 0V12h-1.5a.5.5 0 0 1 0-1H13V9.5a.5.5 0 0 1 .5-.5" />
             </svg>
           </button>
-          <button class="icon-button" type="button" aria-label="Remove layer">
+          <button class="icon-button" type="button" aria-label="Remove selected layer" title="Remove selected layer"
+            [disabled]="!editorStore.selectedLayerId()" (click)="removeSelectedLayer()">
             <span aria-hidden="true">-</span>
           </button>
         </div>
       </div>
 
-      <div class="layer-list" aria-label="Canvas layers">
-        @for(layer of hubStore.selectedHub()?.layers; track layer.id){
-        <div class="layer-row" [class.layer-row-active]="editorStore.selectedLayerId() === layer.id"
-          [class.layer-row-editing]="editingLayerId() === layer.id" role="button" tabindex="0"
-          (click)="editorStore.selectLayer(layer.id)" (keydown.enter)="editorStore.selectLayer(layer.id)">
-          <span class="visibility-dot" aria-hidden="true"></span>
-          <span class="layer-thumbnail" [class.layer-thumbnail-text]="layer.type === LayerType.Text"
-            [class.layer-thumbnail-image]="layer.type === LayerType.Image"
-            [class.layer-thumbnail-video]="layer.type === LayerType.Video"
-            [class.layer-thumbnail-kills]="layer.type === LayerType.Kills"
-            [class.layer-thumbnail-towers]="layer.type === LayerType.Towers"
-            [class.layer-thumbnail-group]="layer.type === LayerType.Group" aria-hidden="true"></span>
+      <div class="layer-list" [class.layer-list-drop-active]="dragOverRoot()" aria-label="Canvas layers"
+        (dragover)="handleLayerListDragOver($event)" (dragleave)="handleLayerListDragLeave($event)"
+        (drop)="dropLayerOnRoot($event)">
+        @for(row of getLayerPanelRows(); track row.layer.id){
+        <div class="layer-row" [class.layer-row-active]="editorStore.selectedLayerId() === row.layer.id"
+          [class.layer-row-editing]="editingLayerId() === row.layer.id" [class.layer-row-hidden]="!row.layer.visible"
+          [class.layer-row-child]="row.depth === 1" [class.layer-row-group]="row.layer.type === LayerType.Group"
+          [class.layer-row-collapsed]="isGroupCollapsed(row.layer)"
+          [class.layer-row-drop-target]="dragOverGroupId() === row.layer.id"
+          [class.layer-row-dragging]="draggedLayerId() === row.layer.id" [draggable]="canDragLayerRow(row.layer)"
+          role="button" tabindex="0" (click)="selectLayerFromPanel(row.layer)"
+          (keydown.enter)="selectLayerFromPanel(row.layer)" (dragstart)="startLayerListDrag($event, row.layer)"
+          (dragend)="finishLayerListDrag()" (dragover)="handleGroupDragOver($event, row.layer)"
+          (dragleave)="handleGroupDragLeave($event, row.layer)" (drop)="dropLayerOnGroup($event, row.layer)">
+          @if(row.layer.type === LayerType.Group){
+          <button class="group-toggle-button" type="button"
+            [attr.aria-label]="isGroupCollapsed(row.layer) ? 'Expand group' : 'Collapse group'"
+            [attr.aria-expanded]="isGroupCollapsed(row.layer) ? 'false' : 'true'"
+            [attr.title]="isGroupCollapsed(row.layer) ? 'Expand group' : 'Collapse group'"
+            (click)="toggleGroupCollapsed($event, row.layer)">
+            <span class="group-toggle-chevron" aria-hidden="true"></span>
+          </button>
+          } @else {
+          <span class="drag-handle" aria-hidden="true"></span>
+          }
+          <button class="visibility-button" type="button" [class.visibility-button-hidden]="!row.layer.visible"
+            [attr.aria-label]="row.layer.visible ? 'Hide layer' : 'Show layer'"
+            [attr.aria-pressed]="row.layer.visible ? 'true' : 'false'"
+            [attr.title]="row.layer.visible ? 'Hide layer' : 'Show layer'"
+            (click)="toggleLayerVisibility($event, row.layer)">
+            <span class="visibility-dot" aria-hidden="true"></span>
+          </button>
+          <span class="layer-thumbnail" [class.layer-thumbnail-text]="row.layer.type === LayerType.Text"
+            [class.layer-thumbnail-image]="row.layer.type === LayerType.Image"
+            [class.layer-thumbnail-video]="row.layer.type === LayerType.Video"
+            [class.layer-thumbnail-kills]="row.layer.type === LayerType.Kills"
+            [class.layer-thumbnail-towers]="row.layer.type === LayerType.Towers"
+            [class.layer-thumbnail-void-grubs]="row.layer.type === LayerType.VoidGrubs"
+            [class.layer-thumbnail-rift-herald]="row.layer.type === LayerType.RiftHerald"
+            [class.layer-thumbnail-dragon]="row.layer.type === LayerType.Dragon"
+            [class.layer-thumbnail-player-score]="row.layer.type === LayerType.PlayerScore"
+            [class.layer-thumbnail-time]="row.layer.type === LayerType.Time"
+            [class.layer-thumbnail-group]="row.layer.type === LayerType.Group" aria-hidden="true"></span>
           <span class="layer-copy">
-            @if(editingLayerId() === layer.id){
+            @if(editingLayerId() === row.layer.id){
             <input appAutofocus class="layer-name-input" type="text" [value]="draftLayerName()"
-              (input)="draftLayerName.set($any($event.target).value)" (keydown.enter)="commitLayerName(layer.id)"
-              (blur)="commitLayerName(layer.id)" />
+              (input)="draftLayerName.set($any($event.target).value)"
+              (keydown.enter)="commitLayerName(row.layer.id)" (keydown)="closeLayerNameEditor($event)"
+              (click)="$event.stopPropagation()" (blur)="commitLayerName(row.layer.id)" />
             } @else {
-            <span class="layer-name">{{ layer.name }}</span>
-            <span class="layer-kind">{{ layer.type }}</span>
+            <span class="layer-name">{{ row.layer.name }}</span>
+            <span class="layer-kind">{{ getLayerKindLabel(row) }}</span>
             }
           </span>
+          @if(activeLayerMenuId() === row.layer.id){
+          <span class="layer-menu" aria-label="Layer menu">
+            @for(item of getLayerMenuItems(); track item.action){
+            <button class="layer-menu-button" type="button" [disabled]="item.disabled"
+              (click)="runLayerMenuAction($event, row.layer, item.action)">
+              {{ item.label }}
+            </button>
+            }
+          </span>
+          }
         </div>
         }
       </div>

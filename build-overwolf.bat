@@ -1,1 +1,1 @@
-npm --prefix ./old-stable/overwolf_client run build
+@echo Load ./src/overwolf-app in Overwolf as an unpacked extension.

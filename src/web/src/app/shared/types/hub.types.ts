@@ -1,6 +1,11 @@
 import { EditorLayer, Vector2 } from "./layer.types";
 import { User } from "./user.types";
 
+export type HubLayout = Record<string, any> & {
+  backgroundId?: string;
+  layers?: EditorLayer[];
+};
+
 export type HubImage = {
   imgUrl: string;
   htmlId: string;
@@ -19,14 +24,14 @@ export type HubResponse = {
   user?: User | null;
   imgs?: HubImage[];
   features?: HubFeature[];
-  layout?: Record<string, any> | null;
+  layout?: HubLayout | null;
 };
 
 export type CreateHubRequest = {
   hubName: string;
   imgs?: HubImage[];
   features?: HubFeature[];
-  layout?: Record<string, any>;
+  layout?: HubLayout;
 };
 
 export type UpdateHubRequest = Partial<CreateHubRequest>;
@@ -38,7 +43,7 @@ export type Hub = {
   user?: User | null;
   imgs?: HubImage[];
   features?: HubFeature[];
-  layout?: Record<string, any> | null;
+  layout?: HubLayout | null;
 };
 
 export type HubCard = {

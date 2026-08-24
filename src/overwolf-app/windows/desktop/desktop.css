@@ -1,0 +1,316 @@
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  min-height: 100%;
+  background: #101219;
+  color: #f4f7fb;
+  font-family: Inter, Segoe UI, Arial, sans-serif;
+}
+
+body {
+  overflow: hidden;
+}
+
+.shell {
+  min-height: 100vh;
+  padding: 18px;
+  background: #101219;
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding-bottom: 16px;
+  user-select: none;
+}
+
+.topbar h1 {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.topbar p {
+  margin: 4px 0 0;
+  color: #9aa7bb;
+  font-size: 13px;
+}
+
+button {
+  border: 1px solid #31445f;
+  border-radius: 6px;
+  background: #17243a;
+  color: #f4f7fb;
+  cursor: pointer;
+  font: inherit;
+  padding: 8px 12px;
+}
+
+button:hover {
+  border-color: #4d6f9f;
+}
+
+input {
+  min-width: 0;
+  border: 1px solid #31445f;
+  border-radius: 6px;
+  background: #101722;
+  color: #f4f7fb;
+  font: inherit;
+  padding: 8px 10px;
+}
+
+input::placeholder {
+  color: #72839a;
+}
+
+button:disabled,
+input:disabled {
+  cursor: default;
+  opacity: 0.62;
+}
+
+.status-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.streams {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.panel {
+  border: 1px solid #263247;
+  border-radius: 8px;
+  background: #171b25;
+  padding: 14px;
+}
+
+.panel h2 {
+  margin: 0 0 12px;
+  font-size: 15px;
+}
+
+dl {
+  margin: 0;
+}
+
+dl div {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 0;
+  border-top: 1px solid #263247;
+}
+
+dl div:first-child {
+  border-top: 0;
+}
+
+dt {
+  color: #9aa7bb;
+}
+
+dd {
+  margin: 0;
+  text-align: right;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.obs-controls {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid #263247;
+}
+
+.obs-controls label {
+  display: block;
+  margin-bottom: 6px;
+  color: #9aa7bb;
+  font-size: 12px;
+}
+
+.dialog-hidden {
+  display: none !important;
+}
+
+.dialog-backdrop {
+  position: fixed;
+  z-index: 20;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 18px;
+  background: rgb(0 0 0 / 58%);
+}
+
+.dialog-panel {
+  display: grid;
+  width: min(100%, 420px);
+  gap: 16px;
+  border: 1px solid rgb(77 111 159 / 58%);
+  border-radius: 8px;
+  padding: 20px;
+  background: #111816;
+  color: #f4f7fb;
+  box-shadow: 0 18px 54px rgb(0 0 0 / 32%);
+}
+
+.dialog-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.dialog-header h2 {
+  margin: 0;
+  font-size: 18px;
+}
+
+.dialog-icon-button {
+  display: grid;
+  width: 32px;
+  height: 32px;
+  place-items: center;
+  padding: 0;
+}
+
+.dialog-field,
+.dialog-check {
+  display: grid;
+  gap: 8px;
+}
+
+.dialog-field span,
+.dialog-check span {
+  color: #9aa7bb;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.dialog-field input {
+  width: 100%;
+  height: 38px;
+}
+
+.dialog-check {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.dialog-check input {
+  width: 16px;
+  height: 16px;
+  accent-color: #4d6f9f;
+}
+
+.dialog-error {
+  margin: 0;
+  color: #ffb28f;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.dialog-button {
+  min-width: 86px;
+}
+
+.dialog-button-primary {
+  border-color: #6b8ec3;
+  background: #2a64b2;
+}
+
+.log-list {
+  height: 150px;
+  margin: 0;
+  padding: 0;
+  overflow: auto;
+  list-style: none;
+}
+
+.log-list li {
+  white-space: pre-wrap;
+  border-top: 1px solid #263247;
+  padding: 8px 0;
+  color: #d9e3f2;
+  font-family: Consolas, Monaco, monospace;
+  font-size: 12px;
+}
+
+.log-list li:first-child {
+  border-top: 0;
+}
+
+.players-panel {
+  margin-top: 12px;
+}
+
+.table-wrap {
+  max-height: 220px;
+  overflow: auto;
+  border: 1px solid #263247;
+  border-radius: 6px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+th,
+td {
+  padding: 8px;
+  border-bottom: 1px solid #263247;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: left;
+  font-size: 12px;
+}
+
+th {
+  position: sticky;
+  top: 0;
+  background: #111722;
+  color: #9aa7bb;
+  z-index: 1;
+}
+
+.muted {
+  color: #9aa7bb;
+}
+
+@media (max-width: 760px) {
+  .status-grid,
+  .streams {
+    grid-template-columns: 1fr;
+  }
+
+  .shell {
+    overflow: auto;
+  }
+
+  body {
+    overflow: auto;
+  }
+}
