@@ -33,6 +33,23 @@ import { ImageApi, UploadedMedia } from '../../../../core/api/image.api';
         Opacity
         <input class="field-input" type="range" min="0" max="100" [value]="layer.opacity" (input)="updateOpacity($event)" />
       </label>
+
+      <div class="field-grid">
+        <label class="field-label">
+          Fit
+          <select class="field-input" [value]="layer.fit || 'cover'" (change)="updateFit($event)">
+            <option value="cover">Cover</option>
+            <option value="contain">Contain</option>
+            <option value="fill">Fill</option>
+          </select>
+        </label>
+
+        <label class="field-label">
+          Position
+          <input class="field-input" type="text" placeholder="center" [value]="layer.objectPosition || 'center'"
+            (input)="updateObjectPosition($event)" />
+        </label>
+      </div>
     </section>
   `,
 })
@@ -55,6 +72,7 @@ export class ImageEditorComponent {
       return;
     }
 
+    const layerId = this.layer.id;
     const previewSrc = URL.createObjectURL(file);
 
     revokeBlobUrl(this.layer.src);
@@ -63,21 +81,36 @@ export class ImageEditorComponent {
       this.layer.alt || file.name,
       undefined,
       'uploading',
+      layerId,
     );
 
     try {
       const uploaded = await firstValueFrom(this.imageApi.uploadImage(file));
 
       revokeBlobUrl(previewSrc);
+      const currentLayer = this.editorStore.getLayer(layerId);
+
+      if (!currentLayer || !('src' in currentLayer) || currentLayer.src !== previewSrc) {
+        return;
+      }
+
       this.updateImageSource(
         uploaded.url,
-        this.layer.alt || uploaded.originalName,
+        ('alt' in currentLayer ? currentLayer.alt : '') || uploaded.originalName,
         uploaded,
         'ready',
+        layerId,
       );
     } catch {
-      this.editorStore.updateLayer(this.layer.id, {
-        alt: this.layer.alt || `${file.name} upload failed`,
+      const currentLayer = this.editorStore.getLayer(layerId);
+
+      if (!currentLayer || !('src' in currentLayer) || currentLayer.src !== previewSrc) {
+        revokeBlobUrl(previewSrc);
+        return;
+      }
+
+      this.editorStore.updateLayer(layerId, {
+        alt: ('alt' in currentLayer ? currentLayer.alt : '') || `${file.name} upload failed`,
         mediaUploadStatus: 'failed',
       });
     }
@@ -91,13 +124,28 @@ export class ImageEditorComponent {
     this.editorStore.updateLayer(this.layer.id, { opacity: getNumberValue(event) });
   }
 
+  updateFit(event: Event) {
+    const fit = getInputValue(event);
+
+    this.editorStore.updateLayer(this.layer.id, {
+      fit: fit === 'contain' || fit === 'fill' ? fit : 'cover',
+    });
+  }
+
+  updateObjectPosition(event: Event) {
+    this.editorStore.updateLayer(this.layer.id, {
+      objectPosition: getInputValue(event),
+    });
+  }
+
   private updateImageSource(
     src: string,
     alt = this.layer.alt,
     uploaded?: UploadedMedia,
     mediaUploadStatus?: ImageLayer['mediaUploadStatus'],
+    layerId = this.layer.id,
   ) {
-    this.editorStore.updateLayer(this.layer.id, {
+    this.editorStore.updateLayer(layerId, {
       src,
       alt,
       mediaKey: uploaded?.key,
@@ -105,17 +153,20 @@ export class ImageEditorComponent {
       mediaUploadStatus,
       localFilePath: uploaded?.localFilePath,
     });
-    this.fitLayerToImage(src).catch(() => undefined);
+    this.fitLayerToImage(src, layerId).catch(() => undefined);
   }
 
-  private async fitLayerToImage(src: string) {
+  private async fitLayerToImage(src: string, layerId: string) {
     if (!src) {
       return;
     }
 
     const naturalSize = await getImageNaturalSize(src);
+    const currentLayer = this.editorStore.getLayer(layerId);
 
-    this.editorStore.resizeLayer(this.layer.id, fitLayerToNaturalSize(this.layer, naturalSize));
+    if (currentLayer && 'src' in currentLayer && currentLayer.src === src) {
+      this.editorStore.resizeLayer(layerId, fitLayerToNaturalSize(currentLayer, naturalSize));
+    }
   }
 }
 

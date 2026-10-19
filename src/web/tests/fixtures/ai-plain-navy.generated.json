@@ -1,0 +1,410 @@
+{
+    "id":  "atelier-broadcast-hub",
+    "templateId":  "atelier-broadcast",
+    "backgroundId":  "league-of-legends-clean",
+    "layers":  [
+                   {
+                       "id":  "atelier-blue-team-logo-d84621a6-2dda-49a6-9174-f2357b45dd36",
+                       "name":  "Blue team logo",
+                       "type":  "Image",
+                       "visible":  true,
+                       "groupId":  null,
+                       "position":  {
+                                        "x":  480.8333333333333,
+                                        "y":  33.54
+                                    },
+                       "width":  40.833333333333336,
+                       "height":  42.14,
+                       "src":  "data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20100%20100%22%3E%3Cg%20fill%3D%22%23071216%22%20stroke%3D%22%2397c7c4%22%20stroke-width%3D%225%22%3E%3Ccircle%20cx%3D%2250%22%20cy%3D%2250%22%20r%3D%2245%22%2F%3E%3C%2Fg%3E%3Ctext%20x%3D%2250%22%20y%3D%2261%22%20text-anchor%3D%22middle%22%20font-family%3D%22Arial%2Csans-serif%22%20font-size%3D%2240%22%20font-weight%3D%22900%22%20fill%3D%22%23f4f5ef%22%3EKC%3C%2Ftext%3E%3C%2Fsvg%3E",
+                       "alt":  "Blue team logo",
+                       "opacity":  100,
+                       "fit":  "contain",
+                       "objectPosition":  "center"
+                   },
+                   {
+                       "id":  "atelier-red-team-logo-7339b485-8fd9-4b50-ac7b-25e29c8b0d25",
+                       "name":  "Red team logo",
+                       "type":  "Image",
+                       "visible":  true,
+                       "groupId":  null,
+                       "position":  {
+                                        "x":  1439.1666666666667,
+                                        "y":  33.54
+                                    },
+                       "width":  40.833333333333336,
+                       "height":  42.14,
+                       "src":  "data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20100%20100%22%3E%3Cg%20fill%3D%22%23071216%22%20stroke%3D%22%23d3a4a4%22%20stroke-width%3D%225%22%3E%3Ccircle%20cx%3D%2250%22%20cy%3D%2250%22%20r%3D%2245%22%2F%3E%3C%2Fg%3E%3Ctext%20x%3D%2250%22%20y%3D%2261%22%20text-anchor%3D%22middle%22%20font-family%3D%22Arial%2Csans-serif%22%20font-size%3D%2225%22%20font-weight%3D%22900%22%20fill%3D%22%23f4f5ef%22%3EMKOI%3C%2Ftext%3E%3C%2Fsvg%3E",
+                       "alt":  "Red team logo",
+                       "opacity":  100,
+                       "fit":  "contain",
+                       "objectPosition":  "center"
+                   },
+                   {
+                       "id":  "atelier-scorebug-de570677-e0ad-4c56-a540-ea5428daecc2",
+                       "name":  "ATELIER  26 team scoreboard",
+                       "type":  "LolScorebug",
+                       "visible":  true,
+                       "groupId":  null,
+                       "position":  {
+                                        "x":  960,
+                                        "y":  43
+                                    },
+                       "width":  1000,
+                       "height":  86,
+                       "blueTeamCode":  "blue",
+                       "redTeamCode":  "red",
+                       "blueAccent":  "#45b9ff",
+                       "redAccent":  "#ff755b",
+                       "showGold":  false,
+                       "showObjectives":  false,
+                       "showGameTime":  true,
+                       "style":  {
+                                     "color":  "#f4f6ff",
+                                     "borderColor":  "#45b9ff",
+                                     "borderWidth":  1,
+                                     "boxShadow":  "0 11px 28px rgb(0 0 0 / 58%)",
+                                     "customCss":  "\n\u0026 { overflow: hidden; clip-path: none; }\n\u0026 .scorebug { background: #071216; font-family: Segoe UI, Arial, sans-serif; }\n\u0026 .scorebug-team { gap: 2%; padding: 0 2.5%; background: transparent; }\n\u0026 .scorebug-team-blue { background: linear-gradient(90deg, #21383b, #071216 70%); border-left: 2px solid #97c7c4; }\n\u0026 .scorebug-team-red { background: linear-gradient(270deg, #21383b, #071216 70%); border-right: 2px solid #d3a4a4; }\n\u0026 .team-logo { visibility: hidden; flex-basis: 13%; width: 13%; }\n\u0026 .team-lockup { flex: 1 1 19%; min-width: 0; }\n\u0026 .team-code { color: #f4f5ef; font-family: Segoe UI, Arial, sans-serif; font-size: clamp(12px, 3.25cqw, 29px);  }\n\u0026 .team-seed { color: #b7c9c6; font-size: clamp(6px, 1.1cqw, 10px); }\n\u0026 .team-gold { color: #f4f5ef; font-family: Segoe UI, Arial, sans-serif; font-size: clamp(10px, 2.65cqw, 25px); }\n\u0026 .team-objective { color: #97c7c4; font-size: clamp(7px, 1.8cqw, 17px); }\n\u0026 .scorebug-team-red .team-objective { color: #d3a4a4; }\n\u0026 .scorebug-center { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: minmax(0, 1fr) 29%; gap: 0; padding: 0; place-items: center; background: linear-gradient(180deg, #14242a 0 70%, #071216 70%); box-shadow: 1px 0 0 #b6ccc8 inset, -1px 0 0 #b6ccc8 inset; }\n\u0026 .team-kills { min-width: 0; color: #f4f5ef; font-family: Segoe UI, Arial, sans-serif; font-size: clamp(23px, 4.4cqw, 48px); line-height: 1; transform: translateY(3px); }\n\u0026 .scorebug-center .team-kills:first-child { grid-column: 1; grid-row: 1; }\n\u0026 .scorebug-center .team-kills:nth-child(3) { grid-column: 2; grid-row: 1; }\n\u0026 .score-divider { display: none; }\n\u0026 .game-clock { position: static; grid-column: 1 / -1; grid-row: 2; width: 100%; height: 100%; min-width: 0; display: grid; place-items: center; padding: 0; transform: none; border: 0; background: transparent; color: #f4f5ef; font-family: Segoe UI, Arial, sans-serif; font-size: clamp(12px, 2.3cqw, 22px); line-height: 1; }\n\u0026 .objective-row { gap: 6%; padding: 0 5%; background: #071216; color: #b7c9c6; font-size: clamp(7px, 1.3cqw, 12px); opacity: 1; border-top: 1px solid #b6ccc8; }\n\u0026 .team-code, \u0026 .team-gold, \u0026 .team-kills, \u0026 .game-clock { font-weight: 700; } \u0026 .objective-row { font-weight: 700; }\n\n/* ai-theme */\n\u0026 .scorebug, \u0026 .player-roster, \u0026 .objective-row, \u0026 .scorebug-center { background: #081b38; color: #f4f6ff; }\n\u0026 .scorebug-team-blue { background: #081b38; border-color: #45b9ff; }\n\u0026 .scorebug-team-red { background: #081b38; border-color: #ff755b; }\n\u0026 .roster-row, \u0026 .roster-row:nth-child(even) { background: #081b38; border-color: #45b9ff; }\n\u0026 .team-code, \u0026 .team-gold, \u0026 .team-kills, \u0026 .game-clock, \u0026 .roster-name, \u0026 .roster-stat, \u0026 .roster-kda { color: #f4f6ff; }\n\u0026 .team-objective { color: #45b9ff; } \u0026 .scorebug-team-red .team-objective { color: #ff755b; }\n\u0026 .item-slot, \u0026 .roster-portrait { border-color: #45b9ff; }\n/* /ai-theme */"
+                                 }
+                   },
+                   {
+                       "id":  "atelier-baron-timer-0cf439ef-e907-4d60-bb66-d0f17b06b085",
+                       "name":  "3:31",
+                       "type":  "Text",
+                       "visible":  true,
+                       "groupId":  null,
+                       "position":  {
+                                        "x":  88,
+                                        "y":  32
+                                    },
+                       "width":  84,
+                       "height":  40,
+                       "text":  "3:31",
+                       "fontSize":  22,
+                       "fontFamily":  "Segoe UI, Arial, sans-serif",
+                       "bold":  true,
+                       "color":  "#f4f6ff",
+                       "fontWeight":  700,
+                       "textAlign":  "center",
+                       "lineHeight":  1,
+                       "uppercase":  true,
+                       "style":  {
+                                     "backgroundColor":  "#081b38",
+                                     "borderColor":  "#45b9ff",
+                                     "borderWidth":  1,
+                                     "customCss":  "\n/* ai-theme */\n\u0026 .scorebug, \u0026 .player-roster, \u0026 .objective-row, \u0026 .scorebug-center { background: #081b38; color: #f4f6ff; }\n\u0026 .scorebug-team-blue { background: #081b38; border-color: #45b9ff; }\n\u0026 .scorebug-team-red { background: #081b38; border-color: #ff755b; }\n\u0026 .roster-row, \u0026 .roster-row:nth-child(even) { background: #081b38; border-color: #45b9ff; }\n\u0026 .team-code, \u0026 .team-gold, \u0026 .team-kills, \u0026 .game-clock, \u0026 .roster-name, \u0026 .roster-stat, \u0026 .roster-kda { color: #f4f6ff; }\n\u0026 .team-objective { color: #45b9ff; } \u0026 .scorebug-team-red .team-objective { color: #ff755b; }\n\u0026 .item-slot, \u0026 .roster-portrait { border-color: #45b9ff; }\n/* /ai-theme */",
+                                     "color":  "#f4f6ff",
+                                     "textShadow":  "none"
+                                 }
+                   },
+                   {
+                       "id":  "atelier-dragon-timer-4203d3f5-c968-49a9-82ac-08bdd94efd53",
+                       "name":  "3:32",
+                       "type":  "Text",
+                       "visible":  true,
+                       "groupId":  null,
+                       "position":  {
+                                        "x":  184,
+                                        "y":  32
+                                    },
+                       "width":  84,
+                       "height":  40,
+                       "text":  "3:32",
+                       "fontSize":  22,
+                       "fontFamily":  "Segoe UI, Arial, sans-serif",
+                       "bold":  true,
+                       "color":  "#f4f6ff",
+                       "fontWeight":  700,
+                       "textAlign":  "center",
+                       "lineHeight":  1,
+                       "uppercase":  true,
+                       "style":  {
+                                     "backgroundColor":  "#081b38",
+                                     "borderColor":  "#45b9ff",
+                                     "borderWidth":  1,
+                                     "customCss":  "\n/* ai-theme */\n\u0026 .scorebug, \u0026 .player-roster, \u0026 .objective-row, \u0026 .scorebug-center { background: #081b38; color: #f4f6ff; }\n\u0026 .scorebug-team-blue { background: #081b38; border-color: #45b9ff; }\n\u0026 .scorebug-team-red { background: #081b38; border-color: #ff755b; }\n\u0026 .roster-row, \u0026 .roster-row:nth-child(even) { background: #081b38; border-color: #45b9ff; }\n\u0026 .team-code, \u0026 .team-gold, \u0026 .team-kills, \u0026 .game-clock, \u0026 .roster-name, \u0026 .roster-stat, \u0026 .roster-kda { color: #f4f6ff; }\n\u0026 .team-objective { color: #45b9ff; } \u0026 .scorebug-team-red .team-objective { color: #ff755b; }\n\u0026 .item-slot, \u0026 .roster-portrait { border-color: #45b9ff; }\n/* /ai-theme */",
+                                     "color":  "#f4f6ff",
+                                     "textShadow":  "none"
+                                 }
+                   },
+                   {
+                       "id":  "atelier-event-name-902981e4-65bd-4efd-a6f3-04e4b30967ce",
+                       "name":  "ATELIER  /  SUMMER FINALS",
+                       "type":  "Text",
+                       "visible":  true,
+                       "groupId":  null,
+                       "position":  {
+                                        "x":  960,
+                                        "y":  777
+                                    },
+                       "width":  1200,
+                       "height":  30,
+                       "text":  "ATELIER  /  SUMMER FINALS",
+                       "fontSize":  20,
+                       "fontFamily":  "Segoe UI, Arial, sans-serif",
+                       "bold":  true,
+                       "color":  "#f4f6ff",
+                       "fontWeight":  700,
+                       "textAlign":  "center",
+                       "lineHeight":  1,
+                       "uppercase":  true,
+                       "style":  {
+                                     "backgroundColor":  "#081b38",
+                                     "borderColor":  "#45b9ff",
+                                     "borderWidth":  1,
+                                     "color":  "#f4f6ff",
+                                     "textShadow":  "none",
+                                     "customCss":  "\n/* ai-theme */\n\u0026 .scorebug, \u0026 .player-roster, \u0026 .objective-row, \u0026 .scorebug-center { background: #081b38; color: #f4f6ff; }\n\u0026 .scorebug-team-blue { background: #081b38; border-color: #45b9ff; }\n\u0026 .scorebug-team-red { background: #081b38; border-color: #ff755b; }\n\u0026 .roster-row, \u0026 .roster-row:nth-child(even) { background: #081b38; border-color: #45b9ff; }\n\u0026 .team-code, \u0026 .team-gold, \u0026 .team-kills, \u0026 .game-clock, \u0026 .roster-name, \u0026 .roster-stat, \u0026 .roster-kda { color: #f4f6ff; }\n\u0026 .team-objective { color: #45b9ff; } \u0026 .scorebug-team-red .team-objective { color: #ff755b; }\n\u0026 .item-slot, \u0026 .roster-portrait { border-color: #45b9ff; }\n/* /ai-theme */"
+                                 }
+                   },
+                   {
+                       "id":  "atelier-broadcast-crest-1f924ed5-8621-484c-acd0-8917be52128d",
+                       "name":  "CBLOL broadcast crest",
+                       "type":  "Image",
+                       "visible":  true,
+                       "groupId":  null,
+                       "position":  {
+                                        "x":  160,
+                                        "y":  995
+                                    },
+                       "width":  45,
+                       "height":  45,
+                       "src":  "data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20100%20100%22%3E%3Cpath%20d%3D%22M50%204%2092%2027v46L50%2096%208%2073V27z%22%20fill%3D%22none%22%20stroke%3D%22%23b6ccc8%22%20stroke-width%3D%223%22%2F%3E%3Cpath%20d%3D%22M50%2017%2080%2033v34L50%2083%2020%2067V33z%22%20fill%3D%22%2314242a%22%20stroke%3D%22%2397c7c4%22%20stroke-width%3D%223%22%2F%3E%3Ctext%20x%3D%2250%22%20y%3D%2267%22%20text-anchor%3D%22middle%22%20font-family%3D%22Arial%2Csans-serif%22%20font-size%3D%2251%22%20font-weight%3D%22900%22%20fill%3D%22%23f4f5ef%22%3EA%3C%2Ftext%3E%3C%2Fsvg%3E",
+                       "alt":  "CBLOL broadcast crest",
+                       "opacity":  100,
+                       "fit":  "contain",
+                       "objectPosition":  "center"
+                   },
+                   {
+                       "id":  "atelier-left-broadcast-label-ead3fd61-0633-480f-a865-22deec6fa908",
+                       "name":  "ATELIER  26 title",
+                       "type":  "Text",
+                       "visible":  true,
+                       "groupId":  null,
+                       "position":  {
+                                        "x":  160,
+                                        "y":  862
+                                    },
+                       "width":  278,
+                       "height":  52,
+                       "text":  "ATELIER",
+                       "fontSize":  37,
+                       "fontFamily":  "Segoe UI, Arial, sans-serif",
+                       "bold":  true,
+                       "color":  "#f4f6ff",
+                       "fontWeight":  700,
+                       "textAlign":  "center",
+                       "lineHeight":  1,
+                       "uppercase":  true,
+                       "style":  {
+                                     "textShadow":  "none",
+                                     "color":  "#f4f6ff",
+                                     "borderColor":  "#45b9ff",
+                                     "customCss":  "\n/* ai-theme */\n\u0026 .scorebug, \u0026 .player-roster, \u0026 .objective-row, \u0026 .scorebug-center { background: #081b38; color: #f4f6ff; }\n\u0026 .scorebug-team-blue { background: #081b38; border-color: #45b9ff; }\n\u0026 .scorebug-team-red { background: #081b38; border-color: #ff755b; }\n\u0026 .roster-row, \u0026 .roster-row:nth-child(even) { background: #081b38; border-color: #45b9ff; }\n\u0026 .team-code, \u0026 .team-gold, \u0026 .team-kills, \u0026 .game-clock, \u0026 .roster-name, \u0026 .roster-stat, \u0026 .roster-kda { color: #f4f6ff; }\n\u0026 .team-objective { color: #45b9ff; } \u0026 .scorebug-team-red .team-objective { color: #ff755b; }\n\u0026 .item-slot, \u0026 .roster-portrait { border-color: #45b9ff; }\n/* /ai-theme */"
+                                 }
+                   },
+                   {
+                       "id":  "atelier-left-round-a1792c7c-5717-43a4-aa4f-2a7dae1263af",
+                       "name":  "SUMMER FINALS round",
+                       "type":  "Text",
+                       "visible":  true,
+                       "groupId":  null,
+                       "position":  {
+                                        "x":  160,
+                                        "y":  900
+                                    },
+                       "width":  278,
+                       "height":  25,
+                       "text":  "SUMMER FINALS",
+                       "fontSize":  16,
+                       "fontFamily":  "Segoe UI, Arial, sans-serif",
+                       "bold":  true,
+                       "color":  "#f4f6ff",
+                       "fontWeight":  700,
+                       "textAlign":  "center",
+                       "lineHeight":  1,
+                       "uppercase":  true,
+                       "style":  {
+                                     "color":  "#f4f6ff",
+                                     "borderColor":  "#45b9ff",
+                                     "textShadow":  "none",
+                                     "customCss":  "\n/* ai-theme */\n\u0026 .scorebug, \u0026 .player-roster, \u0026 .objective-row, \u0026 .scorebug-center { background: #081b38; color: #f4f6ff; }\n\u0026 .scorebug-team-blue { background: #081b38; border-color: #45b9ff; }\n\u0026 .scorebug-team-red { background: #081b38; border-color: #ff755b; }\n\u0026 .roster-row, \u0026 .roster-row:nth-child(even) { background: #081b38; border-color: #45b9ff; }\n\u0026 .team-code, \u0026 .team-gold, \u0026 .team-kills, \u0026 .game-clock, \u0026 .roster-name, \u0026 .roster-stat, \u0026 .roster-kda { color: #f4f6ff; }\n\u0026 .team-objective { color: #45b9ff; } \u0026 .scorebug-team-red .team-objective { color: #ff755b; }\n\u0026 .item-slot, \u0026 .roster-portrait { border-color: #45b9ff; }\n/* /ai-theme */"
+                                 }
+                   },
+                   {
+                       "id":  "atelier-left-series-82e4da8f-6521-4c63-b4e1-00839a4f8a24",
+                       "name":  "GAME 01 / BO5 series",
+                       "type":  "Text",
+                       "visible":  true,
+                       "groupId":  null,
+                       "position":  {
+                                        "x":  160,
+                                        "y":  950
+                                    },
+                       "width":  278,
+                       "height":  25,
+                       "text":  "GAME 01 / BO5",
+                       "fontSize":  18,
+                       "fontFamily":  "Segoe UI, Arial, sans-serif",
+                       "bold":  true,
+                       "color":  "#f4f6ff",
+                       "fontWeight":  700,
+                       "textAlign":  "center",
+                       "lineHeight":  1,
+                       "uppercase":  true,
+                       "style":  {
+                                     "color":  "#f4f6ff",
+                                     "borderColor":  "#45b9ff",
+                                     "textShadow":  "none",
+                                     "customCss":  "\u0026 { border-top: 1px solid #b6ccc8; padding-top: 4px; }\n/* ai-theme */\n\u0026 .scorebug, \u0026 .player-roster, \u0026 .objective-row, \u0026 .scorebug-center { background: #081b38; color: #f4f6ff; }\n\u0026 .scorebug-team-blue { background: #081b38; border-color: #45b9ff; }\n\u0026 .scorebug-team-red { background: #081b38; border-color: #ff755b; }\n\u0026 .roster-row, \u0026 .roster-row:nth-child(even) { background: #081b38; border-color: #45b9ff; }\n\u0026 .team-code, \u0026 .team-gold, \u0026 .team-kills, \u0026 .game-clock, \u0026 .roster-name, \u0026 .roster-stat, \u0026 .roster-kda { color: #f4f6ff; }\n\u0026 .team-objective { color: #45b9ff; } \u0026 .scorebug-team-red .team-objective { color: #ff755b; }\n\u0026 .item-slot, \u0026 .roster-portrait { border-color: #45b9ff; }\n/* /ai-theme */"
+                                 }
+                   },
+                   {
+                       "id":  "atelier-left-partner-f2c89aad-6202-47d3-b2b2-5823551d9906",
+                       "name":  "ATELIER  26 footer",
+                       "type":  "Text",
+                       "visible":  true,
+                       "groupId":  null,
+                       "position":  {
+                                        "x":  160,
+                                        "y":  1043
+                                    },
+                       "width":  278,
+                       "height":  36,
+                       "text":  "ATELIER  26",
+                       "fontSize":  23,
+                       "fontFamily":  "Segoe UI, Arial, sans-serif",
+                       "bold":  true,
+                       "color":  "#f4f6ff",
+                       "fontWeight":  700,
+                       "textAlign":  "center",
+                       "lineHeight":  1,
+                       "uppercase":  true,
+                       "style":  {
+                                     "backgroundColor":  "#081b38",
+                                     "borderColor":  "#45b9ff",
+                                     "borderWidth":  1,
+                                     "color":  "#f4f6ff",
+                                     "textShadow":  "none",
+                                     "customCss":  "\n/* ai-theme */\n\u0026 .scorebug, \u0026 .player-roster, \u0026 .objective-row, \u0026 .scorebug-center { background: #081b38; color: #f4f6ff; }\n\u0026 .scorebug-team-blue { background: #081b38; border-color: #45b9ff; }\n\u0026 .scorebug-team-red { background: #081b38; border-color: #ff755b; }\n\u0026 .roster-row, \u0026 .roster-row:nth-child(even) { background: #081b38; border-color: #45b9ff; }\n\u0026 .team-code, \u0026 .team-gold, \u0026 .team-kills, \u0026 .game-clock, \u0026 .roster-name, \u0026 .roster-stat, \u0026 .roster-kda { color: #f4f6ff; }\n\u0026 .team-objective { color: #45b9ff; } \u0026 .scorebug-team-red .team-objective { color: #ff755b; }\n\u0026 .item-slot, \u0026 .roster-portrait { border-color: #45b9ff; }\n/* /ai-theme */"
+                                 }
+                   },
+                   {
+                       "id":  "atelier-blue-roster-8ac5a04a-39fe-4071-932e-c4d2fb9d8a85",
+                       "name":  "Blue player scoreboard",
+                       "type":  "LolPlayerRoster",
+                       "visible":  true,
+                       "groupId":  null,
+                       "position":  {
+                                        "x":  660,
+                                        "y":  936
+                                    },
+                       "width":  600,
+                       "height":  288,
+                       "team":  "blue",
+                       "orientation":  "left",
+                       "showChampion":  true,
+                       "showLevel":  true,
+                       "showKda":  true,
+                       "showCs":  true,
+                       "showGold":  false,
+                       "showItems":  true,
+                       "style":  {
+                                     "backgroundColor":  "#071216",
+                                     "color":  "#f4f6ff",
+                                     "borderColor":  "#45b9ff",
+                                     "borderWidth":  0,
+                                     "customCss":  "\n\u0026 .player-roster { gap: 0.6%; padding: 0.35%; background: #1b0c0e; font-family: \u0027Arial Narrow\u0027, Arial, sans-serif; }\n\u0026 .roster-row { grid-template-rows: minmax(0, 1fr); gap: 0.8%; padding: 0.15% 0.6%; background: linear-gradient(90deg, rgb(124 38 27 / 30%), rgb(37 12 14 / 93%)); border-bottom: 1px solid rgb(238 213 190 / 22%); }\n\u0026 .roster-row:nth-child(even) { background: linear-gradient(90deg, rgb(91 25 21 / 38%), rgb(27 10 12 / 96%)); }\n\u0026 .roster-portrait { width: auto; height: 100%; aspect-ratio: 1; justify-self: center; border: 2px solid #d3b29a; background: #3e1110; }\n\u0026 .roster-portrait img { object-fit: contain; object-position: center; }\n\u0026 .roster-level { grid-row: 1; z-index: 2; align-self: end; justify-self: end; width: 11px; height: 11px; margin-right: 7px; margin-bottom: 3px; border: 0; border-radius: 0; background: transparent; color: #f1e8d8; font-family: \u0027Arial Narrow\u0027, Arial, sans-serif; font-size: 10px; font-weight: 900; line-height: 1; text-shadow: 0 1px 2px #080304, 1px 0 2px #080304; box-shadow: none; }\n\u0026 .roster-name { grid-row: 1; color: #f1e8d8; font-size: clamp(13px, 3.4cqw, 22px); font-weight: 900; }\n\u0026 .roster-stat { grid-row: 1; color: #ead0bc; font-size: clamp(12px, 3.2cqw, 21px); font-weight: 900; text-shadow: 0 1px 2px #100405; }\n\u0026 .roster-kda { grid-row: 1; color: #ead0bc; font-size: clamp(11px, 2.8cqw, 18px); font-weight: 900; text-shadow: 0 1px 2px #100405; }\n\u0026 .roster-items { grid-row: 1; display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 1.2%; align-items: center; }\n\u0026 .item-slot { width: 100%; aspect-ratio: 1; border: 1px solid #8e6151; background: #301618; box-shadow: 0 0 0 1px #120708 inset; }\n\u0026 .item-slot img { width: 100%; height: 100%; object-fit: cover; }\n\n\u0026 .roster-row { grid-template-columns: 45% 9% 19% 9% 14%; }\n\u0026 .roster-items { grid-column: 1; }\n\u0026 .roster-portrait { grid-column: 2; grid-row: 1; }\n\u0026 .roster-level { grid-column: 2; }\n\u0026 .roster-name { grid-column: 3; text-align: left; }\n\u0026 .roster-stat { grid-column: 4; text-align: center; }\n\u0026 .roster-kda { grid-column: 5; text-align: center; }\n\n\u0026 .player-roster { background: #071216; font-family: Segoe UI, Arial, sans-serif; }\n\u0026 .roster-row { background: #23383a; border-bottom: 1px solid rgb(220 238 234 / 22%); }\n\u0026 .roster-row:nth-child(even) { background: #1b3033; }\n\u0026 .roster-portrait { border: 2px solid #97c7c4; background: #14242a;  }\n\u0026 .roster-level { color: #f4f5ef; font-family: Segoe UI, Arial, sans-serif; text-shadow: 0 1px 2px #000, 1px 0 2px #000; }\n\u0026 .roster-name { color: #f4f5ef; font-family: Segoe UI, Arial, sans-serif;  }\n\u0026 .roster-stat { color: #f4f5ef; font-family: Segoe UI, Arial, sans-serif; text-shadow: 0 1px 2px #000; }\n\u0026 .roster-kda { color: #b7c9c6; font-family: Segoe UI, Arial, sans-serif; text-shadow: 0 1px 2px #000; }\n\u0026 .item-slot { border: 1px solid #749493; background: #091317; box-shadow: none; }\n\u0026 .roster-name, \u0026 .roster-stat, \u0026 .roster-kda { font-weight: 700; text-shadow: none; } \u0026 .roster-name { font-size: clamp(13px, 3.1cqw, 20px); } \u0026 .roster-stat { color: #97c7c4; }\n\n/* ai-theme */\n\u0026 .scorebug, \u0026 .player-roster, \u0026 .objective-row, \u0026 .scorebug-center { background: #081b38; color: #f4f6ff; }\n\u0026 .scorebug-team-blue { background: #081b38; border-color: #45b9ff; }\n\u0026 .scorebug-team-red { background: #081b38; border-color: #ff755b; }\n\u0026 .roster-row, \u0026 .roster-row:nth-child(even) { background: #081b38; border-color: #45b9ff; }\n\u0026 .team-code, \u0026 .team-gold, \u0026 .team-kills, \u0026 .game-clock, \u0026 .roster-name, \u0026 .roster-stat, \u0026 .roster-kda { color: #f4f6ff; }\n\u0026 .team-objective { color: #45b9ff; } \u0026 .scorebug-team-red .team-objective { color: #ff755b; }\n\u0026 .item-slot, \u0026 .roster-portrait { border-color: #45b9ff; }\n/* /ai-theme */\n/* ai-roster */\n/* ai-roster-settings 48 4 */\n\u0026 .player-roster { gap: 0.6666666666666666cqw; padding: 0.6666666666666666cqw; }\n\u0026 .roster-row { grid-template-columns: minmax(24cqw, 1.5fr) 8cqw minmax(12cqw, 1fr) 6.333333333333333cqw 0cqw 14cqw; gap: 0.6666666666666666cqw; padding: 0.3333333333333333cqw; }\n\u0026 [data-component-part=\"items\"] { grid-column: 1; grid-row: 1; }\n\u0026 [data-component-part=\"portrait\"] { grid-column: 2; grid-row: 1; }\n\u0026 [data-component-part=\"name\"] { grid-column: 3; grid-row: 1; }\n\u0026 [data-component-part=\"cs\"] { grid-column: 4; grid-row: 1; }\n\u0026 [data-component-part=\"gold\"] { grid-column: 5; grid-row: 1; }\n\u0026 [data-component-part=\"kda\"] { grid-column: 6; grid-row: 1; }\n\u0026 .roster-portrait { width: 8cqw; height: 8cqw; }\n\u0026 .roster-level { grid-column: 2; }\n\u0026 .roster-items { grid-template-columns: repeat(6, minmax(0, 1fr)); }\n\u0026 .roster-name, \u0026 .roster-stat, \u0026 .roster-kda { font-size: 2.6666666666666665cqw; }\n/* /ai-roster */"
+                                 }
+                   },
+                   {
+                       "id":  "atelier-red-roster-1c17a00e-6b6e-4c99-a52e-b89bd0c55e7f",
+                       "name":  "Red player scoreboard",
+                       "type":  "LolPlayerRoster",
+                       "visible":  true,
+                       "groupId":  null,
+                       "position":  {
+                                        "x":  1260,
+                                        "y":  936
+                                    },
+                       "width":  600,
+                       "height":  288,
+                       "team":  "red",
+                       "orientation":  "right",
+                       "showChampion":  true,
+                       "showLevel":  true,
+                       "showKda":  true,
+                       "showCs":  true,
+                       "showGold":  false,
+                       "showItems":  true,
+                       "style":  {
+                                     "backgroundColor":  "#071216",
+                                     "color":  "#f4f6ff",
+                                     "borderColor":  "#45b9ff",
+                                     "borderWidth":  0,
+                                     "customCss":  "\n\u0026 .player-roster { gap: 0.6%; padding: 0.35%; background: #1b0c0e; font-family: \u0027Arial Narrow\u0027, Arial, sans-serif; }\n\u0026 .roster-row { grid-template-rows: minmax(0, 1fr); gap: 0.8%; padding: 0.15% 0.6%; background: linear-gradient(90deg, rgb(124 38 27 / 30%), rgb(37 12 14 / 93%)); border-bottom: 1px solid rgb(238 213 190 / 22%); }\n\u0026 .roster-row:nth-child(even) { background: linear-gradient(90deg, rgb(91 25 21 / 38%), rgb(27 10 12 / 96%)); }\n\u0026 .roster-portrait { width: auto; height: 100%; aspect-ratio: 1; justify-self: center; border: 2px solid #d3b29a; background: #3e1110; }\n\u0026 .roster-portrait img { object-fit: contain; object-position: center; }\n\u0026 .roster-level { grid-row: 1; z-index: 2; align-self: end; justify-self: end; width: 11px; height: 11px; margin-right: 7px; margin-bottom: 3px; border: 0; border-radius: 0; background: transparent; color: #f1e8d8; font-family: \u0027Arial Narrow\u0027, Arial, sans-serif; font-size: 10px; font-weight: 900; line-height: 1; text-shadow: 0 1px 2px #080304, 1px 0 2px #080304; box-shadow: none; }\n\u0026 .roster-name { grid-row: 1; color: #f1e8d8; font-size: clamp(13px, 3.4cqw, 22px); font-weight: 900; }\n\u0026 .roster-stat { grid-row: 1; color: #ead0bc; font-size: clamp(12px, 3.2cqw, 21px); font-weight: 900; text-shadow: 0 1px 2px #100405; }\n\u0026 .roster-kda { grid-row: 1; color: #ead0bc; font-size: clamp(11px, 2.8cqw, 18px); font-weight: 900; text-shadow: 0 1px 2px #100405; }\n\u0026 .roster-items { grid-row: 1; display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 1.2%; align-items: center; }\n\u0026 .item-slot { width: 100%; aspect-ratio: 1; border: 1px solid #8e6151; background: #301618; box-shadow: 0 0 0 1px #120708 inset; }\n\u0026 .item-slot img { width: 100%; height: 100%; object-fit: cover; }\n\n\u0026 .roster-row { grid-template-columns: 14% 9% 19% 9% 45%; }\n\u0026 .roster-kda { grid-column: 1; text-align: center; }\n\u0026 .roster-stat { grid-column: 2; text-align: center; }\n\u0026 .roster-name { grid-column: 3; text-align: right; }\n\u0026 .roster-level { grid-column: 4; }\n\u0026 .roster-portrait { grid-column: 4; grid-row: 1; }\n\u0026 .roster-items { grid-column: 5; }\n\n\u0026 .player-roster { background: #071216; font-family: Segoe UI, Arial, sans-serif; }\n\u0026 .roster-row { background: #23383a; border-bottom: 1px solid rgb(220 238 234 / 22%); }\n\u0026 .roster-row:nth-child(even) { background: #1b3033; }\n\u0026 .roster-portrait { border: 2px solid #d3a4a4; background: #14242a;  }\n\u0026 .roster-level { color: #f4f5ef; font-family: Segoe UI, Arial, sans-serif; text-shadow: 0 1px 2px #000, 1px 0 2px #000; }\n\u0026 .roster-name { color: #f4f5ef; font-family: Segoe UI, Arial, sans-serif;  }\n\u0026 .roster-stat { color: #f4f5ef; font-family: Segoe UI, Arial, sans-serif; text-shadow: 0 1px 2px #000; }\n\u0026 .roster-kda { color: #b7c9c6; font-family: Segoe UI, Arial, sans-serif; text-shadow: 0 1px 2px #000; }\n\u0026 .item-slot { border: 1px solid #749493; background: #091317; box-shadow: none; }\n\u0026 .roster-name, \u0026 .roster-stat, \u0026 .roster-kda { font-weight: 700; text-shadow: none; } \u0026 .roster-name { font-size: clamp(13px, 3.1cqw, 20px); } \u0026 .roster-stat { color: #d3a4a4; }\n\n/* ai-theme */\n\u0026 .scorebug, \u0026 .player-roster, \u0026 .objective-row, \u0026 .scorebug-center { background: #081b38; color: #f4f6ff; }\n\u0026 .scorebug-team-blue { background: #081b38; border-color: #45b9ff; }\n\u0026 .scorebug-team-red { background: #081b38; border-color: #ff755b; }\n\u0026 .roster-row, \u0026 .roster-row:nth-child(even) { background: #081b38; border-color: #45b9ff; }\n\u0026 .team-code, \u0026 .team-gold, \u0026 .team-kills, \u0026 .game-clock, \u0026 .roster-name, \u0026 .roster-stat, \u0026 .roster-kda { color: #f4f6ff; }\n\u0026 .team-objective { color: #45b9ff; } \u0026 .scorebug-team-red .team-objective { color: #ff755b; }\n\u0026 .item-slot, \u0026 .roster-portrait { border-color: #45b9ff; }\n/* /ai-theme */\n/* ai-roster */\n/* ai-roster-settings 48 4 */\n\u0026 .player-roster { gap: 0.6666666666666666cqw; padding: 0.6666666666666666cqw; }\n\u0026 .roster-row { grid-template-columns: 14cqw 0cqw 6.333333333333333cqw minmax(12cqw, 1fr) 8cqw minmax(24cqw, 1.5fr); gap: 0.6666666666666666cqw; padding: 0.3333333333333333cqw; }\n\u0026 [data-component-part=\"kda\"] { grid-column: 1; grid-row: 1; }\n\u0026 [data-component-part=\"gold\"] { grid-column: 2; grid-row: 1; }\n\u0026 [data-component-part=\"cs\"] { grid-column: 3; grid-row: 1; }\n\u0026 [data-component-part=\"name\"] { grid-column: 4; grid-row: 1; }\n\u0026 [data-component-part=\"portrait\"] { grid-column: 5; grid-row: 1; }\n\u0026 [data-component-part=\"items\"] { grid-column: 6; grid-row: 1; }\n\u0026 .roster-portrait { width: 8cqw; height: 8cqw; }\n\u0026 .roster-level { grid-column: 5; }\n\u0026 .roster-items { grid-template-columns: repeat(6, minmax(0, 1fr)); }\n\u0026 .roster-name, \u0026 .roster-stat, \u0026 .roster-kda { font-size: 2.6666666666666665cqw; }\n/* /ai-roster */"
+                                 }
+                   },
+                   {
+                       "id":  "atelier-roster-divider-ecc91ed2-ea8b-4aea-a7a4-7c98e1d996f6",
+                       "name":  "Player scoreboard divider",
+                       "type":  "Shape",
+                       "visible":  true,
+                       "groupId":  null,
+                       "position":  {
+                                        "x":  960,
+                                        "y":  936
+                                    },
+                       "width":  2,
+                       "height":  288,
+                       "style":  {
+                                     "backgroundColor":  "#081b38",
+                                     "borderWidth":  0,
+                                     "color":  "#f4f6ff",
+                                     "borderColor":  "#45b9ff",
+                                     "customCss":  "\n/* ai-theme */\n\u0026 .scorebug, \u0026 .player-roster, \u0026 .objective-row, \u0026 .scorebug-center { background: #081b38; color: #f4f6ff; }\n\u0026 .scorebug-team-blue { background: #081b38; border-color: #45b9ff; }\n\u0026 .scorebug-team-red { background: #081b38; border-color: #ff755b; }\n\u0026 .roster-row, \u0026 .roster-row:nth-child(even) { background: #081b38; border-color: #45b9ff; }\n\u0026 .team-code, \u0026 .team-gold, \u0026 .team-kills, \u0026 .game-clock, \u0026 .roster-name, \u0026 .roster-stat, \u0026 .roster-kda { color: #f4f6ff; }\n\u0026 .team-objective { color: #45b9ff; } \u0026 .scorebug-team-red .team-objective { color: #ff755b; }\n\u0026 .item-slot, \u0026 .roster-portrait { border-color: #45b9ff; }\n/* /ai-theme */"
+                                 }
+                   },
+                   {
+                       "id":  "atelier-roster-plate-1f766911-144a-4757-b666-3b1cf07966ee",
+                       "name":  "Player scoreboard background",
+                       "type":  "Shape",
+                       "visible":  true,
+                       "groupId":  null,
+                       "position":  {
+                                        "x":  960,
+                                        "y":  921
+                                    },
+                       "width":  1200,
+                       "height":  318,
+                       "style":  {
+                                     "backgroundColor":  "#081b38",
+                                     "borderColor":  "#45b9ff",
+                                     "borderWidth":  1,
+                                     "boxShadow":  "0 -12px 28px rgb(0 0 0 / 58%)",
+                                     "color":  "#f4f6ff",
+                                     "customCss":  "\n/* ai-theme */\n\u0026 .scorebug, \u0026 .player-roster, \u0026 .objective-row, \u0026 .scorebug-center { background: #081b38; color: #f4f6ff; }\n\u0026 .scorebug-team-blue { background: #081b38; border-color: #45b9ff; }\n\u0026 .scorebug-team-red { background: #081b38; border-color: #ff755b; }\n\u0026 .roster-row, \u0026 .roster-row:nth-child(even) { background: #081b38; border-color: #45b9ff; }\n\u0026 .team-code, \u0026 .team-gold, \u0026 .team-kills, \u0026 .game-clock, \u0026 .roster-name, \u0026 .roster-stat, \u0026 .roster-kda { color: #f4f6ff; }\n\u0026 .team-objective { color: #45b9ff; } \u0026 .scorebug-team-red .team-objective { color: #ff755b; }\n\u0026 .item-slot, \u0026 .roster-portrait { border-color: #45b9ff; }\n/* /ai-theme */"
+                                 }
+                   },
+                   {
+                       "id":  "atelier-left-info-b9208d06-fc73-41b9-b594-9a7b3ba81dd5",
+                       "name":  "Tournament information panel",
+                       "type":  "Shape",
+                       "visible":  true,
+                       "groupId":  null,
+                       "position":  {
+                                        "x":  160,
+                                        "y":  935
+                                    },
+                       "width":  320,
+                       "height":  290,
+                       "style":  {
+                                     "backgroundColor":  "#081b38",
+                                     "borderColor":  "#45b9ff",
+                                     "borderWidth":  1,
+                                     "boxShadow":  "0 -8px 24px rgb(0 0 0 / 45%)",
+                                     "customCss":  "\n/* ai-theme */\n\u0026 .scorebug, \u0026 .player-roster, \u0026 .objective-row, \u0026 .scorebug-center { background: #081b38; color: #f4f6ff; }\n\u0026 .scorebug-team-blue { background: #081b38; border-color: #45b9ff; }\n\u0026 .scorebug-team-red { background: #081b38; border-color: #ff755b; }\n\u0026 .roster-row, \u0026 .roster-row:nth-child(even) { background: #081b38; border-color: #45b9ff; }\n\u0026 .team-code, \u0026 .team-gold, \u0026 .team-kills, \u0026 .game-clock, \u0026 .roster-name, \u0026 .roster-stat, \u0026 .roster-kda { color: #f4f6ff; }\n\u0026 .team-objective { color: #45b9ff; } \u0026 .scorebug-team-red .team-objective { color: #ff755b; }\n\u0026 .item-slot, \u0026 .roster-portrait { border-color: #45b9ff; }\n/* /ai-theme */",
+                                     "color":  "#f4f6ff"
+                                 }
+                   }
+               ]
+}

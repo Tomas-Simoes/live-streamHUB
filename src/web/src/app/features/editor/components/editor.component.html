@@ -6,6 +6,17 @@
     </a>
 
     <div class="topbar-actions">
+      <button class="save-button" type="button" (click)="aiBuilderOpen.set(true)">AI Hub Builder</button>
+      <div class="layer-actions" role="group" aria-label="Edit history">
+        <button class="icon-button" type="button" aria-label="Undo" aria-keyshortcuts="Control+Z Meta+Z"
+          title="Undo (Ctrl+Z / Cmd+Z)" [disabled]="!hubStore.canUndo()" (click)="undo()">
+          <span aria-hidden="true">&#8630;</span>
+        </button>
+        <button class="icon-button" type="button" aria-label="Redo" aria-keyshortcuts="Control+Shift+Z Meta+Shift+Z Control+Y"
+          title="Redo (Ctrl+Shift+Z / Cmd+Shift+Z / Ctrl+Y)" [disabled]="!hubStore.canRedo()" (click)="redo()">
+          <span aria-hidden="true">&#8631;</span>
+        </button>
+      </div>
       <div class="save-controls" aria-live="polite">
         @if(hubStore.saveError()){
         <span class="save-state save-state-error">{{ hubStore.saveError() }}</span>
@@ -28,6 +39,9 @@
       </nav>
     </div>
   </header>
+  @if (aiBuilderOpen()) {
+    <app-ai-hub-builder (closed)="aiBuilderOpen.set(false)"></app-ai-hub-builder>
+  }
 
   <!----------------------- LEFT SIDE EDITOR PANEL ----------------------->
   <aside class="editor-sidebar editor-sidebar-left" aria-label="Element editor">
@@ -43,33 +57,59 @@
           <span class="inspector-layer-kind">{{ selectedLayer.type }}</span>
         </div>
 
-        <section class="inspector-section" aria-label="Position settings">
+        <details class="inspector-disclosure">
+          <summary>Layout &amp; Position</summary>
+          <div class="inspector-disclosure-body inspector-section">
           <div class="field-grid">
             <label class="field-label">
               X
-              <input class="field-input" type="number" [value]="selectedLayer.position.x" />
+              <input class="field-input" type="number" [value]="selectedLayer.position.x"
+                (input)="updateSelectedLayerPosition('x', $event)" />
             </label>
 
             <label class="field-label">
               Y
-              <input class="field-input" type="number" [value]="selectedLayer.position.y" />
+              <input class="field-input" type="number" [value]="selectedLayer.position.y"
+                (input)="updateSelectedLayerPosition('y', $event)" />
             </label>
 
             <label class="field-label">
               W
-              <input class="field-input" type="number" [value]="selectedLayer.width" />
+              <input class="field-input" type="number" min="1" [value]="selectedLayer.width"
+                (input)="updateSelectedLayerSize('width', $event)" />
             </label>
 
             <label class="field-label">
               H
-              <input class="field-input" type="number" [value]="selectedLayer.height" />
+              <input class="field-input" type="number" min="1" [value]="selectedLayer.height"
+                (input)="updateSelectedLayerSize('height', $event)" />
             </label>
           </div>
-        </section>
+          <div class="alignment-toolbar" aria-label="Layer alignment">
+            <button type="button" class="tool-button" title="Align left" (click)="alignSelectedLayer('left')">L</button>
+            <button type="button" class="tool-button" title="Align center" (click)="alignSelectedLayer('center')">C</button>
+            <button type="button" class="tool-button" title="Align right" (click)="alignSelectedLayer('right')">R</button>
+            <button type="button" class="tool-button" title="Align top" (click)="alignSelectedLayer('top')">T</button>
+            <button type="button" class="tool-button" title="Align middle" (click)="alignSelectedLayer('middle')">M</button>
+            <button type="button" class="tool-button" title="Align bottom" (click)="alignSelectedLayer('bottom')">B</button>
+          </div>
+          <div class="alignment-toolbar" aria-label="Layer order">
+            <button type="button" class="tool-button tool-button-wide" title="Bring forward"
+              (click)="moveSelectedLayerForward()">Forward</button>
+            <button type="button" class="tool-button tool-button-wide" title="Send backward"
+              (click)="moveSelectedLayerBackward()">Back</button>
+          </div>
+          </div>
+        </details>
 
+        <details class="inspector-disclosure" #contentSection open>
+          <summary>Content &amp; Data</summary>
+          <div class="inspector-disclosure-body">
         @switch(selectedLayer.type){
         @case(LayerType.Text){
-        <app-text-editor [layer]="selectedLayer"></app-text-editor>
+        <app-text-editor [layer]="selectedLayer" mode="content"></app-text-editor>
+        }
+        @case(LayerType.Shape){
         }
         @case(LayerType.Image){
         <app-image-editor [layer]="selectedLayer"></app-image-editor>
@@ -92,13 +132,61 @@
         @case(LayerType.Dragon){
         <app-stat-editor [layer]="selectedLayer"></app-stat-editor>
         }
+        @case(LayerType.TeamGold){
+        <app-stat-editor [layer]="selectedLayer"></app-stat-editor>
+        }
+        @case(LayerType.GoldDiff){
+        <app-stat-editor [layer]="selectedLayer"></app-stat-editor>
+        }
         @case(LayerType.PlayerScore){
+        <app-stat-editor [layer]="selectedLayer"></app-stat-editor>
+        }
+        @case(LayerType.PlayerCreepScore){
+        <app-stat-editor [layer]="selectedLayer"></app-stat-editor>
+        }
+        @case(LayerType.PlayerGold){
+        <app-stat-editor [layer]="selectedLayer"></app-stat-editor>
+        }
+        @case(LayerType.PlayerItems){
+        <app-stat-editor [layer]="selectedLayer"></app-stat-editor>
+        }
+        @case(LayerType.PlayerName){
+        <app-stat-editor [layer]="selectedLayer"></app-stat-editor>
+        }
+        @case(LayerType.PlayerLevel){
+        <app-stat-editor [layer]="selectedLayer"></app-stat-editor>
+        }
+        @case(LayerType.ChampionName){
+        <app-stat-editor [layer]="selectedLayer"></app-stat-editor>
+        }
+        @case(LayerType.ChampionPortrait){
+        <app-stat-editor [layer]="selectedLayer"></app-stat-editor>
+        }
+        @case(LayerType.LolScorebug){
+        <app-stat-editor [layer]="selectedLayer"></app-stat-editor>
+        }
+        @case(LayerType.LolPlayerRoster){
+        <app-stat-editor [layer]="selectedLayer"></app-stat-editor>
+        }
+        @case(LayerType.Time){
         <app-stat-editor [layer]="selectedLayer"></app-stat-editor>
         }
         @case(LayerType.Group){
         <app-group-editor [layer]="selectedLayer"></app-group-editor>
         }
         }
+          </div>
+        </details>
+        <details class="inspector-disclosure" #appearanceSection open>
+          <summary>Appearance</summary>
+          <div class="inspector-disclosure-body">
+            @if(selectedLayer.type === LayerType.Text) {
+            <app-text-editor [layer]="selectedLayer" mode="typography"></app-text-editor>
+            }
+            <app-layer-style-editor [layer]="selectedLayer" [selectedPartKey]="selectedPartKey()"
+              (selectedPartKeyChange)="selectedPartKey.set($event)"></app-layer-style-editor>
+          </div>
+        </details>
         } @else {
         <p class="inspector-empty">Select a layer to edit its settings.</p>
         }
@@ -137,14 +225,28 @@
         @for (layer of hubStore.selectedHub()?.layers; track layer.id; let layerIndex = $index){
         @if(layer.visible){
         <div class="canvas-layer" [class.canvas-layer-selected]="editorStore.selectedLayerId() === layer.id"
+          [attr.data-layer-id]="layer.id"
           [style.z-index]="getCanvasLayerZIndex(layerIndex)"
           [style.left.%]="getCanvasStyleValue(layer.position.x, 'x')"
           [style.top.%]="getCanvasStyleValue(layer.position.y, 'y')"
           [style.width.%]="getCanvasStyleValue(layer.width, 'x')"
-          [style.height.%]="getCanvasStyleValue(layer.height, 'y')">
+          [style.height.%]="getCanvasStyleValue(layer.height, 'y')"
+          [style.background]="getLayerBackground(layer)"
+          [style.color]="getLayerColor(layer)"
+          [style.opacity]="getLayerOpacity(layer)"
+          [style.border-color]="getLayerBorderColor(layer)"
+          [style.border-width.px]="getLayerBorderWidth(layer)"
+          [style.border-style]="getLayerBorderStyle(layer)"
+          [style.border-radius.px]="getLayerBorderRadius(layer)"
+          [style.padding.px]="getLayerPadding(layer)"
+          [style.box-shadow]="getLayerBoxShadow(layer)"
+          [style.text-shadow]="getLayerTextShadow(layer)">
           @switch(layer.type){
           @case(LayerType.Text){
           <app-text-loader [layer]="layer"></app-text-loader>
+          }
+          @case(LayerType.Shape){
+          <app-shape-loader [layer]="layer"></app-shape-loader>
           }
           @case(LayerType.Image){
           <app-image-loader [layer]="layer"></app-image-loader>
@@ -167,8 +269,41 @@
           @case(LayerType.Dragon){
           <app-stat-loader [layer]="layer"></app-stat-loader>
           }
+          @case(LayerType.TeamGold){
+          <app-stat-loader [layer]="layer"></app-stat-loader>
+          }
+          @case(LayerType.GoldDiff){
+          <app-stat-loader [layer]="layer"></app-stat-loader>
+          }
           @case(LayerType.PlayerScore){
           <app-stat-loader [layer]="layer"></app-stat-loader>
+          }
+          @case(LayerType.PlayerCreepScore){
+          <app-stat-loader [layer]="layer"></app-stat-loader>
+          }
+          @case(LayerType.PlayerGold){
+          <app-stat-loader [layer]="layer"></app-stat-loader>
+          }
+          @case(LayerType.PlayerItems){
+          <app-stat-loader [layer]="layer"></app-stat-loader>
+          }
+          @case(LayerType.PlayerName){
+          <app-stat-loader [layer]="layer"></app-stat-loader>
+          }
+          @case(LayerType.PlayerLevel){
+          <app-stat-loader [layer]="layer"></app-stat-loader>
+          }
+          @case(LayerType.ChampionName){
+          <app-stat-loader [layer]="layer"></app-stat-loader>
+          }
+          @case(LayerType.ChampionPortrait){
+          <app-stat-loader [layer]="layer"></app-stat-loader>
+          }
+          @case(LayerType.LolScorebug){
+          <app-stat-loader [layer]="layer" [selectedPartKey]="editorStore.selectedLayerId() === layer.id ? selectedPartKey() : ''"></app-stat-loader>
+          }
+          @case(LayerType.LolPlayerRoster){
+          <app-stat-loader [layer]="layer" [selectedPartKey]="editorStore.selectedLayerId() === layer.id ? selectedPartKey() : ''"></app-stat-loader>
           }
           @case(LayerType.Time){
           <app-stat-loader [layer]="layer"></app-stat-loader>
@@ -197,11 +332,11 @@
         <h2 class="panel-title">Add Elements</h2>
       </div>
 
-      <div class="element-groups" aria-label="Element types">
-        <details class="element-group" open>
+      <div class="element-groups" aria-label="Element types" (scroll)="closeLayerMenu()">
+        <details class="element-group">
           <summary class="element-group-summary">
             <span>Core</span>
-            <span class="element-group-count">3</span>
+            <span class="element-group-count">4</span>
           </summary>
 
           <div class="element-grid">
@@ -215,6 +350,11 @@
               <span class="element-name">Image</span>
             </button>
 
+            <button class="element-tile" type="button" (click)="createLayer(LayerType.Shape)">
+              <span class="element-icon element-icon-stat" aria-hidden="true">□</span>
+              <span class="element-name">Shape</span>
+            </button>
+
             <button class="element-tile" type="button" (click)="createLayer(LayerType.Video)">
               <span class="element-icon element-icon-video" aria-hidden="true"></span>
               <span class="element-name">Video</span>
@@ -222,10 +362,10 @@
           </div>
         </details>
 
-        <details class="element-group" open>
+        <details class="element-group">
           <summary class="element-group-summary">
             <span>Scoreboard</span>
-            <span class="element-group-count">4</span>
+            <span class="element-group-count">6</span>
           </summary>
 
           <div class="element-grid">
@@ -237,6 +377,16 @@
             <button class="element-tile" type="button" (click)="createLayer(LayerType.Towers)">
               <span class="element-icon element-icon-stat" aria-hidden="true">T</span>
               <span class="element-name">Towers</span>
+            </button>
+
+            <button class="element-tile" type="button" (click)="createLayer(LayerType.TeamGold)">
+              <span class="element-icon element-icon-stat" aria-hidden="true">G</span>
+              <span class="element-name">Team Gold</span>
+            </button>
+
+            <button class="element-tile" type="button" (click)="createLayer(LayerType.GoldDiff)">
+              <span class="element-icon element-icon-stat" aria-hidden="true">+G</span>
+              <span class="element-name">Gold Diff</span>
             </button>
 
             <button class="element-tile" type="button" (click)="createLayer(LayerType.PlayerScore)">
@@ -251,7 +401,61 @@
           </div>
         </details>
 
-        <details class="element-group" open>
+        <details class="element-group">
+          <summary class="element-group-summary">
+            <span>League HUD</span>
+            <span class="element-group-count">9</span>
+          </summary>
+
+          <div class="element-grid">
+            <button class="element-tile" type="button" (click)="createLayer(LayerType.LolScorebug)">
+              <span class="element-icon element-icon-stat" aria-hidden="true">SB</span>
+              <span class="element-name">Scorebug</span>
+            </button>
+
+            <button class="element-tile" type="button" (click)="createLayer(LayerType.LolPlayerRoster)">
+              <span class="element-icon element-icon-stat" aria-hidden="true">5</span>
+              <span class="element-name">Roster</span>
+            </button>
+
+            <button class="element-tile" type="button" (click)="createLayer(LayerType.ChampionPortrait)">
+              <span class="element-icon element-icon-stat" aria-hidden="true">CH</span>
+              <span class="element-name">Portrait</span>
+            </button>
+
+            <button class="element-tile" type="button" (click)="createLayer(LayerType.PlayerItems)">
+              <span class="element-icon element-icon-stat" aria-hidden="true">IT</span>
+              <span class="element-name">Items</span>
+            </button>
+
+            <button class="element-tile" type="button" (click)="createLayer(LayerType.PlayerCreepScore)">
+              <span class="element-icon element-icon-stat" aria-hidden="true">CS</span>
+              <span class="element-name">Player CS</span>
+            </button>
+
+            <button class="element-tile" type="button" (click)="createLayer(LayerType.PlayerGold)">
+              <span class="element-icon element-icon-stat" aria-hidden="true">PG</span>
+              <span class="element-name">Player Gold</span>
+            </button>
+
+            <button class="element-tile" type="button" (click)="createLayer(LayerType.PlayerName)">
+              <span class="element-icon element-icon-stat" aria-hidden="true">PN</span>
+              <span class="element-name">Player Name</span>
+            </button>
+
+            <button class="element-tile" type="button" (click)="createLayer(LayerType.PlayerLevel)">
+              <span class="element-icon element-icon-stat" aria-hidden="true">LV</span>
+              <span class="element-name">Level</span>
+            </button>
+
+            <button class="element-tile" type="button" (click)="createLayer(LayerType.ChampionName)">
+              <span class="element-icon element-icon-stat" aria-hidden="true">CN</span>
+              <span class="element-name">Champion</span>
+            </button>
+          </div>
+        </details>
+
+        <details class="element-group">
           <summary class="element-group-summary">
             <span>Objectives</span>
             <span class="element-group-count">3</span>
@@ -290,6 +494,20 @@
                 d="M13.5 9a.5.5 0 0 1 .5.5V11h1.5a.5.5 0 1 1 0 1H14v1.5a.5.5 0 1 1-1 0V12h-1.5a.5.5 0 0 1 0-1H13V9.5a.5.5 0 0 1 .5-.5" />
             </svg>
           </button>
+          <button class="icon-button" type="button" aria-label="Bring selected layer forward" title="Bring forward"
+            [disabled]="!editorStore.selectedLayerId()" (click)="moveSelectedLayerForward()">
+            <span aria-hidden="true">F</span>
+          </button>
+          <button class="icon-button" type="button" aria-label="Paste copied layer" title="Paste copied layer"
+            [disabled]="!hasCopiedLayer()" (click)="pasteCopiedLayer()">
+            <svg class="toolbar-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24">
+              <path d="M9 2h6v2h4v18H5V4h4V2Zm0 4H7v14h10V6h-2v2H9V6Zm2-2v2h2V4h-2Z" />
+            </svg>
+          </button>
+          <button class="icon-button" type="button" aria-label="Send selected layer backward" title="Send backward"
+            [disabled]="!editorStore.selectedLayerId()" (click)="moveSelectedLayerBackward()">
+            <span aria-hidden="true">B</span>
+          </button>
           <button class="icon-button" type="button" aria-label="Remove selected layer" title="Remove selected layer"
             [disabled]="!editorStore.selectedLayerId()" (click)="removeSelectedLayer()">
             <span aria-hidden="true">-</span>
@@ -298,6 +516,7 @@
       </div>
 
       <div class="layer-list" [class.layer-list-drop-active]="dragOverRoot()" aria-label="Canvas layers"
+        (scroll)="closeLayerMenu()"
         (dragover)="handleLayerListDragOver($event)" (dragleave)="handleLayerListDragLeave($event)"
         (drop)="dropLayerOnRoot($event)">
         @for(row of getLayerPanelRows(); track row.layer.id){
@@ -308,7 +527,9 @@
           [class.layer-row-drop-target]="dragOverGroupId() === row.layer.id"
           [class.layer-row-dragging]="draggedLayerId() === row.layer.id" [draggable]="canDragLayerRow(row.layer)"
           role="button" tabindex="0" (click)="selectLayerFromPanel(row.layer)"
-          (keydown.enter)="selectLayerFromPanel(row.layer)" (dragstart)="startLayerListDrag($event, row.layer)"
+          aria-haspopup="menu" [attr.aria-expanded]="layerContextMenu()?.layer?.id === row.layer.id"
+          (contextmenu)="openLayerMenu($event, row.layer)" (keydown)="handleLayerRowKeydown($event, row.layer)"
+          (dragstart)="startLayerListDrag($event, row.layer)"
           (dragend)="finishLayerListDrag()" (dragover)="handleGroupDragOver($event, row.layer)"
           (dragleave)="handleGroupDragLeave($event, row.layer)" (drop)="dropLayerOnGroup($event, row.layer)">
           @if(row.layer.type === LayerType.Group){
@@ -330,6 +551,7 @@
             <span class="visibility-dot" aria-hidden="true"></span>
           </button>
           <span class="layer-thumbnail" [class.layer-thumbnail-text]="row.layer.type === LayerType.Text"
+            [class.layer-thumbnail-shape]="row.layer.type === LayerType.Shape"
             [class.layer-thumbnail-image]="row.layer.type === LayerType.Image"
             [class.layer-thumbnail-video]="row.layer.type === LayerType.Video"
             [class.layer-thumbnail-kills]="row.layer.type === LayerType.Kills"
@@ -337,7 +559,18 @@
             [class.layer-thumbnail-void-grubs]="row.layer.type === LayerType.VoidGrubs"
             [class.layer-thumbnail-rift-herald]="row.layer.type === LayerType.RiftHerald"
             [class.layer-thumbnail-dragon]="row.layer.type === LayerType.Dragon"
+            [class.layer-thumbnail-team-gold]="row.layer.type === LayerType.TeamGold"
+            [class.layer-thumbnail-gold-diff]="row.layer.type === LayerType.GoldDiff"
             [class.layer-thumbnail-player-score]="row.layer.type === LayerType.PlayerScore"
+            [class.layer-thumbnail-player-cs]="row.layer.type === LayerType.PlayerCreepScore"
+            [class.layer-thumbnail-player-gold]="row.layer.type === LayerType.PlayerGold"
+            [class.layer-thumbnail-player-items]="row.layer.type === LayerType.PlayerItems"
+            [class.layer-thumbnail-player-name]="row.layer.type === LayerType.PlayerName"
+            [class.layer-thumbnail-player-level]="row.layer.type === LayerType.PlayerLevel"
+            [class.layer-thumbnail-champion-name]="row.layer.type === LayerType.ChampionName"
+            [class.layer-thumbnail-champion-portrait]="row.layer.type === LayerType.ChampionPortrait"
+            [class.layer-thumbnail-scorebug]="row.layer.type === LayerType.LolScorebug"
+            [class.layer-thumbnail-roster]="row.layer.type === LayerType.LolPlayerRoster"
             [class.layer-thumbnail-time]="row.layer.type === LayerType.Time"
             [class.layer-thumbnail-group]="row.layer.type === LayerType.Group" aria-hidden="true"></span>
           <span class="layer-copy">
@@ -347,25 +580,45 @@
               (keydown.enter)="commitLayerName(row.layer.id)" (keydown)="closeLayerNameEditor($event)"
               (click)="$event.stopPropagation()" (blur)="commitLayerName(row.layer.id)" />
             } @else {
-            <span class="layer-name">{{ row.layer.name }}</span>
+            <span class="layer-name" [attr.title]="row.layer.name">{{ row.layer.name }}</span>
             <span class="layer-kind">{{ getLayerKindLabel(row) }}</span>
             }
           </span>
-          @if(activeLayerMenuId() === row.layer.id){
-          <span class="layer-menu" aria-label="Layer menu">
-            @for(item of getLayerMenuItems(); track item.action){
-            <button class="layer-menu-button" type="button" [disabled]="item.disabled"
-              (click)="runLayerMenuAction($event, row.layer, item.action)">
-              {{ item.label }}
+          <span class="layer-quick-actions" aria-label="Quick layer actions">
+            <button class="layer-quick-button" type="button" title="Copy layer"
+              [attr.aria-label]="'Copy ' + row.layer.name"
+              (click)="runLayerMenuAction($event, row.layer, 'copy')">
+              <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24">
+                <rect x="8" y="8" width="12" height="12" rx="2" />
+                <path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3" />
+              </svg>
             </button>
-            }
+            <button class="layer-quick-button layer-quick-button-delete" type="button" title="Delete layer"
+              [attr.aria-label]="'Delete ' + row.layer.name"
+              (click)="runLayerMenuAction($event, row.layer, 'delete')">
+              <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24">
+                <path d="M3 6h18M9 6V3h6v3M5 6l1 15h12l1-15M10 10v7M14 10v7" />
+              </svg>
+            </button>
           </span>
-          }
         </div>
         }
       </div>
     </section>
   </aside>
+  @if(layerContextMenu(); as menu){
+  <div #layerContextMenuElement class="layer-context-menu" role="menu"
+    [attr.aria-label]="'Actions for ' + menu.layer.name" [style.left.px]="menu.x" [style.top.px]="menu.y"
+    (contextmenu)="$event.preventDefault()" (keydown)="handleLayerMenuKeydown($event)">
+    @for(item of getLayerMenuItems(); track item.action){
+    <button class="layer-menu-button" [class.layer-menu-button-delete]="item.action === 'delete'"
+      type="button" role="menuitem" tabindex="-1" [disabled]="item.disabled"
+      (click)="runLayerMenuAction($event, menu.layer, item.action)">
+      {{ item.label }}
+    </button>
+    }
+  </div>
+  }
   <footer class="editor-status" aria-label="Editor status">
     <span>{{ hubStore.selectedHub()?.hubName || 'No hub selected' }}</span>
     <span>{{ hubStore.hasUnsavedChanges() ? 'Unsaved changes' : 'Saved' }}</span>

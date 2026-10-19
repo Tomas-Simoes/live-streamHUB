@@ -10,11 +10,10 @@ import { HubsComponent } from './pages/hubs.component';
 @NgModule({
   declarations: [
     HubsComponent,
-    HubPreviewComponent,
     OBSExportButtonComponent,
     OBSPasswordDialogComponent,
   ],
-  imports: [RouterModule, LayerLoadersModule],
+  imports: [RouterModule, LayerLoadersModule, HubPreviewComponent],
   exports: [HubsComponent],
 })
 export class HubsModule { }

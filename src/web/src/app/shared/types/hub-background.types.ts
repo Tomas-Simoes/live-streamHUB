@@ -4,12 +4,17 @@ export type HubBackground = {
   src: string | null;
 };
 
-export const DEFAULT_HUB_BACKGROUND_ID = "league-of-legends";
+export const DEFAULT_HUB_BACKGROUND_ID = "league-of-legends-clean";
 
 export const HUB_BACKGROUNDS: HubBackground[] = [
   {
+    id: "league-of-legends-clean",
+    label: "League of Legends Clean",
+    src: "/league-of-legends-bg-no-scoreboard.png",
+  },
+  {
     id: "league-of-legends",
-    label: "League of Legends",
+    label: "League of Legends Original",
     src: "/league-of-legends-bg.png",
   },
   {

@@ -12,6 +12,8 @@ import { VideoLayer } from '../../../../shared/types/layer.types';
         [src]="layer.src"
         [autoplay]="layer.autoplay"
         [muted]="layer.muted"
+        [style.object-fit]="layer.fit || 'cover'"
+        [style.object-position]="layer.objectPosition || 'center'"
         playsinline
       ></video>
     } @else {
@@ -31,7 +33,6 @@ import { VideoLayer } from '../../../../shared/types/layer.types';
         display: block;
         width: 100%;
         height: 100%;
-        object-fit: cover;
       }
 
       .media-placeholder {

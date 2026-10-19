@@ -6,6 +6,9 @@
   "scripts": {
     "dev": "ng serve --host 0.0.0.0 --live-reload=false",
     "build": "ng build",
+    "test": "node --test",
+    "test:ai-browser": "node tests/local-ai-browser.mjs",
+    "test:hubs-browser": "node tests/hub-library.browser.mjs",
     "lint": "ng lint",
     "preview": "ng serve --configuration production --host 0.0.0.0"
   },
@@ -18,6 +21,9 @@
     "@angular/platform-browser": "^19.2.0",
     "@angular/platform-browser-dynamic": "^19.2.0",
     "@angular/router": "^19.2.0",
+    "@mlc-ai/web-llm": "0.2.86",
+    "ajv": "8.17.1",
+    "html-to-image": "1.11.13",
     "obs-websocket-js": "^5.0.8",
     "rxjs": "^7.8.1",
     "tailwindcss": "^4.0.15",

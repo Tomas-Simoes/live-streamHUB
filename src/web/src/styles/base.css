@@ -89,6 +89,53 @@ app-editor .field-label {
   letter-spacing: 0;
 }
 
+app-editor .inspector-section { display: grid; gap: 12px; min-width: 0; }
+app-editor .field-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+app-editor .toggle-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 5px 10px; }
+app-editor .toggle-field { display: flex; align-items: center; gap: 7px; min-height: 30px; font-size: 11px; font-weight: 650; }
+app-editor .inspector-subtitle { margin: 0; color: var(--brand-gold-360); font-size: 11px; font-weight: 800; text-transform: uppercase; }
+app-editor .section-heading { color: var(--brand-gold-360); font-size: 11px; font-weight: 850; text-transform: uppercase; }
+app-editor .text-style-toolbar { display: flex; gap: 7px; }
+app-editor .text-style-button {
+  display: grid;
+  width: 34px;
+  height: 34px;
+  place-items: center;
+  border: 1px solid rgb(var(--brand-gold-220-rgb) / 24%);
+  border-radius: 5px;
+  background: var(--brand-red-970);
+  color: var(--brand-beige-100);
+  cursor: pointer;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 900;
+}
+app-editor .text-style-button-active { border-color: var(--brand-gold-220); color: var(--brand-beige-50); }
+app-editor .data-subsection { border-top: 1px solid rgb(var(--brand-beige-180-rgb) / 18%); }
+app-editor .data-subsection > summary {
+  min-height: 32px;
+  display: flex;
+  align-items: center;
+  color: var(--brand-beige-100);
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: 800;
+  list-style: none;
+}
+app-editor .data-subsection > summary::-webkit-details-marker { display: none; }
+app-editor .data-subsection > summary::marker { content: ''; }
+app-editor .data-subsection > summary::after {
+  width: 6px; height: 6px; margin-left: auto;
+  border-right: 1.5px solid currentColor; border-bottom: 1.5px solid currentColor;
+  content: ''; transform: rotate(45deg);
+}
+app-editor .data-subsection[open] > summary::after { transform: rotate(225deg); }
+app-editor .data-subsection .field-grid { padding: 5px 0 9px; }
+app-editor .item-editor-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+app-editor .item-editor-slot { display: grid; grid-template-columns: 30px minmax(0, 1fr); align-items: center; gap: 5px; }
+app-editor .item-editor-slot img { width: 28px; height: 28px; object-fit: cover; border: 1px solid rgb(var(--brand-beige-180-rgb) / 24%); }
+app-editor .item-editor-slot .field-input { height: 30px; padding: 0 5px; font-size: 11px; }
+
 app-editor .field-input {
   min-width: 0;
   width: 100%;
@@ -120,6 +167,14 @@ app-editor .field-input:focus {
 app-editor .field-input-color {
   width: 56px;
   padding: 4px;
+}
+
+app-editor .field-textarea {
+  min-height: 112px;
+  height: auto;
+  padding: 10px;
+  resize: vertical;
+  line-height: 1.35;
 }
 
 app-editor input[type='range'].field-input {

@@ -1,16 +1,31 @@
-<div class="hub-preview-shell" aria-hidden="true">
-  <div class="broadcast-preview" [style.background]="getBackground()" [style.background-image]="getBackgroundImage()"
+<div class="hub-preview-shell" #previewShell aria-hidden="true">
+  <div class="broadcast-preview" [style.transform]="'scale(' + previewScale() + ')'"
+    [style.background]="getBackground()" [style.background-image]="getBackgroundImage()"
     [style.background-position]="'center'" [style.background-size]="'cover'">
     @for(layer of hub.layers; track layer.id; let layerIndex = $index) {
     @if(layer.visible) {
-    <div [class]="getLayerPreviewClass(layer)" [style.left.%]="getLayerStyleValue(layer.position.x, 'x')"
+    <div [class]="getLayerPreviewClass(layer)" [attr.data-layer-id]="layer.id"
+      [style.left.%]="getLayerStyleValue(layer.position.x, 'x')"
       [style.top.%]="getLayerStyleValue(layer.position.y, 'y')"
       [style.width.%]="getLayerStyleValue(layer.width, 'x')"
       [style.height.%]="getLayerStyleValue(layer.height, 'y')"
-      [style.z-index]="getLayerZIndex(layerIndex)">
+      [style.z-index]="getLayerZIndex(layerIndex)"
+      [style.background]="getLayerBackground(layer)"
+      [style.color]="getLayerColor(layer)"
+      [style.opacity]="getLayerOpacity(layer)"
+      [style.border-color]="getLayerBorderColor(layer)"
+      [style.border-width.px]="getLayerBorderWidth(layer)"
+      [style.border-style]="getLayerBorderStyle(layer)"
+      [style.border-radius.px]="getLayerBorderRadius(layer)"
+      [style.padding.px]="getLayerPadding(layer)"
+      [style.box-shadow]="getLayerBoxShadow(layer)"
+      [style.text-shadow]="getLayerTextShadow(layer)">
       @switch(layer.type) {
       @case(LayerType.Text) {
       <app-text-loader [layer]="layer"></app-text-loader>
+      }
+      @case(LayerType.Shape) {
+      <app-shape-loader [layer]="layer"></app-shape-loader>
       }
       @case(LayerType.Image) {
       <app-image-loader [layer]="layer"></app-image-loader>
@@ -33,7 +48,40 @@
       @case(LayerType.Dragon) {
       <app-stat-loader [layer]="layer"></app-stat-loader>
       }
+      @case(LayerType.TeamGold) {
+      <app-stat-loader [layer]="layer"></app-stat-loader>
+      }
+      @case(LayerType.GoldDiff) {
+      <app-stat-loader [layer]="layer"></app-stat-loader>
+      }
       @case(LayerType.PlayerScore) {
+      <app-stat-loader [layer]="layer"></app-stat-loader>
+      }
+      @case(LayerType.PlayerCreepScore) {
+      <app-stat-loader [layer]="layer"></app-stat-loader>
+      }
+      @case(LayerType.PlayerGold) {
+      <app-stat-loader [layer]="layer"></app-stat-loader>
+      }
+      @case(LayerType.PlayerItems) {
+      <app-stat-loader [layer]="layer"></app-stat-loader>
+      }
+      @case(LayerType.PlayerName) {
+      <app-stat-loader [layer]="layer"></app-stat-loader>
+      }
+      @case(LayerType.PlayerLevel) {
+      <app-stat-loader [layer]="layer"></app-stat-loader>
+      }
+      @case(LayerType.ChampionName) {
+      <app-stat-loader [layer]="layer"></app-stat-loader>
+      }
+      @case(LayerType.ChampionPortrait) {
+      <app-stat-loader [layer]="layer"></app-stat-loader>
+      }
+      @case(LayerType.LolScorebug) {
+      <app-stat-loader [layer]="layer"></app-stat-loader>
+      }
+      @case(LayerType.LolPlayerRoster) {
       <app-stat-loader [layer]="layer"></app-stat-loader>
       }
       @case(LayerType.Time) {

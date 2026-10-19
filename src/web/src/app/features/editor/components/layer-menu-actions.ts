@@ -1,6 +1,13 @@
 import { EditorLayer } from "../../../shared/types/layer.types";
 
-export type LayerMenuAction = "rename" | "copy" | "paste" | "delete";
+export type LayerMenuAction =
+  | "rename"
+  | "copy"
+  | "paste"
+  | "duplicate"
+  | "forward"
+  | "back"
+  | "delete";
 
 export type LayerMenuItem = {
   action: LayerMenuAction;
@@ -15,6 +22,9 @@ export function getLayerMenuItems(hasCopiedLayer: boolean): LayerMenuItem[] {
     { action: "rename", label: "Rename", disabled: false },
     { action: "copy", label: "Copy", disabled: false },
     { action: "paste", label: "Paste", disabled: !hasCopiedLayer },
+    { action: "duplicate", label: "Duplicate", disabled: false },
+    { action: "forward", label: "Forward", disabled: false },
+    { action: "back", label: "Back", disabled: false },
     { action: "delete", label: "Delete", disabled: false },
   ];
 }

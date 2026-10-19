@@ -33,6 +33,23 @@ import { ImageApi, UploadedMedia } from '../../../../core/api/image.api';
         <input type="checkbox" [checked]="layer.muted" (change)="updateMuted($event)" />
         Muted
       </label>
+
+      <div class="field-grid">
+        <label class="field-label">
+          Fit
+          <select class="field-input" [value]="layer.fit || 'cover'" (change)="updateFit($event)">
+            <option value="cover">Cover</option>
+            <option value="contain">Contain</option>
+            <option value="fill">Fill</option>
+          </select>
+        </label>
+
+        <label class="field-label">
+          Position
+          <input class="field-input" type="text" placeholder="center" [value]="layer.objectPosition || 'center'"
+            (input)="updateObjectPosition($event)" />
+        </label>
+      </div>
     </section>
   `,
 })
@@ -55,19 +72,33 @@ export class VideoEditorComponent {
       return;
     }
 
+    const layerId = this.layer.id;
     const previewSrc = URL.createObjectURL(file);
 
     revokeBlobUrl(this.layer.src);
-    this.updateVideoSource(previewSrc, undefined, 'uploading');
+    this.updateVideoSource(previewSrc, undefined, 'uploading', layerId);
 
     try {
       const uploaded = await firstValueFrom(this.imageApi.uploadVideo(file));
 
       revokeBlobUrl(previewSrc);
-      this.updateVideoSource(uploaded.url, uploaded, 'ready');
+      const currentLayer = this.editorStore.getLayer(layerId);
+
+      if (!currentLayer || !('src' in currentLayer) || currentLayer.src !== previewSrc) {
+        return;
+      }
+
+      this.updateVideoSource(uploaded.url, uploaded, 'ready', layerId);
     } catch {
-      this.editorStore.updateLayer(this.layer.id, {
-        name: `${this.layer.name} upload failed`,
+      const currentLayer = this.editorStore.getLayer(layerId);
+
+      if (!currentLayer || !('src' in currentLayer) || currentLayer.src !== previewSrc) {
+        revokeBlobUrl(previewSrc);
+        return;
+      }
+
+      this.editorStore.updateLayer(layerId, {
+        name: `${currentLayer.name} upload failed`,
         mediaUploadStatus: 'failed',
       });
     }
@@ -81,29 +112,47 @@ export class VideoEditorComponent {
     this.editorStore.updateLayer(this.layer.id, { muted: getCheckedValue(event) });
   }
 
+  updateFit(event: Event) {
+    const fit = getInputValue(event);
+
+    this.editorStore.updateLayer(this.layer.id, {
+      fit: fit === 'contain' || fit === 'fill' ? fit : 'cover',
+    });
+  }
+
+  updateObjectPosition(event: Event) {
+    this.editorStore.updateLayer(this.layer.id, {
+      objectPosition: getInputValue(event),
+    });
+  }
+
   private updateVideoSource(
     src: string,
     uploaded?: UploadedMedia,
     mediaUploadStatus?: VideoLayer['mediaUploadStatus'],
+    layerId = this.layer.id,
   ) {
-    this.editorStore.updateLayer(this.layer.id, {
+    this.editorStore.updateLayer(layerId, {
       src,
       mediaKey: uploaded?.key,
       mediaStorage: uploaded?.storage,
       mediaUploadStatus,
       localFilePath: uploaded?.localFilePath,
     });
-    this.fitLayerToVideo(src).catch(() => undefined);
+    this.fitLayerToVideo(src, layerId).catch(() => undefined);
   }
 
-  private async fitLayerToVideo(src: string) {
+  private async fitLayerToVideo(src: string, layerId: string) {
     if (!src) {
       return;
     }
 
     const naturalSize = await getVideoNaturalSize(src);
+    const currentLayer = this.editorStore.getLayer(layerId);
 
-    this.editorStore.resizeLayer(this.layer.id, fitLayerToNaturalSize(this.layer, naturalSize));
+    if (currentLayer && 'src' in currentLayer && currentLayer.src === src) {
+      this.editorStore.resizeLayer(layerId, fitLayerToNaturalSize(currentLayer, naturalSize));
+    }
   }
 }
 

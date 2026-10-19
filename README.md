@@ -64,6 +64,19 @@ Run backend and web:
 npm run dev
 ```
 
+Or run the full dev stack with Docker, including PostgreSQL:
+
+```bash
+docker compose up --build
+```
+
+The web app will be available at `http://localhost:4200`, and the backend API
+at `http://localhost:3000`. Stop the stack with:
+
+```bash
+docker compose down
+```
+
 Run only the backend:
 
 ```bash
@@ -154,6 +167,12 @@ Overwolf also requests the `FileSystem` permission so it can write the generated
 OBS overlay HTML file locally.
 
 ## Useful Commands
+
+The Hub Editor includes an experimental **AI Hub Builder** that runs locally in
+the browser using WebGPU. Open the panel to download a model, generate a validated
+proposal, preview it, and apply it as an undoable edit. See the
+[technical evaluation and setup](docs/local-ai-hub-builder.md) for requirements,
+measurements, limitations, and the real-browser test runner.
 
 ```bash
 npm run build:backend

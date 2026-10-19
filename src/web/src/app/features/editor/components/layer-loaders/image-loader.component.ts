@@ -12,6 +12,8 @@ import { ImageLayer } from '../../../../shared/types/layer.types';
         [src]="layer.src"
         [alt]="layer.alt || layer.name"
         [style.opacity]="layer.opacity / 100"
+        [style.object-fit]="layer.fit || 'cover'"
+        [style.object-position]="layer.objectPosition || 'center'"
       />
     } @else {
       <span class="media-placeholder">{{ layer.name }}</span>
@@ -30,7 +32,6 @@ import { ImageLayer } from '../../../../shared/types/layer.types';
         display: block;
         width: 100%;
         height: 100%;
-        object-fit: cover;
       }
 
       .media-placeholder {

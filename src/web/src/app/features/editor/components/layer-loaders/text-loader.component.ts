@@ -9,9 +9,13 @@ import { TextLayer } from '../../../../shared/types/layer.types';
     <span
       class="text-layer"
       [style.color]="layer.color"
-      [style.--text-font-size]="layer.fontSize"
+      [style.font-size]="getCanvasFontSize()"
       [style.font-family]="layer.fontFamily"
-      [style.font-weight]="layer.bold ? 700 : 400"
+      [style.font-weight]="layer.fontWeight || (layer.bold ? 700 : 400)"
+      [style.letter-spacing.px]="layer.letterSpacing ?? 0"
+      [style.text-align]="layer.textAlign || 'center'"
+      [style.line-height]="layer.lineHeight || 1.15"
+      [style.text-transform]="layer.uppercase ? 'uppercase' : 'none'"
     >
       {{ layer.text }}
     </span>
@@ -30,15 +34,18 @@ import { TextLayer } from '../../../../shared/types/layer.types';
         overflow: hidden;
         max-width: 100%;
         max-height: 100%;
-        font-size: clamp(1px, calc(var(--text-font-size) * 100cqw / 1920), var(--text-font-size));
         line-height: 1.15;
-        text-align: center;
         text-overflow: ellipsis;
         white-space: nowrap;
+        width: 100%;
       }
     `,
   ],
 })
 export class TextLoaderComponent {
   @Input({ required: true }) layer!: TextLayer;
+
+  getCanvasFontSize() {
+    return `${Math.max(1, this.layer.fontSize) / 19.2}cqw`;
+  }
 }

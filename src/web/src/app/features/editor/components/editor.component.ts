@@ -1,4 +1,4 @@
-import { Component, HostListener, OnInit, signal } from "@angular/core";
+import { Component, DoCheck, ElementRef, HostListener, OnDestroy, OnInit, ViewChild, signal } from "@angular/core";
 import { Router } from "@angular/router";
 
 import {
@@ -7,6 +7,11 @@ import {
   LayerType,
   Vector2,
 } from "../../../shared/types/layer.types";
+import {
+  LayerStyleSheet,
+  getLayerBorderStyle,
+  getLayerOpacity,
+} from "../../../shared/helpers/layer-style.helpers";
 import {
   CANVAS_SIZE,
   DragState,
@@ -39,10 +44,13 @@ import {
   styleUrls: ["../styles/editor.styles.css"],
   providers: [EditorStore],
 })
-export class EditorComponent implements OnInit {
+export class EditorComponent implements OnInit, DoCheck, OnDestroy {
+  @ViewChild('appearanceSection') appearanceSection?: ElementRef<HTMLDetailsElement>;
+  @ViewChild('contentSection') contentSection?: ElementRef<HTMLDetailsElement>;
   private dragState: DragState | null = null;
   private resizeState: ResizeState | null = null;
   private copiedLayer: EditorLayer | null = null;
+  private scopedStyleSheet = new LayerStyleSheet();
 
   getCanvasStyleValue = getCanvasStyleValue;
 
@@ -52,11 +60,15 @@ export class EditorComponent implements OnInit {
 
   editingLayerId = signal<string | null>(null);
   draftLayerName = signal("");
-  activeLayerMenuId = signal<string | null>(null);
+  layerContextMenu = signal<{ layer: EditorLayer; x: number; y: number } | null>(null);
+  @ViewChild("layerContextMenuElement") private layerContextMenuElement?: ElementRef<HTMLElement>;
+  private layerMenuTrigger: HTMLElement | null = null;
   hasCopiedLayer = signal(false);
   draggedLayerId = signal<string | null>(null);
   dragOverGroupId = signal<string | null>(null);
   dragOverRoot = signal(false);
+  selectedPartKey = signal('');
+  aiBuilderOpen = signal(false);
 
   constructor(
     private router: Router,
@@ -71,6 +83,15 @@ export class EditorComponent implements OnInit {
     }
   }
 
+  ngDoCheck() {
+    this.scopedStyleSheet.update(this.hubStore.selectedHub()?.layers ?? []);
+  }
+
+  ngOnDestroy() {
+    this.finishCanvasInteraction();
+    this.scopedStyleSheet.destroy();
+  }
+
   createLayer(type: LayerType) {
     if (!this.hubStore.selectedHub()) {
       this.router.navigate(["/hubs"]);
@@ -78,6 +99,7 @@ export class EditorComponent implements OnInit {
     }
 
     const layer = this.editorStore.createLayer(type);
+    this.selectedPartKey.set('');
     const layerAdded = this.hubStore.addLayer(layer);
 
     if (!layerAdded) {
@@ -86,11 +108,28 @@ export class EditorComponent implements OnInit {
 
     this.editingLayerId.set(layer.id);
     this.draftLayerName.set(layer.name);
-    this.activeLayerMenuId.set(layer.id);
+    this.editorStore.selectLayer(layer.id);
+    this.closeLayerMenu();
   }
 
   saveHub() {
     this.hubStore.saveSelectedHub();
+  }
+
+  undo() {
+    this.finishCanvasInteraction();
+
+    if (this.hubStore.undoSelectedHub()) {
+      this.syncSelectionAfterHistoryChange();
+    }
+  }
+
+  redo() {
+    this.finishCanvasInteraction();
+
+    if (this.hubStore.redoSelectedHub()) {
+      this.syncSelectionAfterHistoryChange();
+    }
   }
 
   getSelectedBackgroundId() {
@@ -120,6 +159,122 @@ export class EditorComponent implements OnInit {
     this.hubStore.updateSelectedHubBackground(backgroundId);
   }
 
+  updateSelectedLayerPosition(axis: "x" | "y", event: Event) {
+    const selectedLayer = this.editorStore.selectedLayer();
+
+    if (!selectedLayer) {
+      return;
+    }
+
+    const value = getEventNumberValue(event, selectedLayer.position[axis]);
+
+    this.editorStore.moveLayer(selectedLayer.id, {
+      ...selectedLayer.position,
+      [axis]: value,
+    });
+  }
+
+  updateSelectedLayerSize(axis: "width" | "height", event: Event) {
+    const selectedLayer = this.editorStore.selectedLayer();
+
+    if (!selectedLayer) {
+      return;
+    }
+
+    this.editorStore.updateLayer(selectedLayer.id, {
+      [axis]: Math.max(1, getEventNumberValue(event, selectedLayer[axis])),
+    } as Partial<EditorLayer>);
+  }
+
+  alignSelectedLayer(alignment: "left" | "center" | "right" | "top" | "middle" | "bottom") {
+    const selectedLayer = this.editorStore.selectedLayer();
+
+    if (!selectedLayer) {
+      return;
+    }
+
+    const position = { ...selectedLayer.position };
+
+    switch (alignment) {
+      case "left":
+        position.x = selectedLayer.width / 2;
+        break;
+      case "center":
+        position.x = CANVAS_SIZE.width / 2;
+        break;
+      case "right":
+        position.x = CANVAS_SIZE.width - selectedLayer.width / 2;
+        break;
+      case "top":
+        position.y = selectedLayer.height / 2;
+        break;
+      case "middle":
+        position.y = CANVAS_SIZE.height / 2;
+        break;
+      case "bottom":
+        position.y = CANVAS_SIZE.height - selectedLayer.height / 2;
+        break;
+    }
+
+    this.editorStore.moveLayer(selectedLayer.id, position);
+  }
+
+  moveSelectedLayerForward() {
+    const selectedLayerId = this.editorStore.selectedLayerId();
+
+    if (selectedLayerId) {
+      this.editorStore.moveLayerForward(selectedLayerId);
+    }
+  }
+
+  moveSelectedLayerBackward() {
+    const selectedLayerId = this.editorStore.selectedLayerId();
+
+    if (selectedLayerId) {
+      this.editorStore.moveLayerBackward(selectedLayerId);
+    }
+  }
+
+  getLayerBackground(layer: EditorLayer) {
+    return layer.style?.backgroundColor ?? null;
+  }
+
+  getLayerColor(layer: EditorLayer) {
+    return layer.style?.color ?? null;
+  }
+
+  getLayerOpacity(layer: EditorLayer) {
+    return getLayerOpacity(layer.style);
+  }
+
+  getLayerBorderColor(layer: EditorLayer) {
+    return layer.style?.borderColor ?? null;
+  }
+
+  getLayerBorderWidth(layer: EditorLayer) {
+    return layer.style?.borderWidth ?? null;
+  }
+
+  getLayerBorderStyle(layer: EditorLayer) {
+    return getLayerBorderStyle(layer.style);
+  }
+
+  getLayerBorderRadius(layer: EditorLayer) {
+    return layer.style?.borderRadius ?? null;
+  }
+
+  getLayerPadding(layer: EditorLayer) {
+    return layer.style?.padding ?? null;
+  }
+
+  getLayerBoxShadow(layer: EditorLayer) {
+    return layer.style?.boxShadow ?? null;
+  }
+
+  getLayerTextShadow(layer: EditorLayer) {
+    return layer.style?.textShadow ?? null;
+  }
+
   removeSelectedLayer() {
     const selectedLayerId = this.editorStore.selectedLayerId();
 
@@ -132,7 +287,8 @@ export class EditorComponent implements OnInit {
 
   clearLayerSelection() {
     this.editorStore.selectLayer(null);
-    this.activeLayerMenuId.set(null);
+    this.selectedPartKey.set('');
+    this.closeLayerMenu();
   }
 
   startCanvasPointerDown(event: PointerEvent, canvas: HTMLElement) {
@@ -141,6 +297,22 @@ export class EditorComponent implements OnInit {
     if (!layer) {
       this.clearLayerSelection();
       return;
+    }
+
+    const target = event.target instanceof Element ? event.target : null;
+    const part = target?.closest('[data-component-part]');
+    const parentLayer = part?.closest('[data-layer-id]');
+    const partKey = parentLayer?.getAttribute('data-layer-id') === layer.id ?
+      part?.getAttribute('data-component-part') || '' : '';
+    this.selectedPartKey.set(partKey);
+    if (partKey) {
+      setTimeout(() => {
+        if (this.contentSection) this.contentSection.nativeElement.open = false;
+        if (this.appearanceSection) {
+          this.appearanceSection.nativeElement.open = true;
+          this.appearanceSection.nativeElement.scrollIntoView({ block: 'nearest' });
+        }
+      }, 0);
     }
 
     this.startDrag(event, layer, canvas);
@@ -153,8 +325,100 @@ export class EditorComponent implements OnInit {
   }
 
   selectLayerFromPanel(layer: EditorLayer) {
+    if (this.editorStore.selectedLayerId() !== layer.id) this.selectedPartKey.set('');
     this.editorStore.selectLayer(layer.id);
-    this.activeLayerMenuId.set(layer.id);
+    this.closeLayerMenu();
+  }
+
+  openLayerMenu(event: MouseEvent, layer: EditorLayer) {
+    if (this.isTextEditingTarget(event.target)) {
+      return;
+    }
+
+    event.preventDefault();
+    event.stopPropagation();
+    this.showLayerMenu(layer, event.currentTarget as HTMLElement, event.clientX, event.clientY);
+  }
+
+  handleLayerRowKeydown(event: KeyboardEvent, layer: EditorLayer) {
+    if (event.target !== event.currentTarget) {
+      return;
+    }
+
+    if (event.key === "ContextMenu" || (event.shiftKey && event.key === "F10")) {
+      event.preventDefault();
+      const row = event.currentTarget as HTMLElement;
+      const bounds = row.getBoundingClientRect();
+      this.showLayerMenu(layer, row, bounds.left + 16, bounds.bottom);
+    } else if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      this.selectLayerFromPanel(layer);
+    }
+  }
+
+  private showLayerMenu(layer: EditorLayer, trigger: HTMLElement, x: number, y: number) {
+    if (this.editorStore.selectedLayerId() !== layer.id) this.selectedPartKey.set('');
+    this.editorStore.selectLayer(layer.id);
+    this.layerMenuTrigger = trigger;
+    this.layerContextMenu.set({ layer, x, y });
+
+    requestAnimationFrame(() => {
+      const menu = this.layerContextMenuElement?.nativeElement;
+      const state = this.layerContextMenu();
+      if (!menu || !state || state.layer.id !== layer.id) {
+        return;
+      }
+
+      const bounds = menu.getBoundingClientRect();
+      this.layerContextMenu.set({
+        ...state,
+        x: Math.max(8, Math.min(x, window.innerWidth - bounds.width - 8)),
+        y: Math.max(8, Math.min(y, window.innerHeight - bounds.height - 8)),
+      });
+      menu.querySelector<HTMLButtonElement>("button:not(:disabled)")?.focus({ preventScroll: true });
+    });
+  }
+
+  closeLayerMenu(restoreFocus = false) {
+    this.layerContextMenu.set(null);
+    if (restoreFocus && this.layerMenuTrigger?.isConnected) {
+      this.layerMenuTrigger.focus({ preventScroll: true });
+    }
+    this.layerMenuTrigger = null;
+  }
+
+  @HostListener("document:pointerdown", ["$event"])
+  dismissLayerMenu(event: PointerEvent) {
+    if (this.layerContextMenu() && !this.layerContextMenuElement?.nativeElement.contains(event.target as Node)) {
+      this.closeLayerMenu();
+    }
+  }
+
+  @HostListener("window:resize")
+  dismissLayerMenuOnResize() {
+    this.closeLayerMenu();
+  }
+
+  handleLayerMenuKeydown(event: KeyboardEvent) {
+    if (event.key === "Escape" || event.key === "Tab") {
+      if (event.key === "Escape") {
+        event.preventDefault();
+      }
+      event.stopPropagation();
+      this.closeLayerMenu(true);
+      return;
+    }
+
+    if (!["ArrowDown", "ArrowUp", "Home", "End"].includes(event.key)) {
+      return;
+    }
+
+    event.preventDefault();
+    const buttons = Array.from(this.layerContextMenuElement?.nativeElement.querySelectorAll<HTMLButtonElement>("button:not(:disabled)") ?? []);
+    const index = buttons.indexOf(document.activeElement as HTMLButtonElement);
+    const next = event.key === "Home" ? 0 : event.key === "End" ? buttons.length - 1
+      : (index + (event.key === "ArrowDown" ? 1 : -1) + buttons.length) % buttons.length;
+    buttons[next]?.focus({ preventScroll: true });
   }
 
   toggleLayerVisibility(event: Event, layer: EditorLayer) {
@@ -247,12 +511,18 @@ export class EditorComponent implements OnInit {
 
   toggleGroupCollapsed(event: Event, layer: EditorLayer) {
     event.stopPropagation();
+    this.selectedPartKey.set('');
     this.editorStore.selectLayer(layer.id);
-    this.activeLayerMenuId.set(layer.id);
+    this.closeLayerMenu();
     this.editorStore.toggleGroupCollapsed(layer.id);
   }
 
   startLayerListDrag(event: DragEvent, layer: EditorLayer) {
+    this.closeLayerMenu();
+    if (event.target instanceof HTMLElement && event.target.closest("button, input")) {
+      event.preventDefault();
+      return;
+    }
     if (!this.canDragLayerRow(layer)) {
       event.preventDefault();
       return;
@@ -372,8 +642,9 @@ export class EditorComponent implements OnInit {
 
   runLayerMenuAction(event: Event, layer: EditorLayer, action: LayerMenuAction) {
     event.stopPropagation();
+    if (this.editorStore.selectedLayerId() !== layer.id) this.selectedPartKey.set('');
     this.editorStore.selectLayer(layer.id);
-    this.activeLayerMenuId.set(layer.id);
+    this.closeLayerMenu(action !== "rename");
 
     switch (action) {
       case "rename":
@@ -387,9 +658,49 @@ export class EditorComponent implements OnInit {
       case "paste":
         this.pasteCopiedLayer();
         return;
+      case "duplicate":
+        this.copiedLayer = copyLayer(layer);
+        this.hasCopiedLayer.set(true);
+        this.pasteCopiedLayer();
+        return;
+      case "forward":
+        this.editorStore.moveLayerForward(layer.id);
+        return;
+      case "back":
+        this.editorStore.moveLayerBackward(layer.id);
+        return;
       case "delete":
         this.removeLayer(layer.id);
         return;
+    }
+  }
+
+  @HostListener("document:keydown", ["$event"])
+  handleHistoryShortcut(event: KeyboardEvent) {
+    if (
+      event.defaultPrevented ||
+      event.isComposing ||
+      event.altKey ||
+      !(event.ctrlKey || event.metaKey) ||
+      this.isNativeUndoTarget(event.target) ||
+      !this.hubStore.selectedHub()
+    ) {
+      return;
+    }
+
+    const key = event.key.toLowerCase();
+
+    if (key === "z") {
+      event.preventDefault();
+
+      if (event.shiftKey) {
+        this.redo();
+      } else {
+        this.undo();
+      }
+    } else if (key === "y" && !event.shiftKey) {
+      event.preventDefault();
+      this.redo();
     }
   }
 
@@ -446,6 +757,8 @@ export class EditorComponent implements OnInit {
     event.preventDefault();
     event.stopPropagation();
 
+    this.finishCanvasInteraction();
+    this.hubStore.beginHistoryGroup();
     this.editorStore.selectLayer(layer.id);
     this.resizeState = null;
     this.dragState = createDragState(
@@ -458,6 +771,7 @@ export class EditorComponent implements OnInit {
 
     document.addEventListener("pointermove", this.onDragMove);
     document.addEventListener("pointerup", this.stopDrag);
+    document.addEventListener("pointercancel", this.stopDrag);
   }
 
   onDragMove = (event: PointerEvent) => {
@@ -480,12 +794,15 @@ export class EditorComponent implements OnInit {
     event.preventDefault();
     event.stopPropagation();
 
+    this.finishCanvasInteraction();
+    this.hubStore.beginHistoryGroup();
     this.editorStore.selectLayer(layer.id);
     this.dragState = null;
     this.resizeState = createResizeState(layer, handle, event, canvas);
 
     document.addEventListener("pointermove", this.onResizeMove);
     document.addEventListener("pointerup", this.stopResize);
+    document.addEventListener("pointercancel", this.stopResize);
   }
 
   onResizeMove = (event: PointerEvent) => {
@@ -500,18 +817,66 @@ export class EditorComponent implements OnInit {
   };
 
   stopDrag = () => {
+    if (this.dragState) {
+      this.hubStore.endHistoryGroup();
+    }
+
     this.dragState = null;
 
     document.removeEventListener("pointermove", this.onDragMove);
     document.removeEventListener("pointerup", this.stopDrag);
+    document.removeEventListener("pointercancel", this.stopDrag);
   };
 
   stopResize = () => {
+    if (this.resizeState) {
+      this.hubStore.endHistoryGroup();
+    }
+
     this.resizeState = null;
 
     document.removeEventListener("pointermove", this.onResizeMove);
     document.removeEventListener("pointerup", this.stopResize);
+    document.removeEventListener("pointercancel", this.stopResize);
   };
+
+  @HostListener("window:blur")
+  finishCanvasInteraction() {
+    this.closeLayerMenu();
+    this.stopDrag();
+    this.stopResize();
+  }
+
+  private syncSelectionAfterHistoryChange() {
+    const selectedLayerId = this.editorStore.selectedLayerId();
+
+    if (!this.hubStore.selectedHub()?.layers.some((layer) => layer.id === selectedLayerId)) {
+      this.editorStore.selectLayer(null);
+      this.selectedPartKey.set('');
+    }
+
+    this.editingLayerId.set(null);
+    this.draftLayerName.set("");
+    this.closeLayerMenu();
+    this.finishLayerListDrag();
+  }
+
+  private isNativeUndoTarget(target: EventTarget | null) {
+    if (!(target instanceof HTMLElement)) {
+      return false;
+    }
+
+    const tagName = target.tagName.toLowerCase();
+
+    return (
+      target.isContentEditable ||
+      tagName === "textarea" ||
+      (tagName === "input" &&
+        ["text", "number", "search", "email", "password", "tel", "url"].includes(
+          (target as HTMLInputElement).type,
+        ))
+    );
+  }
 
   private isTextEditingTarget(target: EventTarget | null) {
     if (!(target instanceof HTMLElement)) {
@@ -584,18 +949,18 @@ export class EditorComponent implements OnInit {
   }
 
   private removeLayer(layerId: string) {
+    this.selectedPartKey.set('');
     this.editingLayerId.set(null);
     this.draftLayerName.set("");
-    this.dragState = null;
-    this.resizeState = null;
+    this.finishCanvasInteraction();
     this.editorStore.removeLayer(layerId);
 
-    if (this.activeLayerMenuId() === layerId) {
-      this.activeLayerMenuId.set(null);
+    if (this.layerContextMenu()?.layer.id === layerId) {
+      this.closeLayerMenu();
     }
   }
 
-  private pasteCopiedLayer() {
+  pasteCopiedLayer() {
     if (!this.copiedLayer) {
       return;
     }
@@ -608,7 +973,8 @@ export class EditorComponent implements OnInit {
     }
 
     this.editorStore.selectLayer(layer.id);
-    this.activeLayerMenuId.set(layer.id);
+    this.selectedPartKey.set('');
+    this.closeLayerMenu();
   }
 
   private getDraggedLayer() {
@@ -638,3 +1004,9 @@ type LayerPanelRow = {
   depth: 0 | 1;
   childCount: number;
 };
+
+function getEventNumberValue(event: Event, fallback: number) {
+  const value = Number((event.target as HTMLInputElement).value);
+
+  return Number.isFinite(value) ? value : fallback;
+}

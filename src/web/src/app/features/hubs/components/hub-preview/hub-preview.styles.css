@@ -6,12 +6,12 @@
 }
 
 .hub-preview-shell {
+  position: relative;
   display: block;
   min-width: 0;
   width: 100%;
   aspect-ratio: 16 / 9;
   overflow: hidden;
-  border: 1px solid rgb(55 79 78 / 24%);
   border-radius: 8px;
   background: #1f302e;
   box-shadow:
@@ -20,15 +20,16 @@
 }
 
 .broadcast-preview {
-  position: relative;
+  position: absolute;
+  top: 0;
+  left: 0;
   display: block;
-  width: 100%;
-  height: 100%;
+  width: 1920px;
+  height: 1080px;
   min-height: 0;
   overflow: hidden;
   container-type: inline-size;
-  border: 1px solid rgb(var(--brand-beige-180-rgb) / 26%);
-  border-radius: 8px;
+  transform-origin: top left;
   background:
     radial-gradient(circle at 58% 36%, rgb(var(--brand-gold-220-rgb) / 12%), transparent 24rem),
     linear-gradient(135deg, var(--brand-red-920), var(--brand-red-970) 70%, var(--brand-red-990));
@@ -46,6 +47,7 @@
 }
 
 .preview-layer app-text-loader,
+.preview-layer app-shape-loader,
 .preview-layer app-image-loader,
 .preview-layer app-video-loader,
 .preview-layer app-kills-loader,

@@ -1,13 +1,21 @@
 import { Injectable, computed, signal } from "@angular/core";
 import { finalize, map, tap } from "rxjs";
 
-import { Hub, HubResponse } from "../../shared/types/hub.types";
+import { Hub, HubLayout, HubResponse } from "../../shared/types/hub.types";
 import { EditorLayer, LayerType } from "../../shared/types/layer.types";
 import { HubsApi } from "src/app/core/api/hub.api";
 import {
   DEFAULT_HUB_BACKGROUND_ID,
   getHubBackground,
 } from "../../shared/types/hub-background.types";
+import { getPredefinedHubTemplate } from "../../shared/templates/predefined-hub-templates";
+
+type HubHistory = {
+  past: Hub[];
+  future: Hub[];
+};
+
+const HUB_HISTORY_LIMIT = 100;
 
 @Injectable({ providedIn: "root" })
 export class HubStore {
@@ -15,6 +23,10 @@ export class HubStore {
   selectedHubId = signal<string | null>(null);
   private dirtyHubIds = signal<ReadonlySet<string>>(new Set());
   private hubEditVersions = new Map<string, number>();
+  private savedHubContents = new Map<string, string>();
+  private hubHistories = signal<ReadonlyMap<string, HubHistory>>(new Map());
+  private historyGroupHubId: string | null = null;
+  private hasGroupedEdit = false;
 
   selectedHub = computed(() => {
     const selectedHubId = this.selectedHubId();
@@ -35,6 +47,12 @@ export class HubStore {
       !this.hasUnpersistedMedia() &&
       !this.isSaving(),
   );
+  canUndo = computed(
+    () => !!this.hubHistories().get(this.selectedHubId() ?? "")?.past.length,
+  );
+  canRedo = computed(
+    () => !!this.hubHistories().get(this.selectedHubId() ?? "")?.future.length,
+  );
 
   constructor(private hubsApi: HubsApi) {}
 
@@ -46,6 +64,11 @@ export class HubStore {
 
         this.hubs.set(normalizedHubs);
         this.dirtyHubIds.set(new Set());
+        this.hubHistories.set(new Map());
+        this.savedHubContents = new Map(
+          normalizedHubs.map((hub) => [hub._id, getHubContentKey(hub)]),
+        );
+        this.endHistoryGroup();
         this.selectedHubId.set(
           normalizedHubs.some((hub) => hub._id === selectedHubId)
             ? selectedHubId
@@ -55,6 +78,9 @@ export class HubStore {
       error: () => {
         this.hubs.set([]);
         this.selectedHubId.set(null);
+        this.hubHistories.set(new Map());
+        this.savedHubContents.clear();
+        this.endHistoryGroup();
       },
     });
   }
@@ -78,8 +104,80 @@ export class HubStore {
       );
   }
 
+  createLeagueBroadcastHub() {
+    return this.createHubFromTemplate("cblol-broadcast");
+  }
+
+  createHubFromTemplate(templateId: string) {
+    const template = getPredefinedHubTemplate(templateId);
+
+    if (!template) {
+      return this.createHub();
+    }
+
+    return this.hubsApi
+      .createHub({
+        hubName: template.name,
+        layout: template.createLayout(),
+      })
+      .pipe(
+        map((hub) => this.toHub(hub)),
+        tap((createdHub) => {
+          this.hubs.update((hubs) => [createdHub, ...hubs]);
+          this.markHubClean(createdHub._id);
+          this.selectedHubId.set(createdHub._id);
+        }),
+      );
+  }
+
   selectHub(hubId: string) {
+    this.endHistoryGroup();
     this.selectedHubId.set(hubId);
+  }
+
+  beginHistoryGroup() {
+    this.historyGroupHubId = this.selectedHubId();
+    this.hasGroupedEdit = false;
+  }
+
+  endHistoryGroup() {
+    this.historyGroupHubId = null;
+    this.hasGroupedEdit = false;
+  }
+
+  undoSelectedHub() {
+    return this.restoreHubHistory("past");
+  }
+
+  redoSelectedHub() {
+    return this.restoreHubHistory("future");
+  }
+
+  deleteHub(hubId: string) {
+    return this.hubsApi.deleteHub(hubId).pipe(
+      tap(() => {
+        const deletedIndex = this.hubs().findIndex((hub) => hub._id === hubId);
+
+        this.hubs.update((hubs) => hubs.filter((hub) => hub._id !== hubId));
+        this.markHubClean(hubId);
+        this.hubEditVersions.delete(hubId);
+        this.hubHistories.update((histories) => {
+          const nextHistories = new Map(histories);
+
+          nextHistories.delete(hubId);
+
+          return nextHistories;
+        });
+
+        if (this.selectedHubId() === hubId) {
+          this.endHistoryGroup();
+          const hubs = this.hubs();
+          this.selectedHubId.set(
+            hubs[Math.max(0, Math.min(deletedIndex, hubs.length - 1))]?._id ?? null,
+          );
+        }
+      }),
+    );
   }
 
   addLayer(layer: EditorLayer) {
@@ -95,6 +193,15 @@ export class HubStore {
         },
       };
     });
+  }
+
+  /** Apply a reviewed AI proposal as one normal undoable, unsaved editor change. */
+  applyAiLayout(hubId: string, layout: HubLayout, expectedContent: string) {
+    const current = this.selectedHub();
+    if (!current || current._id !== hubId || JSON.stringify([current._id, current.layout, current.layers]) !== expectedContent) return false;
+    this.endHistoryGroup();
+    const next = structuredClone(layout);
+    return this.updateSelectedHub(hub => ({ ...hub, layout: next, layers: next.layers ?? [] }));
   }
 
   removeLayer(layerId: string) {
@@ -132,6 +239,39 @@ export class HubStore {
             } as EditorLayer)
           : layer,
       );
+
+      return {
+        ...hub,
+        layers,
+        layout: {
+          ...hub.layout,
+          layers,
+        },
+      };
+    });
+  }
+
+  reorderLayer(layerId: string, offset: -1 | 1) {
+    return this.updateSelectedHub((hub) => {
+      const currentIndex = hub.layers.findIndex((layer) => layer.id === layerId);
+
+      if (currentIndex === -1) {
+        return hub;
+      }
+
+      const nextIndex = Math.min(
+        Math.max(currentIndex + offset, 0),
+        hub.layers.length - 1,
+      );
+
+      if (nextIndex === currentIndex) {
+        return hub;
+      }
+
+      const layers = [...hub.layers];
+      const [layer] = layers.splice(currentIndex, 1);
+
+      layers.splice(nextIndex, 0, layer);
 
       return {
         ...hub,
@@ -186,7 +326,10 @@ export class HubStore {
           const hasLocalEditsAfterSave =
             (this.hubEditVersions.get(savedHub._id) ?? 0) !== saveVersion;
 
+          this.savedHubContents.set(savedHub._id, getHubContentKey(savedHub));
+
           if (hasLocalEditsAfterSave) {
+            this.refreshHubDirtyState(savedHub._id);
             return;
           }
 
@@ -244,10 +387,88 @@ export class HubStore {
       } as EditorLayer;
     }
 
+    if (isPlayerBoundLayer(normalizedLayer)) {
+      return {
+        ...normalizedLayer,
+        team: normalizedLayer.team || "blue",
+        role: normalizedLayer.role || "top",
+      } as EditorLayer;
+    }
+
+    if (normalizedLayer.type === LayerType.PlayerItems) {
+      return {
+        ...normalizedLayer,
+        team: normalizedLayer.team || "blue",
+        role: normalizedLayer.role || "top",
+        showTrinket: normalizedLayer.showTrinket !== false,
+      } as EditorLayer;
+    }
+
+    if (normalizedLayer.type === LayerType.ChampionPortrait) {
+      return {
+        ...normalizedLayer,
+        team: normalizedLayer.team || "blue",
+        role: normalizedLayer.role || "top",
+        shape: normalizedLayer.shape || "square",
+        showLevel: normalizedLayer.showLevel !== false,
+      } as EditorLayer;
+    }
+
+    if (normalizedLayer.type === LayerType.LolScorebug) {
+      return {
+        ...normalizedLayer,
+        blueTeamCode: normalizedLayer.blueTeamCode || "BLUE",
+        redTeamCode: normalizedLayer.redTeamCode || "RED",
+        blueAccent: normalizedLayer.blueAccent || "#34d5e6",
+        redAccent: normalizedLayer.redAccent || "#ef7d24",
+        showGold: normalizedLayer.showGold !== false,
+        showObjectives: normalizedLayer.showObjectives !== false,
+        showGameTime: normalizedLayer.showGameTime !== false,
+      } as EditorLayer;
+    }
+
+    if (normalizedLayer.type === LayerType.LolPlayerRoster) {
+      return {
+        ...normalizedLayer,
+        team: normalizedLayer.team || "blue",
+        orientation: normalizedLayer.orientation || "left",
+        showChampion: normalizedLayer.showChampion !== false,
+        showLevel: normalizedLayer.showLevel !== false,
+        showKda: normalizedLayer.showKda !== false,
+        showCs: normalizedLayer.showCs !== false,
+        showGold: normalizedLayer.showGold === true,
+        showItems: normalizedLayer.showItems !== false,
+      } as EditorLayer;
+    }
+
     if (normalizedLayer.type === LayerType.Text) {
       return {
         ...normalizedLayer,
         bold: normalizedLayer.bold === true,
+        fontWeight: normalizedLayer.fontWeight || (normalizedLayer.bold ? 700 : 400),
+        letterSpacing: normalizedLayer.letterSpacing ?? 0,
+        textAlign: normalizedLayer.textAlign || "center",
+        lineHeight: normalizedLayer.lineHeight || 1.15,
+        uppercase: normalizedLayer.uppercase === true,
+      } as EditorLayer;
+    }
+
+    if (normalizedLayer.type === LayerType.Image) {
+      return {
+        ...normalizedLayer,
+        opacity: Number.isFinite(Number(normalizedLayer.opacity))
+          ? normalizedLayer.opacity
+          : 100,
+        fit: normalizedLayer.fit || "cover",
+        objectPosition: normalizedLayer.objectPosition || "center",
+      } as EditorLayer;
+    }
+
+    if (normalizedLayer.type === LayerType.Video) {
+      return {
+        ...normalizedLayer,
+        fit: normalizedLayer.fit || "cover",
+        objectPosition: normalizedLayer.objectPosition || "center",
       } as EditorLayer;
     }
 
@@ -271,15 +492,136 @@ export class HubStore {
       return false;
     }
 
+    const updatedHub = updateHub(selectedHub);
+    const previousContent = getHubContentKey(selectedHub);
+
+    if (updatedHub === selectedHub || getHubContentKey(updatedHub) === previousContent) {
+      return false;
+    }
+
+    if (!this.savedHubContents.has(selectedHub._id)) {
+      this.savedHubContents.set(selectedHub._id, previousContent);
+    }
+
+    const isGroupedEdit = this.historyGroupHubId === selectedHub._id;
+
+    if (!isGroupedEdit || !this.hasGroupedEdit) {
+      const snapshot = this.getHistorySnapshot(selectedHub);
+
+      this.hubHistories.update((histories) => {
+        const history = histories.get(selectedHub._id) ?? { past: [], future: [] };
+        const previousSnapshot = history.past.at(-1);
+
+        return new Map(histories).set(selectedHub._id, {
+          past:
+            previousSnapshot && getHubContentKey(previousSnapshot) === getHubContentKey(snapshot)
+              ? history.past
+              : [...history.past, snapshot].slice(-HUB_HISTORY_LIMIT),
+          future: [],
+        });
+      });
+    }
+
+    if (isGroupedEdit) {
+      this.hasGroupedEdit = true;
+    }
+
     this.hubs.update((hubs) =>
       hubs.map((hub) =>
-        hub._id === selectedHub._id ? updateHub(hub) : hub,
+        hub._id === selectedHub._id ? updatedHub : hub,
       ),
     );
 
     this.markHubDirty(selectedHub._id);
 
     return true;
+  }
+
+  private restoreHubHistory(direction: "past" | "future") {
+    this.endHistoryGroup();
+
+    const selectedHub = this.selectedHub();
+
+    if (!selectedHub) {
+      return false;
+    }
+
+    const history = this.hubHistories().get(selectedHub._id);
+    const snapshot = history?.[direction].at(-1);
+
+    if (!history || !snapshot) {
+      return false;
+    }
+
+    const oppositeDirection = direction === "past" ? "future" : "past";
+    const currentSnapshot = this.getHistorySnapshot(selectedHub);
+
+    this.hubHistories.update((histories) =>
+      new Map(histories).set(selectedHub._id, {
+        ...history,
+        [direction]: history[direction].slice(0, -1),
+        [oppositeDirection]: [...history[oppositeDirection], currentSnapshot],
+      }),
+    );
+    this.hubs.update((hubs) =>
+      hubs.map((hub) =>
+        hub._id === selectedHub._id
+          ? {
+              ...hub,
+              hubName: snapshot.hubName,
+              layers: snapshot.layers,
+              layout: { ...snapshot.layout, layers: snapshot.layers },
+            }
+          : hub,
+      ),
+    );
+    this.markHubDirty(selectedHub._id);
+
+    return true;
+  }
+
+  private getHistorySnapshot(hub: Hub): Hub {
+    const history = this.hubHistories().get(hub._id);
+    let hasTemporaryMedia = false;
+    const layers = hub.layers.map((layer) => {
+      if (
+        (layer.type !== LayerType.Image && layer.type !== LayerType.Video) ||
+        (!layer.src.startsWith("blob:") && layer.mediaUploadStatus !== "uploading")
+      ) {
+        return layer;
+      }
+
+      hasTemporaryMedia = true;
+      let previousLayer: typeof layer | undefined;
+
+      for (let index = (history?.past.length ?? 0) - 1; index >= 0; index--) {
+        const candidate: EditorLayer | undefined = history!.past[index].layers.find((previous) => previous.id === layer.id);
+
+        if (
+          candidate?.type === layer.type &&
+          "src" in candidate &&
+          !candidate.src.startsWith("blob:") &&
+          candidate.mediaUploadStatus !== "uploading"
+        ) {
+          previousLayer = candidate;
+          break;
+        }
+      }
+
+      // Upload previews can be revoked; history keeps the last usable source.
+      return {
+        ...layer,
+        src: previousLayer?.src ?? "",
+        mediaKey: previousLayer?.mediaKey,
+        mediaStorage: previousLayer?.mediaStorage,
+        mediaUploadStatus: previousLayer?.mediaUploadStatus,
+        localFilePath: previousLayer?.localFilePath,
+      };
+    });
+
+    return hasTemporaryMedia
+      ? { ...hub, layers, layout: { ...hub.layout, layers } }
+      : hub;
   }
 
   private hasUnpersistedMedia() {
@@ -301,16 +643,35 @@ export class HubStore {
   private markHubDirty(hubId: string) {
     this.hubEditVersions.set(hubId, (this.hubEditVersions.get(hubId) ?? 0) + 1);
     this.saveError.set(null);
+    this.refreshHubDirtyState(hubId);
+  }
+
+  private refreshHubDirtyState(hubId: string) {
+    const hub = this.hubs().find((hub) => hub._id === hubId);
+    const isDirty = !!hub && this.savedHubContents.get(hubId) !== getHubContentKey(hub);
+
     this.dirtyHubIds.update((dirtyHubIds) => {
       const nextDirtyHubIds = new Set(dirtyHubIds);
 
-      nextDirtyHubIds.add(hubId);
+      if (isDirty) {
+        nextDirtyHubIds.add(hubId);
+      } else {
+        nextDirtyHubIds.delete(hubId);
+      }
 
       return nextDirtyHubIds;
     });
   }
 
   private markHubClean(hubId: string) {
+    const hub = this.hubs().find((hub) => hub._id === hubId);
+
+    if (hub) {
+      this.savedHubContents.set(hubId, getHubContentKey(hub));
+    } else {
+      this.savedHubContents.delete(hubId);
+    }
+
     this.dirtyHubIds.update((dirtyHubIds) => {
       const nextDirtyHubIds = new Set(dirtyHubIds);
 
@@ -321,6 +682,13 @@ export class HubStore {
   }
 }
 
+function getHubContentKey(hub: Hub) {
+  return JSON.stringify({
+    hubName: hub.hubName,
+    layout: { ...hub.layout, layers: hub.layers },
+  });
+}
+
 function isTeamBoundLayer(layer: EditorLayer) {
   return (
     layer.type === LayerType.Kills ||
@@ -328,6 +696,19 @@ function isTeamBoundLayer(layer: EditorLayer) {
     layer.type === LayerType.VoidGrubs ||
     layer.type === LayerType.RiftHerald ||
     layer.type === LayerType.Dragon ||
-    layer.type === LayerType.PlayerScore
+    layer.type === LayerType.TeamGold ||
+    layer.type === LayerType.PlayerScore ||
+    isPlayerBoundLayer(layer) ||
+    layer.type === LayerType.LolPlayerRoster
+  );
+}
+
+function isPlayerBoundLayer(layer: EditorLayer) {
+  return (
+    layer.type === LayerType.PlayerCreepScore ||
+    layer.type === LayerType.PlayerGold ||
+    layer.type === LayerType.PlayerName ||
+    layer.type === LayerType.PlayerLevel ||
+    layer.type === LayerType.ChampionName
   );
 }
