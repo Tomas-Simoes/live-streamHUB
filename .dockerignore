@@ -1,0 +1,9 @@
+**/node_modules
+**/dist
+**/coverage
+**/.angular
+**/.npm
+**/*.log
+.git
+tmp-visual-qa
+tesseract-setup.exe

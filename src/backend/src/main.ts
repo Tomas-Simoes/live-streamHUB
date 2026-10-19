@@ -70,12 +70,18 @@ function isLocalDevOrigin(origin: string) {
 
     return (
       url.protocol === 'http:' &&
-      port === '4200' &&
+      isAngularDevServerPort(port) &&
       isPrivateNetworkHostname(url.hostname)
     );
   } catch {
     return false;
   }
+}
+
+function isAngularDevServerPort(port: string) {
+  const portNumber = Number(port);
+
+  return Number.isInteger(portNumber) && portNumber >= 4200 && portNumber <= 4299;
 }
 
 function isOverwolfOrigin(origin: string) {

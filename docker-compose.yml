@@ -1,0 +1,64 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: live-streamhub-db
+    environment:
+      POSTGRES_USER: livehub_dev
+      POSTGRES_PASSWORD: livehub_dev_password
+      POSTGRES_DB: live_stream_hub
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U livehub_dev -d live_stream_hub"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build:
+      context: .
+      target: backend-dev
+    container_name: live-streamhub-backend
+    environment:
+      NODE_ENV: development
+      PORT: 3000
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_USER: livehub_dev
+      DB_PASSWORD: livehub_dev_password
+      DB_NAME: live_stream_hub
+      DB_SCHEMA: public
+      DATABASE_URL: postgresql://livehub_dev:livehub_dev_password@db:5432/live_stream_hub?schema=public
+      JWT_SECRET: dev-access-token-secret
+      JWT_REFRESH_SECRET: dev-refresh-token-secret
+      CORS_ORIGIN: http://localhost:4200,http://127.0.0.1:4200
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./src/backend:/app/src/backend
+      - backend_node_modules:/app/src/backend/node_modules
+    depends_on:
+      db:
+        condition: service_healthy
+
+  web:
+    build:
+      context: .
+      target: web-dev
+    container_name: live-streamhub-web
+    environment:
+      CHOKIDAR_USEPOLLING: "true"
+    ports:
+      - "4200:4200"
+    volumes:
+      - ./src/web:/app/src/web
+      - web_node_modules:/app/src/web/node_modules
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data:
+  backend_node_modules:
+  web_node_modules:
