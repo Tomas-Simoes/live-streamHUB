@@ -227,13 +227,8 @@ class LeagueProcessor extends GameProcessor {
 
     normalizePlayer(player, index) {
         const team = this.getTeamSide(player, index);
-        const items = Array.isArray(player.items)
-            ? player.items
-                .filter(isPresent)
-                .map((item) => item.displayName || item.rawDisplayName || item.itemID || item.rawName)
-                .filter(isPresent)
-                .map(String)
-            : [];
+        const itemSlots = this.normalizeItems(player.items);
+        const trinket = itemSlots.find((item) => isTrinketItem(item.id)) || null;
         const aliases = [
             player.summonerName,
             player.riotId,
@@ -253,14 +248,42 @@ class LeagueProcessor extends GameProcessor {
             role: this.getExplicitPlayerRole(player),
             aliases: Array.from(new Set(aliases)),
             championName: player.championName || player.rawChampionName || "-",
+            championId: this.getChampionId(player.championName || player.rawChampionName),
             characterName: player.championName || player.rawChampionName || "-",
+            level: this.getScore(player, "level", this.getScore(player, "champLevel", 1)),
             kills: this.getScore(player, "kills", 0),
             deaths: this.getScore(player, "deaths", 0),
             assists: this.getScore(player, "assists", 0),
             gold: this.getScore(player, "gold", 0),
             minions: this.getScore(player, "creepScore", this.getScore(player, "minions", 0)),
-            items
+            items: itemSlots.map((item) => item.name),
+            itemIds: itemSlots.map((item) => item.id).filter(isPresent),
+            itemSlots,
+            trinket
         };
+    }
+
+    normalizeItems(value) {
+        if (!Array.isArray(value)) {
+            return [];
+        }
+
+        return value
+            .filter(isPresent)
+            .map((item) => ({
+                id: Number(item.itemID || item.itemId || item.id) || null,
+                name: String(item.displayName || item.rawDisplayName || item.rawName || item.itemID || item.id || "Item")
+            }))
+            .slice(0, 7);
+    }
+
+    getChampionId(value) {
+        const compact = String(value || "")
+            .replace(/^game_character_displayname_/i, "")
+            .replace(/[^a-z0-9]/gi, "");
+        const normalized = compact.toLowerCase();
+
+        return CHAMPION_ID_ALIASES[normalized] || compact;
     }
 
     getExplicitPlayerRole(player) {
@@ -331,6 +354,22 @@ class LeagueProcessor extends GameProcessor {
 }
 
 const PLAYER_ROLE_ORDER = ["top", "jungle", "mid", "adc", "support"];
+const CHAMPION_ID_ALIASES = {
+    kaisa: "Kaisa",
+    ksante: "KSante",
+    leesin: "LeeSin",
+    masteryi: "MasterYi",
+    missfortune: "MissFortune",
+    monkeyking: "MonkeyKing",
+    twistedfate: "TwistedFate",
+    xinzhao: "XinZhao"
+};
+
+function isTrinketItem(itemId) {
+    const id = Number(itemId) || 0;
+
+    return id >= 3330 && id <= 3370;
+}
 
 function createEmptyObjectiveCounts() {
     return {

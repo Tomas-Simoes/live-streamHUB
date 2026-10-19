@@ -10,7 +10,18 @@ const LEAGUE_RENDER_TYPES = Object.freeze({
     voidGrubs: "VoidGrubs",
     riftHerald: "RiftHerald",
     dragon: "Dragon",
+    teamGold: "TeamGold",
+    goldDiff: "GoldDiff",
     playerScore: "PlayerScore",
+    playerCreepScore: "PlayerCreepScore",
+    playerGold: "PlayerGold",
+    playerItems: "PlayerItems",
+    playerName: "PlayerName",
+    playerLevel: "PlayerLevel",
+    championName: "ChampionName",
+    championPortrait: "ChampionPortrait",
+    lolScorebug: "LolScorebug",
+    lolPlayerRoster: "LolPlayerRoster",
     time: "Time"
 });
 
@@ -20,7 +31,16 @@ const TEAM_SCOPED_RENDER_TYPES = new Set([
     LEAGUE_RENDER_TYPES.voidGrubs,
     LEAGUE_RENDER_TYPES.riftHerald,
     LEAGUE_RENDER_TYPES.dragon,
-    LEAGUE_RENDER_TYPES.playerScore
+    LEAGUE_RENDER_TYPES.teamGold,
+    LEAGUE_RENDER_TYPES.playerScore,
+    LEAGUE_RENDER_TYPES.playerCreepScore,
+    LEAGUE_RENDER_TYPES.playerGold,
+    LEAGUE_RENDER_TYPES.playerItems,
+    LEAGUE_RENDER_TYPES.playerName,
+    LEAGUE_RENDER_TYPES.playerLevel,
+    LEAGUE_RENDER_TYPES.championName,
+    LEAGUE_RENDER_TYPES.championPortrait,
+    LEAGUE_RENDER_TYPES.lolPlayerRoster
 ]);
 
 const PLAYER_ROLE_ORDER = ["top", "jungle", "mid", "adc", "support"];
@@ -549,6 +569,7 @@ function createLiveHubOverlayHtml(options) {
       place-items: center;
       overflow: hidden;
       box-sizing: border-box;
+      container-type: inline-size;
     }
 
     .text-content,
@@ -567,6 +588,283 @@ function createLiveHubOverlayHtml(options) {
       font-family: Arial, sans-serif;
       font-size: 48px;
       font-weight: 400;
+    }
+
+    .scorebug,
+    .player-roster,
+    .items-layer,
+    .champion-portrait {
+      width: 100%;
+      height: 100%;
+      min-width: 0;
+      min-height: 0;
+      overflow: hidden;
+      box-sizing: border-box;
+      color: inherit;
+      font-family: Arial, sans-serif;
+    }
+
+    .scorebug {
+      display: grid;
+      grid-template:
+        "blue center red" minmax(0, 1fr)
+        "blue-objectives center red-objectives" 26% / minmax(0, 1fr) minmax(24%, 0.42fr) minmax(0, 1fr);
+      background: linear-gradient(90deg, var(--blue-accent, #34d5e6), rgb(18 19 42 / 94%) 34%, rgb(18 19 42 / 96%) 66%, var(--red-accent, #ef7d24));
+      text-transform: uppercase;
+    }
+
+    .scorebug-team,
+    .scorebug-center,
+    .objective-row {
+      display: flex;
+      align-items: center;
+      min-width: 0;
+    }
+
+    .scorebug-team {
+      gap: 4.8%;
+      padding: 0 4.8%;
+    }
+
+    .scorebug-team-blue {
+      grid-area: blue;
+      justify-content: flex-start;
+    }
+
+    .scorebug-team-red {
+      grid-area: red;
+      justify-content: flex-end;
+    }
+
+    .scorebug-center {
+      position: relative;
+      grid-area: center;
+      justify-content: center;
+      gap: 26px;
+      background: rgb(8 9 24 / 82%);
+      box-shadow: 0 0 0 1px rgb(255 255 255 / 10%) inset;
+    }
+
+    .team-code,
+    .team-kills {
+      font-weight: 950;
+      line-height: 1;
+      white-space: nowrap;
+    }
+
+    .team-logo {
+      display: grid;
+      flex: 0 0 auto;
+      width: 46px;
+      height: 46px;
+      place-items: center;
+      border: 1px solid rgb(255 255 255 / 32%);
+      background: rgb(255 255 255 / 14%);
+      font-size: 17px;
+      font-weight: 950;
+    }
+
+    .team-lockup {
+      display: grid;
+      min-width: 0;
+      gap: 2px;
+    }
+
+    .scorebug-team-red .team-lockup {
+      text-align: right;
+    }
+
+    .team-seed {
+      font-size: 10px;
+      font-weight: 850;
+      opacity: .78;
+      white-space: nowrap;
+    }
+
+    .team-objective {
+      font-size: 13px;
+      font-weight: 950;
+      white-space: nowrap;
+    }
+
+    .team-code {
+      overflow: hidden;
+      font-size: 34px;
+      text-overflow: ellipsis;
+    }
+
+    .team-gold {
+      font-size: 16px;
+      font-weight: 850;
+      opacity: 0.92;
+      white-space: nowrap;
+    }
+
+    .team-kills {
+      min-width: 42px;
+      font-size: 36px;
+      text-align: center;
+    }
+
+    .score-divider {
+      width: 58px;
+      height: 2px;
+      background: rgb(255 255 255 / 34%);
+    }
+
+    .game-clock {
+      position: absolute;
+      bottom: 22%;
+      left: 50%;
+      padding: 2px 8px;
+      background: rgb(0 0 0 / 52%);
+      color: #fff;
+      font-size: 13px;
+      font-weight: 850;
+      transform: translateX(-50%);
+    }
+
+    .objective-row {
+      gap: 18px;
+      padding: 0 28px;
+      background: rgb(4 5 12 / 78%);
+      font-size: 12px;
+      font-weight: 850;
+      opacity: 0.88;
+    }
+
+    .objective-row-blue {
+      grid-area: blue-objectives;
+      justify-content: flex-start;
+    }
+
+    .objective-row-red {
+      grid-area: red-objectives;
+      justify-content: flex-end;
+    }
+
+    .player-roster {
+      display: grid;
+      grid-template-rows: repeat(5, minmax(0, 1fr));
+      gap: 5px;
+      padding: 4px;
+      background: rgb(8 10 16 / 68%);
+    }
+
+    .roster-row {
+      display: grid;
+      align-items: center;
+      grid-template-columns: 42px 28px minmax(0, 1.3fr) 68px 42px 54px minmax(0, 1.8fr);
+      gap: 6px;
+      min-width: 0;
+      overflow: hidden;
+      padding: 3px 7px;
+      background: linear-gradient(90deg, rgb(255 255 255 / 10%), rgb(255 255 255 / 3%));
+    }
+
+    .player-roster-right .roster-row {
+      direction: ltr;
+    }
+
+    .player-roster-right .roster-name,
+    .player-roster-right .roster-kda,
+    .player-roster-right .roster-stat,
+    .player-roster-right .roster-items {
+      direction: ltr;
+    }
+
+    .roster-portrait,
+    .roster-level,
+    .item-slot,
+    .portrait-level {
+      display: grid;
+      place-items: center;
+    }
+
+    .roster-portrait {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: rgb(255 255 255 / 10%);
+    }
+
+    .roster-portrait img,
+    .champion-portrait img,
+    .item-slot img {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .roster-portrait img {
+      object-fit: contain;
+    }
+
+    .roster-name {
+      overflow: hidden;
+      font-size: 16px;
+      font-weight: 880;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .roster-level,
+    .roster-stat,
+    .roster-kda {
+      font-size: 13px;
+      font-weight: 850;
+      white-space: nowrap;
+    }
+
+    .roster-items,
+    .items-layer {
+      display: grid;
+      min-width: 0;
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      gap: 3px;
+    }
+
+    .items-layer {
+      grid-template-columns: repeat(6, minmax(0, 1fr)) minmax(0, 1fr);
+      align-items: center;
+    }
+
+    .item-slot {
+      aspect-ratio: 1;
+      min-width: 0;
+      overflow: hidden;
+      border: 1px solid rgb(255 255 255 / 18%);
+      background: rgb(0 0 0 / 34%);
+    }
+
+    .trinket-slot {
+      border-color: rgb(113 209 255 / 58%);
+    }
+
+    .champion-portrait {
+      position: relative;
+      background: rgb(7 8 14 / 88%);
+    }
+
+    .champion-portrait-circle {
+      border-radius: 999px;
+    }
+
+    .champion-portrait-banner img {
+      object-position: center 18%;
+    }
+
+    .portrait-level {
+      position: absolute;
+      right: 0;
+      bottom: 0;
+      min-width: 28%;
+      height: 28%;
+      background: rgb(0 0 0 / 78%);
+      color: #fff;
+      font-size: 20px;
+      font-weight: 950;
     }
 
     .media {
@@ -606,13 +904,21 @@ function createLiveHubOverlayHtml(options) {
         }
 
         stage.textContent = "";
-        (config.layers || []).forEach(function (layer, index) {
-          stage.appendChild(createLayerElement(layer, index));
+        installCustomStyle();
+        var layers = config.layers || [];
+        layers.forEach(function (layer, index) {
+          stage.appendChild(createLayerElement(layer, index, layers.length));
         });
         updateDynamicLayers();
       }
 
-      function createLayerElement(layer, index) {
+      function installCustomStyle() {
+        var style = document.createElement("style");
+        style.textContent = createScopedLayerCss(config.layers || []);
+        stage.appendChild(style);
+      }
+
+      function createLayerElement(layer, index, layerCount) {
         var element = document.createElement("div");
         var width = positiveNumber(layer.width, 1);
         var height = positiveNumber(layer.height, 1);
@@ -624,10 +930,15 @@ function createLiveHubOverlayHtml(options) {
         element.style.top = px(numberOr(position.y, 0) - height / 2);
         element.style.width = px(width);
         element.style.height = px(height);
-        element.style.zIndex = String(index + 1);
+        element.style.zIndex = String(layerCount - index);
+        applyLayerStyle(element, layer.style);
 
         if (layer.type === "Text") {
           element.appendChild(createTextLayer(layer));
+          return element;
+        }
+
+        if (layer.type === "Shape") {
           return element;
         }
 
@@ -641,7 +952,7 @@ function createLiveHubOverlayHtml(options) {
           return element;
         }
 
-        element.appendChild(createStatLayer(layer));
+        element.appendChild(createDynamicLayer(layer));
         return element;
       }
 
@@ -652,7 +963,11 @@ function createLiveHubOverlayHtml(options) {
         span.style.color = layer.color || "#ffffff";
         span.style.fontFamily = layer.fontFamily || "Arial";
         span.style.fontSize = px(positiveNumber(layer.fontSize, 32));
-        span.style.fontWeight = layer.bold ? "700" : "400";
+        span.style.fontWeight = String(layer.fontWeight || (layer.bold ? "700" : "400"));
+        span.style.letterSpacing = px(numberOr(layer.letterSpacing, 0));
+        span.style.textAlign = layer.textAlign || "center";
+        span.style.lineHeight = String(numberOr(layer.lineHeight, 1.15));
+        span.style.textTransform = layer.uppercase ? "uppercase" : "none";
         return span;
       }
 
@@ -666,6 +981,8 @@ function createLiveHubOverlayHtml(options) {
         image.src = layer.src;
         image.alt = layer.alt || layer.name || "";
         image.style.opacity = String(clamp(numberOr(layer.opacity, 100) / 100, 0, 1));
+        image.style.objectFit = layer.fit || "cover";
+        image.style.objectPosition = layer.objectPosition || "center";
         return image;
       }
 
@@ -681,18 +998,18 @@ function createLiveHubOverlayHtml(options) {
         video.muted = layer.muted !== false;
         video.loop = true;
         video.playsInline = true;
+        video.style.objectFit = layer.fit || "cover";
+        video.style.objectPosition = layer.objectPosition || "center";
         return video;
       }
 
-      function createStatLayer(layer) {
-        var span = document.createElement("span");
-        span.className = "stat-content";
-        span.dataset.livehubDynamic = "true";
-        span.dataset.layerType = layer.type || "";
-        span.dataset.team = normalizeTeam(layer.team);
-        span.dataset.role = normalizeRole(layer.role);
-        span.textContent = getDynamicText(layer);
-        return span;
+      function createDynamicLayer(layer) {
+        var element = document.createElement("div");
+        element.className = getDynamicLayerClassName(layer);
+        element.dataset.livehubDynamic = "true";
+        element.dataset.layerId = layer.id || "";
+        renderDynamicLayer(element, layer);
+        return element;
       }
 
       function createPlaceholder(text) {
@@ -705,13 +1022,307 @@ function createLiveHubOverlayHtml(options) {
       function updateDynamicLayers() {
         var elements = document.querySelectorAll("[data-livehub-dynamic='true']");
         elements.forEach(function (element) {
-          element.textContent = getDynamicText({
-            type: element.dataset.layerType,
-            team: element.dataset.team,
-            role: element.dataset.role,
-            name: element.textContent
-          });
+          var layer = getLayerConfig(element.dataset.layerId);
+          if (layer) {
+            renderDynamicLayer(element, layer);
+          }
         });
+      }
+
+      function renderDynamicLayer(element, layer) {
+        element.textContent = "";
+
+        if (layer.type === "LolScorebug") {
+          element.appendChild(createScorebug(layer));
+          return;
+        }
+
+        if (layer.type === "LolPlayerRoster") {
+          element.appendChild(createPlayerRoster(layer));
+          return;
+        }
+
+        if (layer.type === "PlayerItems") {
+          element.appendChild(createItemsLayer(layer));
+          return;
+        }
+
+        if (layer.type === "ChampionPortrait") {
+          element.appendChild(createChampionPortrait(layer));
+          return;
+        }
+
+        element.textContent = getDynamicText(layer);
+      }
+
+      function createScorebug(layer) {
+        var scorebug = document.createElement("div");
+        scorebug.className = "scorebug";
+        scorebug.style.setProperty("--blue-accent", layer.blueAccent || "#34d5e6");
+        scorebug.style.setProperty("--red-accent", layer.redAccent || "#ef7d24");
+        scorebug.appendChild(createScorebugTeam("blue", layer));
+        scorebug.appendChild(createScorebugCenter(layer));
+        scorebug.appendChild(createScorebugTeam("red", layer));
+
+        if (layer.showObjectives !== false) {
+          scorebug.appendChild(createObjectiveRow("blue", layer));
+          scorebug.appendChild(createObjectiveRow("red", layer));
+        }
+
+        return scorebug;
+      }
+
+      function createScorebugTeam(team, layer) {
+        var element = document.createElement("div");
+        var logo = document.createElement("span");
+        var lockup = document.createElement("span");
+        var code = document.createElement("span");
+        var seed = document.createElement("span");
+        var gold = document.createElement("span");
+        var tower = document.createElement("span");
+        var teamStats = layer.teamStats && layer.teamStats[team] || {};
+
+        element.className = "scorebug-team scorebug-team-" + team;
+        logo.className = "team-logo";
+        logo.textContent = String(team === "red" ? layer.redTeamCode : layer.blueTeamCode).slice(0, 2);
+        lockup.className = "team-lockup";
+        code.className = "team-code";
+        code.textContent = team === "red"
+          ? valueOr(layer.redTeamCode, "RED")
+          : valueOr(layer.blueTeamCode, "BLUE");
+        seed.className = "team-seed";
+        seed.textContent = valueOr(teamStats.seed, team === "red" ? "Seed #6" : "Seed #1");
+        lockup.appendChild(code);
+        lockup.appendChild(seed);
+        gold.className = "team-gold";
+        gold.textContent = teamStats.gold !== undefined
+          ? (Number(teamStats.gold) / 1000).toFixed(1) + "K"
+          : valueOr(currentValues.teamGold && currentValues.teamGold[team], "0.0K");
+        tower.className = "team-objective";
+        tower.textContent = "T" + valueOr(teamStats.towers, valueOr(currentValues.towers && currentValues.towers[team], "0"));
+
+        if (team === "red") {
+          if (layer.showObjectives !== false) element.appendChild(tower);
+          if (layer.showGold !== false) element.appendChild(gold);
+          element.appendChild(lockup);
+          element.appendChild(logo);
+        }
+        else {
+          element.appendChild(logo);
+          element.appendChild(lockup);
+          if (layer.showGold !== false) element.appendChild(gold);
+          if (layer.showObjectives !== false) element.appendChild(tower);
+        }
+        return element;
+      }
+
+      function createScorebugCenter(layer) {
+        var element = document.createElement("div");
+        var blueKills = document.createElement("span");
+        var divider = document.createElement("span");
+        var redKills = document.createElement("span");
+
+        element.className = "scorebug-center";
+        blueKills.className = "team-kills";
+        blueKills.textContent = valueOr(layer.teamStats && layer.teamStats.blue && layer.teamStats.blue.kills, valueOr(currentValues.kills && currentValues.kills.blue, "0"));
+        divider.className = "score-divider";
+        redKills.className = "team-kills";
+        redKills.textContent = valueOr(layer.teamStats && layer.teamStats.red && layer.teamStats.red.kills, valueOr(currentValues.kills && currentValues.kills.red, "0"));
+        element.appendChild(blueKills);
+        element.appendChild(divider);
+        element.appendChild(redKills);
+
+        if (layer.showGameTime !== false) {
+          var clock = document.createElement("span");
+          clock.className = "game-clock";
+          clock.textContent = valueOr(layer.gameTime, valueOr(currentValues.time, "00:00"));
+          element.appendChild(clock);
+        }
+
+        return element;
+      }
+
+      function createObjectiveRow(team, layer) {
+        var element = document.createElement("div");
+        var stats = layer.teamStats && layer.teamStats[team] || {};
+        var values = team === "red"
+          ? [
+            "VG" + valueOr(stats.voidGrubs, valueOr(currentValues.voidGrubs && currentValues.voidGrubs[team], "0")),
+            "DR " + valueOr(stats.dragons, valueOr(currentValues.dragon && currentValues.dragon[team], "0")),
+            "H " + valueOr(stats.riftHerald, valueOr(currentValues.riftHerald && currentValues.riftHerald[team], "0"))
+          ]
+          : [
+            "DR " + valueOr(stats.dragons, valueOr(currentValues.dragon && currentValues.dragon[team], "0")),
+            "VG" + valueOr(stats.voidGrubs, valueOr(currentValues.voidGrubs && currentValues.voidGrubs[team], "0")),
+            "H " + valueOr(stats.riftHerald, valueOr(currentValues.riftHerald && currentValues.riftHerald[team], "0"))
+          ];
+
+        element.className = "objective-row objective-row-" + team;
+        values.forEach(function (value) {
+          var span = document.createElement("span");
+          span.textContent = value;
+          element.appendChild(span);
+        });
+
+        return element;
+      }
+
+      function createPlayerRoster(layer) {
+        var roster = document.createElement("div");
+        var team = normalizeTeam(layer.team);
+        var roles = ["top", "jungle", "mid", "adc", "support"];
+
+        roster.className = "player-roster" + (layer.orientation === "right" ? " player-roster-right" : "");
+        roles.forEach(function (role) {
+          var override = layer.playerOverrides && layer.playerOverrides[role] || {};
+          if (override.visible === false) return;
+          roster.appendChild(createRosterRow(applyRosterOverride(getPlayerValue(team, role), override), layer));
+        });
+
+        return roster;
+      }
+
+      function createRosterRow(player, layer) {
+        var row = document.createElement("div");
+        row.className = "roster-row";
+
+        if (layer.orientation === "right") {
+          appendRosterKda(row, player, layer);
+          appendRosterCs(row, player, layer);
+          appendRosterGold(row, player, layer);
+          appendRosterName(row, player);
+          appendRosterLevel(row, player, layer);
+          appendRosterChampion(row, player, layer);
+          appendRosterItems(row, player, layer);
+        }
+        else {
+          appendRosterItems(row, player, layer);
+          appendRosterChampion(row, player, layer);
+          appendRosterLevel(row, player, layer);
+          appendRosterName(row, player);
+          appendRosterCs(row, player, layer);
+          appendRosterGold(row, player, layer);
+          appendRosterKda(row, player, layer);
+        }
+
+        return row;
+      }
+
+      function appendRosterChampion(row, player, layer) {
+        if (layer.showChampion !== false) {
+          row.appendChild(createChampionImageBox(player, "roster-portrait"));
+        }
+      }
+
+      function appendRosterLevel(row, player, layer) {
+        if (layer.showLevel !== false) {
+          row.appendChild(createTextBox("roster-level", player.level));
+        }
+      }
+
+      function appendRosterName(row, player) {
+        row.appendChild(createTextBox("roster-name", player.name));
+      }
+
+      function appendRosterKda(row, player, layer) {
+        if (layer.showKda !== false) {
+          row.appendChild(createTextBox("roster-kda", player.score));
+        }
+      }
+
+      function appendRosterCs(row, player, layer) {
+        if (layer.showCs !== false) {
+          row.appendChild(createTextBox("roster-stat", player.creepScore));
+        }
+      }
+
+      function appendRosterGold(row, player, layer) {
+        if (layer.showGold === true) {
+          row.appendChild(createTextBox("roster-stat", player.gold));
+        }
+      }
+
+      function appendRosterItems(row, player, layer) {
+        if (layer.showItems !== false) {
+          var items = createItemSlots(player.items || [], false);
+          items.className = "roster-items";
+          row.appendChild(items);
+        }
+      }
+
+      function applyRosterOverride(player, override) {
+        var score = String(player.score || "0/0/0").split("/");
+        return Object.assign({}, player, override, {
+          score: [
+            valueOr(override.kills, score[0] || "0"),
+            valueOr(override.deaths, score[1] || "0"),
+            valueOr(override.assists, score[2] || "0")
+          ].join("/"),
+          items: override.items
+            ? override.items.map(function (id) { return id ? { id: id, name: "Item " + id } : null; })
+            : player.items
+        });
+      }
+
+      function createItemsLayer(layer) {
+        var player = getPlayerValue(normalizeTeam(layer.team), normalizeRole(layer.role));
+        return createItemSlots(player.items || [], layer.showTrinket !== false ? player.trinket : false);
+      }
+
+      function createItemSlots(items, trinket) {
+        var element = document.createElement("div");
+        element.className = "items-layer";
+        items.slice(0, 6).forEach(function (item) {
+          element.appendChild(createItemSlot(item, false));
+        });
+        while (element.children.length < 6) {
+          element.appendChild(createItemSlot(null, false));
+        }
+        if (trinket !== false) {
+          element.appendChild(createItemSlot(trinket, true));
+        }
+        return element;
+      }
+
+      function createItemSlot(item, isTrinket) {
+        var slot = document.createElement("span");
+        slot.className = "item-slot" + (isTrinket ? " trinket-slot" : "");
+        if (item && item.id) {
+          var image = document.createElement("img");
+          image.src = getItemImageUrl(item.id);
+          image.alt = item.name || "Item";
+          slot.appendChild(image);
+        }
+        return slot;
+      }
+
+      function createChampionPortrait(layer) {
+        var player = getPlayerValue(normalizeTeam(layer.team), normalizeRole(layer.role));
+        var element = createChampionImageBox(player, "champion-portrait champion-portrait-" + (layer.shape || "square"));
+        if (layer.showLevel !== false) {
+          var level = document.createElement("span");
+          level.className = "portrait-level";
+          level.textContent = valueOr(player.level, "1");
+          element.appendChild(level);
+        }
+        return element;
+      }
+
+      function createChampionImageBox(player, className) {
+        var box = document.createElement("span");
+        var image = document.createElement("img");
+        box.className = className;
+        image.src = player.championImageUrl || getChampionImageUrl(player.championId || player.championName);
+        image.alt = player.championName || "Champion";
+        box.appendChild(image);
+        return box;
+      }
+
+      function createTextBox(className, text) {
+        var element = document.createElement("span");
+        element.className = className;
+        element.textContent = valueOr(text, "");
+        return element;
       }
 
       function getDynamicText(layer) {
@@ -724,6 +1335,34 @@ function createLiveHubOverlayHtml(options) {
 
         if (layer.type === "PlayerScore") {
           return valueOr(currentValues.playerScores && currentValues.playerScores[team] && currentValues.playerScores[team][role], "0/0/0");
+        }
+
+        if (layer.type === "PlayerCreepScore") {
+          return valueOr(getPlayerValue(team, role).creepScore, "0");
+        }
+
+        if (layer.type === "PlayerGold") {
+          return valueOr(getPlayerValue(team, role).gold, "0.0K");
+        }
+
+        if (layer.type === "PlayerName") {
+          return valueOr(getPlayerValue(team, role).name, "");
+        }
+
+        if (layer.type === "PlayerLevel") {
+          return valueOr(getPlayerValue(team, role).level, "1");
+        }
+
+        if (layer.type === "ChampionName") {
+          return valueOr(getPlayerValue(team, role).championName, "");
+        }
+
+        if (layer.type === "TeamGold") {
+          return valueOr(currentValues.teamGold && currentValues.teamGold[team], "0.0K");
+        }
+
+        if (layer.type === "GoldDiff") {
+          return valueOr(currentValues.goldDiff, "0.0K");
         }
 
         if (layer.type === "Kills") {
@@ -792,6 +1431,144 @@ function createLiveHubOverlayHtml(options) {
         return null;
       }
 
+      function getLayerConfig(layerId) {
+        return (config.layers || []).find(function (layer) {
+          return String(layer.id || "") === String(layerId || "");
+        }) || null;
+      }
+
+      function getDynamicLayerClassName(layer) {
+        if (layer.type === "LolScorebug") {
+          return "scorebug-shell";
+        }
+        if (layer.type === "LolPlayerRoster") {
+          return "player-roster-shell";
+        }
+        if (layer.type === "PlayerItems") {
+          return "items-shell";
+        }
+        if (layer.type === "ChampionPortrait") {
+          return "champion-portrait-shell";
+        }
+        return "stat-content";
+      }
+
+      function getPlayerValue(team, role) {
+        var players = currentValues.players || {};
+        var teamPlayers = players[normalizeTeam(team)] || {};
+        return teamPlayers[normalizeRole(role)] || createEmptyPlayerValue();
+      }
+
+      function createEmptyPlayerValue() {
+        return {
+          name: "",
+          championName: "",
+          championId: "",
+          level: "1",
+          score: "0/0/0",
+          creepScore: "0",
+          gold: "0.0K",
+          items: [],
+          trinket: null
+        };
+      }
+
+      function getChampionImageUrl(value) {
+        var championId = normalizeChampionId(value);
+        return "https://ddragon.leagueoflegends.com/cdn/14.24.1/img/champion/" + encodeURIComponent(championId || "Aatrox") + ".png";
+      }
+
+      function getItemImageUrl(itemId) {
+        return "https://ddragon.leagueoflegends.com/cdn/14.24.1/img/item/" + encodeURIComponent(String(itemId)) + ".png";
+      }
+
+      function normalizeChampionId(value) {
+        var compact = String(value || "").replace(/^game_character_displayname_/i, "").replace(/[^a-z0-9]/gi, "");
+        var aliases = {
+          kaisa: "Kaisa",
+          ksante: "KSante",
+          leesin: "LeeSin",
+          masteryi: "MasterYi",
+          missfortune: "MissFortune",
+          monkeyking: "MonkeyKing",
+          twistedfate: "TwistedFate",
+          xinzhao: "XinZhao"
+        };
+        return aliases[compact.toLowerCase()] || compact;
+      }
+
+      function applyLayerStyle(element, style) {
+        if (!style) {
+          return;
+        }
+        if (style.backgroundColor) {
+          element.style.background = style.backgroundColor;
+        }
+        if (style.color) {
+          element.style.color = style.color;
+        }
+        if (style.opacity !== undefined) {
+          element.style.opacity = String(clamp(numberOr(style.opacity, 100) / 100, 0, 1));
+        }
+        if (style.borderColor) {
+          element.style.borderColor = style.borderColor;
+        }
+        if (numberOr(style.borderWidth, 0) > 0) {
+          element.style.borderStyle = "solid";
+          element.style.borderWidth = px(numberOr(style.borderWidth, 0));
+        }
+        if (style.borderRadius !== undefined) {
+          element.style.borderRadius = px(numberOr(style.borderRadius, 0));
+        }
+        if (style.padding !== undefined) {
+          element.style.padding = px(numberOr(style.padding, 0));
+        }
+        if (style.boxShadow) {
+          element.style.boxShadow = style.boxShadow;
+        }
+        if (style.textShadow) {
+          element.style.textShadow = style.textShadow;
+        }
+      }
+
+      function createScopedLayerCss(layers) {
+        return layers.map(function (layer) {
+          return createLayerCss(layer.id, layer.style && layer.style.customCss);
+        }).filter(Boolean).join("\\n");
+      }
+
+      function createLayerCss(layerId, customCss) {
+        var css = String(customCss || "").replace(/<\\/?style[^>]*>/gi, "").trim();
+        var attribute = "[data-layer-id=\\"" + cssEscape(layerId) + "\\"]";
+        var scope = attribute + attribute;
+
+        if (!css) {
+          return "";
+        }
+
+        if (css.indexOf("{") === -1) {
+          return scope + " { " + css + " }";
+        }
+
+        return css.replace(/([^{}]+)\\{/g, function (match, selectorText) {
+          var selectors = selectorText.split(",").map(function (selector) {
+            selector = selector.trim();
+            if (!selector || selector.charAt(0) === "@") {
+              return "";
+            }
+            return selector.indexOf("&") >= 0
+              ? selector.replace(/&/g, scope)
+              : scope + " " + selector;
+          }).filter(Boolean);
+
+          return selectors.length ? selectors.join(", ") + " {" : match;
+        });
+      }
+
+      function cssEscape(value) {
+        return String(value || "").replace(/\\/g, "\\\\").replace(/"/g, "\\\"");
+      }
+
       function normalizeClassName(value) {
         return String(value || "unknown").replace(/[^a-z0-9]+/gi, "-").toLowerCase();
       }
@@ -857,7 +1634,8 @@ function createOverlayLayer(layer, backendUrl) {
             y: Number(layer.position && layer.position.y) || 0
         },
         width: Math.max(1, Number(layer.width) || 1),
-        height: Math.max(1, Number(layer.height) || 1)
+        height: Math.max(1, Number(layer.height) || 1),
+        style: sanitizeLayerStyle(layer.style)
     };
 
     if (overlayLayer.type === "Text") {
@@ -867,7 +1645,12 @@ function createOverlayLayer(layer, backendUrl) {
             fontSize: Math.max(1, Number(layer.fontSize) || 32),
             fontFamily: String(layer.fontFamily || "Arial"),
             bold: Boolean(layer.bold),
-            color: String(layer.color || "#ffffff")
+            color: String(layer.color || "#ffffff"),
+            fontWeight: Math.max(1, Number(layer.fontWeight) || (layer.bold ? 700 : 400)),
+            letterSpacing: Number(layer.letterSpacing) || 0,
+            textAlign: String(layer.textAlign || "center"),
+            lineHeight: Number(layer.lineHeight) || 1.15,
+            uppercase: Boolean(layer.uppercase)
         };
     }
 
@@ -876,7 +1659,9 @@ function createOverlayLayer(layer, backendUrl) {
             ...overlayLayer,
             src: resolveMediaUrl(layer.src || layer.localFilePath, backendUrl),
             alt: String(layer.alt || layer.name || ""),
-            opacity: Number.isFinite(Number(layer.opacity)) ? Number(layer.opacity) : 100
+            opacity: Number.isFinite(Number(layer.opacity)) ? Number(layer.opacity) : 100,
+            fit: String(layer.fit || "cover"),
+            objectPosition: String(layer.objectPosition || "center")
         };
     }
 
@@ -885,15 +1670,64 @@ function createOverlayLayer(layer, backendUrl) {
             ...overlayLayer,
             src: resolveMediaUrl(layer.src || layer.localFilePath, backendUrl),
             autoplay: layer.autoplay !== false,
-            muted: layer.muted !== false
+            muted: layer.muted !== false,
+            fit: String(layer.fit || "cover"),
+            objectPosition: String(layer.objectPosition || "center")
         };
     }
 
     return {
         ...overlayLayer,
         team: getStatLayerTeam(layer),
-        role: getPlayerScoreRole(layer)
+        role: getPlayerScoreRole(layer),
+        showTrinket: layer.showTrinket !== false,
+        shape: String(layer.shape || "square"),
+        showLevel: layer.showLevel !== false,
+        blueTeamCode: String(layer.blueTeamCode || "BLUE"),
+        redTeamCode: String(layer.redTeamCode || "RED"),
+        blueAccent: String(layer.blueAccent || "#34d5e6"),
+        redAccent: String(layer.redAccent || "#ef7d24"),
+        showGold: layer.showGold !== false,
+        showObjectives: layer.showObjectives !== false,
+        showGameTime: layer.showGameTime !== false,
+        gameTime: String(layer.gameTime || ""),
+        teamStats: layer.teamStats && typeof layer.teamStats === "object" ? layer.teamStats : null,
+        orientation: String(layer.orientation || "left"),
+        showChampion: layer.showChampion !== false,
+        showKda: layer.showKda !== false,
+        showCs: layer.showCs !== false,
+        showItems: layer.showItems !== false,
+        playerOverrides: layer.playerOverrides && typeof layer.playerOverrides === "object" ? layer.playerOverrides : null
     };
+}
+
+function sanitizeLayerStyle(style) {
+    if (!style || typeof style !== "object") {
+        return null;
+    }
+
+    return {
+        backgroundColor: stringOrEmpty(style.backgroundColor),
+        color: stringOrEmpty(style.color),
+        opacity: numberOrNull(style.opacity),
+        borderColor: stringOrEmpty(style.borderColor),
+        borderWidth: numberOrNull(style.borderWidth),
+        borderRadius: numberOrNull(style.borderRadius),
+        padding: numberOrNull(style.padding),
+        boxShadow: stringOrEmpty(style.boxShadow),
+        textShadow: stringOrEmpty(style.textShadow),
+        customCss: stringOrEmpty(style.customCss)
+    };
+}
+
+function stringOrEmpty(value) {
+    return value === undefined || value === null ? "" : String(value);
+}
+
+function numberOrNull(value) {
+    const number = Number(value);
+
+    return Number.isFinite(number) ? number : null;
 }
 
 function resolveMediaUrl(value, backendUrl) {
@@ -901,6 +1735,10 @@ function resolveMediaUrl(value, backendUrl) {
 
     if (!source) {
         return "";
+    }
+
+    if (source === "/lol-assets/map11.png") {
+        return "https://ddragon.leagueoflegends.com/cdn/14.24.1/img/map/map11.png";
     }
 
     if (/^(https?:|data:|blob:|file:)/i.test(source)) {
@@ -982,6 +1820,12 @@ function normalizeStatLayerType(type) {
     if (compactType === "dragon" || compactType === "dragons") {
         return LEAGUE_RENDER_TYPES.dragon;
     }
+    if (compactType === "teamgold" || compactType === "gold") {
+        return LEAGUE_RENDER_TYPES.teamGold;
+    }
+    if (compactType === "golddiff" || compactType === "golddifference") {
+        return LEAGUE_RENDER_TYPES.goldDiff;
+    }
     if (
         compactType === "playerscore" ||
         compactType === "playerscores" ||
@@ -989,6 +1833,33 @@ function normalizeStatLayerType(type) {
         compactType === "kda"
     ) {
         return LEAGUE_RENDER_TYPES.playerScore;
+    }
+    if (compactType === "playercreepscore" || compactType === "playercs" || compactType === "cs") {
+        return LEAGUE_RENDER_TYPES.playerCreepScore;
+    }
+    if (compactType === "playergold") {
+        return LEAGUE_RENDER_TYPES.playerGold;
+    }
+    if (compactType === "playeritems" || compactType === "items") {
+        return LEAGUE_RENDER_TYPES.playerItems;
+    }
+    if (compactType === "playername") {
+        return LEAGUE_RENDER_TYPES.playerName;
+    }
+    if (compactType === "playerlevel" || compactType === "level") {
+        return LEAGUE_RENDER_TYPES.playerLevel;
+    }
+    if (compactType === "championname") {
+        return LEAGUE_RENDER_TYPES.championName;
+    }
+    if (compactType === "championportrait" || compactType === "portrait") {
+        return LEAGUE_RENDER_TYPES.championPortrait;
+    }
+    if (compactType === "lolscorebug" || compactType === "scorebug") {
+        return LEAGUE_RENDER_TYPES.lolScorebug;
+    }
+    if (compactType === "lolplayerroster" || compactType === "playerroster" || compactType === "roster") {
+        return LEAGUE_RENDER_TYPES.lolPlayerRoster;
     }
     if (compactType === "time" || compactType === "gametime" || compactType === "gameclock") {
         return LEAGUE_RENDER_TYPES.time;
@@ -1011,16 +1882,30 @@ function getStatLayerTeam(layer) {
 }
 
 function getPlayerScoreRole(layer) {
-    if (normalizeStatLayerType(layer.type) !== LEAGUE_RENDER_TYPES.playerScore) {
+    if (!isPlayerRoleLayer(normalizeStatLayerType(layer.type))) {
         return null;
     }
 
     return normalizePlayerRole(layer.role || layer.playerRole || layer.player || layer.playerTarget) || "top";
 }
 
+function isPlayerRoleLayer(type) {
+    return (
+        type === LEAGUE_RENDER_TYPES.playerScore ||
+        type === LEAGUE_RENDER_TYPES.playerCreepScore ||
+        type === LEAGUE_RENDER_TYPES.playerGold ||
+        type === LEAGUE_RENDER_TYPES.playerItems ||
+        type === LEAGUE_RENDER_TYPES.playerName ||
+        type === LEAGUE_RENDER_TYPES.playerLevel ||
+        type === LEAGUE_RENDER_TYPES.championName ||
+        type === LEAGUE_RENDER_TYPES.championPortrait
+    );
+}
+
 function getLeagueRenderValues(state) {
     const blueTeam = state && state.team && state.team.blue ? state.team.blue : {};
     const redTeam = state && state.team && state.team.red ? state.team.red : {};
+    const players = getPlayerValues(state);
 
     return {
         kills: {
@@ -1043,13 +1928,19 @@ function getLeagueRenderValues(state) {
             blue: formatValue(blueTeam.dragons === undefined ? blueTeam.dragon : blueTeam.dragons),
             red: formatValue(redTeam.dragons === undefined ? redTeam.dragon : redTeam.dragons)
         },
-        playerScores: getPlayerScoreValues(state),
+        teamGold: {
+            blue: formatGold(blueTeam.gold),
+            red: formatGold(redTeam.gold)
+        },
+        goldDiff: formatSignedGold(Number(blueTeam.gold) - Number(redTeam.gold)),
+        players,
+        playerScores: getPlayerScoreValues(players),
         time: formatGameTime(state && state.game && state.game.time)
     };
 }
 
-function getPlayerScoreValues(state) {
-    const scores = createEmptyPlayerScoreValues();
+function getPlayerValues(state) {
+    const values = createEmptyPlayerValues();
     const players = state && Array.isArray(state.player) ? state.player : [];
     const usedRoles = {
         blue: new Set(),
@@ -1061,10 +1952,29 @@ function getPlayerScoreValues(state) {
         const role = getPlayerRoleWithFallback(player, usedRoles[team]);
 
         usedRoles[team].add(role);
-        scores[team][role] = formatPlayerScore(player);
+        values[team][role] = formatPlayerValue(player);
+    });
+
+    return values;
+}
+
+function getPlayerScoreValues(players) {
+    const scores = createEmptyPlayerScoreValues();
+
+    ["blue", "red"].forEach((team) => {
+        PLAYER_ROLE_ORDER.forEach((role) => {
+            scores[team][role] = players[team][role].score;
+        });
     });
 
     return scores;
+}
+
+function createEmptyPlayerValues() {
+    return {
+        blue: createEmptyRoleValues(createEmptyPlayerValue()),
+        red: createEmptyRoleValues(createEmptyPlayerValue())
+    };
 }
 
 function createEmptyPlayerScoreValues() {
@@ -1128,6 +2038,67 @@ function formatPlayerScore(player) {
     ].join("/");
 }
 
+function formatPlayerValue(player) {
+    return {
+        name: String(player && player.name || ""),
+        championName: String(player && player.championName || ""),
+        championId: String(player && (player.championId || player.championName) || ""),
+        level: formatValue(player && player.level === undefined ? 1 : player.level),
+        score: formatPlayerScore(player),
+        creepScore: formatValue(player && (player.creepScore === undefined ? player.minions : player.creepScore)),
+        gold: formatGold(player && player.gold),
+        items: formatPlayerItems(player),
+        trinket: formatTrinket(player)
+    };
+}
+
+function createEmptyPlayerValue() {
+    return {
+        name: "",
+        championName: "",
+        championId: "",
+        level: "1",
+        score: "0/0/0",
+        creepScore: "0",
+        gold: "0.0K",
+        items: [],
+        trinket: null
+    };
+}
+
+function formatPlayerItems(player) {
+    const slots = Array.isArray(player && player.itemSlots)
+        ? player.itemSlots
+        : Array.isArray(player && player.itemIds)
+            ? player.itemIds.map((itemId) => ({ id: itemId, name: `Item ${itemId}` }))
+            : [];
+
+    return slots.slice(0, 6).map((item) => ({
+        id: Number(item && item.id) || null,
+        name: String(item && item.name || "Item")
+    }));
+}
+
+function formatTrinket(player) {
+    if (player && player.trinket && player.trinket.id) {
+        return {
+            id: Number(player.trinket.id) || null,
+            name: String(player.trinket.name || "Trinket")
+        };
+    }
+
+    const trinket = Array.isArray(player && player.itemSlots)
+        ? player.itemSlots.find((item) => isTrinketItemId(item && item.id))
+        : null;
+
+    return trinket
+        ? {
+            id: Number(trinket.id) || null,
+            name: String(trinket.name || "Trinket")
+        }
+        : null;
+}
+
 function formatGameTime(value) {
     const totalSeconds = Math.max(0, Math.floor(Number(value) || 0));
     const minutes = Math.floor(totalSeconds / 60);
@@ -1143,6 +2114,8 @@ function getLeagueRenderPreview(values) {
         voidGrubs: formatScore(values.voidGrubs.blue, values.voidGrubs.red),
         riftHerald: formatScore(values.riftHerald.blue, values.riftHerald.red),
         dragon: formatScore(values.dragon.blue, values.dragon.red),
+        gold: formatScore(values.teamGold.blue, values.teamGold.red),
+        goldDiff: values.goldDiff,
         time: values.time
     };
 }
@@ -1158,8 +2131,25 @@ function formatValue(value) {
     return String(Number(value) || 0);
 }
 
+function formatGold(value) {
+    return `${((Number(value) || 0) / 1000).toFixed(1)}K`;
+}
+
+function formatSignedGold(value) {
+    const number = Number(value) || 0;
+    const prefix = number > 0 ? "+" : number < 0 ? "-" : "";
+
+    return `${prefix}${formatGold(Math.abs(number))}`;
+}
+
 function formatScore(blueValue, redValue) {
     return `${formatValue(blueValue)} - ${formatValue(redValue)}`;
+}
+
+function isTrinketItemId(value) {
+    const id = Number(value) || 0;
+
+    return id >= 3330 && id <= 3370;
 }
 
 function getErrorMessage(error) {

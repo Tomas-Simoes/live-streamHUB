@@ -144,6 +144,8 @@ function getObsPreviewText(preview) {
         `VG ${preview.voidGrubs}`,
         `RH ${preview.riftHerald}`,
         `D ${preview.dragon}`,
+        `G ${preview.gold}`,
+        `GD ${preview.goldDiff}`,
         `Time ${preview.time}`
     ].filter((part) => !part.includes("undefined")).join(" ");
 }
