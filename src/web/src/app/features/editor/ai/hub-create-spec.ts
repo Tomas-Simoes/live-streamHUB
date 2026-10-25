@@ -43,24 +43,9 @@ export const HUB_CREATE_SCHEMA = {
   },
 };
 const validate = new Ajv({ allErrors: true, strict: false }).compile(HUB_CREATE_SCHEMA);
-export function compositionSchemaForInstruction(instruction: string, intent?: HubIntent): Record<string, unknown> {
-  const text = instruction.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
-  const explicitDimensions = /\b\d{3,4}\s*(?:by|x|×)\s*\d{2,3}\b|\b(?:width|wide|largura)\D{0,8}\d{3,4}\b/.test(text);
-  const schema = structuredClone(HUB_CREATE_SCHEMA);
-  if (/\b(compact|compacto|compacta)\b/.test(text) && !explicitDimensions) {
-    schema.properties.design.properties.layout.properties.scoreboardWidth.maximum = 1100;
-    schema.properties.design.properties.layout.properties.scoreboardHeight.maximum = 100;
-  }
-  // Most creation instructions describe the design, rather than editing its
-  // constituent layers. Do not offer imperative edits for these descriptions.
-  if (!/\b(move|shift|reposition|padding|insets?|margins?|hide|without|remove|disable|rename|bigger|larger|spacing|gap|mover|desloc\w*|reposicion\w*|ocult\w*|escond\w*|sem|remov\w*|desativ\w*|aument\w*|espacamento)\b/.test(text)) {
-    schema.properties.operations.items.oneOf = schema.properties.operations.items.oneOf.filter(op => ['style', 'decoration', 'text'].includes(op.properties.op.const));
-  }
-  for (const op of schema.properties.operations.items.oneOf) if (op.properties.op.const === 'scoreboard'
-    && !intent?.changes.some(change => change.aspect === 'team-codes')) {
-    delete (op.properties as any).blueTeamCode; delete (op.properties as any).redTeamCode;
-  }
-  return schema;
+/** Legacy composition compatibility; language does not select decoder permissions. */
+export function compositionSchemaForInstruction(_instruction: string, _intent?: HubIntent): Record<string, unknown> {
+  return structuredClone(HUB_CREATE_SCHEMA);
 }
 export function parseHubCreateSpec(raw: string, schema: Record<string, unknown> = HUB_CREATE_SCHEMA): HubPlan {
   const value = parseModelJson(raw);

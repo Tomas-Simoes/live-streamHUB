@@ -1,0 +1,6 @@
+{
+  "expectedRootBackground": "rgb(18, 21, 26)",
+  "instruction": "Give the native broadcast a quiet charcoal surface while keeping every match binding readable.",
+  "interpretation": "{\"summary\":\"A quiet charcoal broadcast\",\"goals\":[\"Quiet charcoal surfaces\"],\"targets\":[\"all\"],\"preserve\":[],\"preferences\":[],\"functionalRequirements\":[],\"scope\":\"broad\",\"constraints\":[],\"unresolved\":[]}",
+  "proposal": "{\"summary\":\"Quiet charcoal surfaces; native data layout retained.\",\"styles\":[{\"target\":\"all\",\"mode\":\"patch\",\"css\":\"&{color:#ffffff;background:#12151a}\"}],\"operations\":[]}"
+}

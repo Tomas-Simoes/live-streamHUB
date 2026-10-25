@@ -1,5 +1,5 @@
 <div class="hub-preview-shell" #previewShell aria-hidden="true">
-  <div class="broadcast-preview" [style.transform]="'scale(' + previewScale() + ')'"
+  <div class="broadcast-preview" data-hub-root [style.transform]="'scale(' + previewScale() + ')'"
     [style.background]="getBackground()" [style.background-image]="getBackgroundImage()"
     [style.background-position]="'center'" [style.background-size]="'cover'">
     @for(layer of hub.layers; track layer.id; let layerIndex = $index) {

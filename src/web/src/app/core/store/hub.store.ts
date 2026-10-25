@@ -1,4 +1,5 @@
 import { Injectable, computed, signal } from "@angular/core";
+import { reconcileManualCss } from '../../shared/helpers/authored-css';
 import { finalize, map, tap } from "rxjs";
 
 import { Hub, HubLayout, HubResponse } from "../../shared/types/hub.types";
@@ -235,7 +236,7 @@ export class HubStore {
         layer.id === layerId
           ? ({
               ...layer,
-              ...changes,
+              ...reconcileManualCss(layer, changes),
             } as EditorLayer)
           : layer,
       );

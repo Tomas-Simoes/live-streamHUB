@@ -8,6 +8,7 @@ import { TextLayer } from '../../../../shared/types/layer.types';
   template: `
     <span
       class="text-layer"
+      data-component-part="text"
       [style.color]="layer.color"
       [style.font-size]="getCanvasFontSize()"
       [style.font-family]="layer.fontFamily"

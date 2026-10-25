@@ -1,17 +1,21 @@
 import { RenderedHub, measureRenderedHub } from './hub-quality';
+import { preparePreviewAssets, waitForPreviewPaint } from './hub-preview-readiness';
+import { computedHubEvidence } from './hub-diagnostics';
 
 /** One small, local raster only when a vision model is selected. */
-export async function inspectHubPreview(root: HTMLElement, withImage: boolean): Promise<RenderedHub> {
+export async function inspectHubPreview(root: HTMLElement, withImage: boolean, sourceIds?: ReadonlyMap<string, string>): Promise<RenderedHub> {
   const shell = root.closest<HTMLElement>('.hub-preview-shell');
   if (shell) {
     Object.assign(shell.style, { width: '1280px', height: '720px', border: '0', borderRadius: '0' });
     Object.assign(root.style, { width: '1920px', height: '1080px', transform: 'scale(0.6666666667)', border: '0', borderRadius: '0' });
   } else Object.assign(root.style, { width: '1280px', height: '720px', border: '0', borderRadius: '0' });
-  await new Promise<void>(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve())));
-  await document.fonts.ready;
-  await Promise.allSettled(Array.from(root.querySelectorAll<HTMLImageElement>('img')).map(image => image.decode()));
+  await waitForPreviewPaint();
+  const readiness = await preparePreviewAssets(root);
   const measurements = measureRenderedHub(root, withImage);
-  if (!withImage) return { measurements };
+  for (const row of measurements.rowLayouts ?? []) if (row.target && sourceIds) row.target = sourceIds.get(row.target);
+  measurements.readiness = readiness;
+  const computedStyles = computedHubEvidence(root, sourceIds);
+  if (!withImage) return { measurements, computedStyles };
   const { toPng } = await import('html-to-image');
   const snapshot = await toPng(shell ?? root, { pixelRatio: 1, canvasWidth: 1280, canvasHeight: 720, skipFonts: true,
     style: { border: '0', borderRadius: '0' } });
@@ -40,7 +44,16 @@ export async function inspectHubPreview(root: HTMLElement, withImage: boolean): 
   };
   drawDetail('.scorebug', 'Scoreboard detail', 266, 64);
   drawDetail('.player-roster,[data-layer-id*="-event-name-"]', 'Player table detail', 352, 152);
-  return { measurements, image: sheet.toDataURL('image/png') };
+  return { measurements, computedStyles, image: sheet.toDataURL('image/png') };
+}
+
+/** Full preview for a downloaded diagnostic, independent of Phi's contact sheet. */
+export async function captureDiagnosticPreview(root: HTMLElement, sourceIds: ReadonlyMap<string, string>) {
+  const evidence = await inspectHubPreview(root, false, sourceIds);
+  const { toPng } = await import('html-to-image');
+  const image = await toPng(root.closest<HTMLElement>('.hub-preview-shell') ?? root,
+    { pixelRatio: 1, canvasWidth: 1280, canvasHeight: 720, skipFonts: true, style: { border: '0', borderRadius: '0' } });
+  return { ...evidence, image, format: 'image/png', width: 1280, height: 720 };
 }
 
 /** One local image keeps Phi's single-image input contract. The candidate is

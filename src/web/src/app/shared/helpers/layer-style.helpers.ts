@@ -1,4 +1,5 @@
 import { ComponentPartStyle, EditorLayer, LayerVisualStyle } from '../types/layer.types';
+import { renderLayerCss } from './authored-css';
 
 export const CUSTOM_CSS_SCOPE_ATTRIBUTE = 'data-layer-id';
 
@@ -29,33 +30,13 @@ export class LayerStyleSheet {
 
 export function createScopedLayerCss(layers: readonly EditorLayer[]) {
   return layers
-    .map((layer) => createLayerCss(layer.id, layer.style?.customCss))
+    .map((layer) => createLayerCss(layer.id, layer.style?.customCss, layer.width))
     .filter(Boolean)
     .join('\n');
 }
 
-export function createLayerCss(layerId: string, customCss: string | undefined) {
-  const css = sanitizeCss(customCss);
-
-  if (!css) {
-    return '';
-  }
-
-  const attribute = `[${CUSTOM_CSS_SCOPE_ATTRIBUTE}="${escapeCssAttribute(layerId)}"]`;
-  const scope = `${attribute}${attribute}`;
-
-  if (!css.includes('{')) {
-    return `${scope} { ${css} }`;
-  }
-
-  return css.replace(/([^{}]+)\{/g, (match, selectorText: string) => {
-    const selectors = selectorText
-      .split(',')
-      .map((selector) => prefixSelector(selector, scope))
-      .filter(Boolean);
-
-    return selectors.length ? `${selectors.join(', ')} {` : match;
-  });
+export function createLayerCss(layerId: string, customCss: string | undefined, width = 1920) {
+  return renderLayerCss(customCss, layerId, width).trim();
 }
 
 export function getLayerOpacity(style: LayerVisualStyle | undefined) {
@@ -93,24 +74,3 @@ export function getComponentPartCss(style: ComponentPartStyle | undefined, layer
   return css;
 }
 
-function sanitizeCss(customCss: string | undefined) {
-  return String(customCss ?? '')
-    .replace(/<\/?style[^>]*>/gi, '')
-    .trim();
-}
-
-function prefixSelector(selector: string, scope: string) {
-  const trimmedSelector = selector.trim();
-
-  if (!trimmedSelector || trimmedSelector.startsWith('@')) {
-    return '';
-  }
-
-  return trimmedSelector.includes('&')
-    ? trimmedSelector.replace(/&/g, scope)
-    : `${scope} ${trimmedSelector}`;
-}
-
-function escapeCssAttribute(value: string) {
-  return value.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
-}

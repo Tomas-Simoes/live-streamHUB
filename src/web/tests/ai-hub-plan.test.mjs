@@ -1,3 +1,5 @@
+// Legacy native-plan compatibility checks retained; intent permissions and automatic
+// artistic treatments are superseded by ai-hub-css/intent/edit-contract tests.
 import assert from 'node:assert/strict';
 import { register } from 'node:module';
 import { test } from 'node:test';
@@ -97,25 +99,6 @@ test('cancelling while probing WebGPU prevents a late initialization', async () 
   service.cancel(); finishProbe(''); await initializing;
   assert.equal(service.state(), 'idle');
   assert.equal(service.worker, undefined);
-});
-
-test('repeating an invalid proposal stops repairs and leaves editor data intact', async () => {
-  const original = hub();
-  const service = new LocalAiService(); service.state.set('ready');
-  let calls = 0;
-  service.request = async () => { calls++; return { raw: JSON.stringify({ design: composition(), operations: [{ op: 'move', target: 'players', dx: 0, dy: -850 }] }) }; };
-  const before = structuredClone(original);
-  assert.equal(await service.generate(original, 'Shift a component', 'create', { interpret: false }), null);
-  assert.equal(calls, 2); assert.equal(service.state(), 'ready');
-  assert.deepEqual(original, before);
-  assert.match(service.error(), /repeated an invalid proposal/);
-  assert(!service.error().includes('pixels'));
-  assert(service.metrics().validationIssues.some(issue => issue.code === 'collision'));
-  service.request = async () => ({ raw: JSON.stringify({ design: composition(), operations: [] }) });
-  assert(await service.generate(original, 'Create a simple broadcast', 'create', { interpret: false }));
-  assert.equal(service.error(), '');
-  assert.equal(service.metrics().validationIssues, undefined);
-  assert.equal(service.metrics().failed, undefined);
 });
 
 test('appearance edits add real gradients, thin dark borders, padding and objective information to an existing navy hub', () => {
@@ -364,21 +347,6 @@ test('design checks report measurable low contrast and gameplay obstruction', ()
   assert.deepEqual(new Set(designQualityWarnings(layers).map(i => i.code)), new Set(['contrast', 'game-area']));
 });
 
-test('generation uses domain knowledge and independent composition fields, with no reference selector', async () => {
-  const service = new LocalAiService(); service.state.set('ready');
-  let request;
-  service.request = async (_kind, payload) => { request = payload; return { raw: JSON.stringify({ design: composition(), operations: [] }) }; };
-  const proposal = await service.generate(hub(), 'Make a green sports broadcast', 'create', { interpret: false });
-  assert.equal(request.schema.properties.template, undefined);
-  assert.equal(request.schema.properties.palette, undefined);
-  assert.match(request.messages[1].content, /Approved native evidence and reasons/);
-  assert(!request.messages.some(m => m.content.includes('pulse-broadcast')));
-  assert.deepEqual(proposal.metrics.composition, composition());
-  assert.equal(proposal.hub.layers.find(l => l.type === 'LolScorebug').width, 1200);
-  const html = await readFile(new URL('../src/app/features/editor/ai/ai-hub-builder.component.html', import.meta.url), 'utf8');
-  assert(!html.includes('Design reference'));
-});
-
 test('a custom light serif/glass composition is independent of all saved hub identities', () => {
   const design = composition();
   design.colors = { background: '#fff6e8', text: '#231f29', muted: '#655c63', line: '#ad9480', teamLeft: '#2f6f58', teamRight: '#a4472d' };
@@ -446,20 +414,6 @@ test('enlarged native player rows keep their tournament panel and heading aligne
   }
 });
 
-test('compact sizing constrains dimensions, not style, and creation cannot add duplicate components', () => {
-  const spec = { design: composition(), operations: [] };
-  const schema = compositionSchemaForInstruction('Create a futuristic overlay with a compact top scoreboard and ten players');
-  assert.throws(() => parseHubCreateSpec(JSON.stringify(spec), schema));
-  spec.design.layout.scoreboardWidth = 1000; spec.design.layout.scoreboardHeight = 86;
-  assert.doesNotThrow(() => parseHubCreateSpec(JSON.stringify(spec), schema));
-  spec.design.layout.scoreboardWidth = 1320;
-  assert.doesNotThrow(() => parseHubCreateSpec(JSON.stringify(spec), compositionSchemaForInstruction('Use a compact 1320 by 86 scoreboard')));
-  spec.operations = [{ op: 'add', component: 'players' }];
-  assert.throws(() => parseHubCreateSpec(JSON.stringify(spec)));
-  spec.operations = [{ op: 'move', target: 'scoreboard', dx: 0, dy: 12 }];
-  assert.throws(() => parseHubCreateSpec(JSON.stringify(spec)));
-});
-
 test('new compact compositions keep the tournament labels separate throughout the supported density range', () => {
   for (const rosterHeight of [250, 251, 252, 260, 280, 320]) {
     const design = composition(); design.layout.rosterHeight = rosterHeight;
@@ -484,15 +438,6 @@ test('creation cannot override its design geometry with a second resize or targe
     { op: 'players', target: 'players', portraitSize: 48, gap: 4 },
     { op: 'move', target: 'scoreboards', dx: 0, dy: 4 },
   ] })));
-});
-
-test('natural design descriptions do not permit incidental layer edits, while explicit padding remains supported', () => {
-  const schema = compositionSchemaForInstruction('Make an LEC-style overlay with sharp edges and tightly packed player tables along the bottom.');
-  const spec = { design: composition(), operations: [] };
-  assert.doesNotThrow(() => parseHubCreateSpec(JSON.stringify(spec), schema));
-  assert.throws(() => parseHubCreateSpec(JSON.stringify({ ...spec, operations: [{ op: 'move', target: 'players', dx: 0, dy: 150 }] }), schema));
-  assert.doesNotThrow(() => parseHubCreateSpec(JSON.stringify({ ...spec, operations: [{ op: 'appearance', target: 'scoreboards', paddingX: 20 }] }),
-    compositionSchemaForInstruction('Create a broadcast overlay with more scoreboard padding')));
 });
 
 test('independent coloured scoreboard sections retain readable text and follow later palette edits', () => {
@@ -525,58 +470,4 @@ test('saved compositions made before coloured team sections remain editable', ()
   const result = compileHubPlan(original, { template: 'current', operations: [{ op: 'appearance', target: 'scoreboards', paddingX: 20 }] }).hub;
   assert.deepEqual(validateHubLayers(result.layers), []);
   assert(!result.layers.find(l => l.type === 'LolScorebug').style.customCss.includes('background: linear-gradient(105deg'));
-});
-
-test('portrait/spacing edits cannot include background, outline, padding or font changes', () => {
-  const schema = editSchemaForInstruction('Make the champion portraits bigger, increase the spacing between player statistics, and move the scoreboard slightly higher.');
-  const spec = editSpec(); spec.players.portraitSize = 56; spec.players.gap = 8;
-  spec.operations = [{ op: 'move', target: 'scoreboards', dx: 0, dy: -12 }];
-  assert.doesNotThrow(() => parseHubEditSpec(JSON.stringify(spec), schema));
-  for (const mutate of [s => { s.appearance.backgroundColor = 'navy'; }, s => { s.appearance.borderWidth = 2; },
-    s => { s.scoreboard.paddingX = 24; }, s => { s.operations.push({ op: 'typography', target: 'players', font: 'Arial', size: 16 }); }]) {
-    const invalid = structuredClone(spec); mutate(invalid);
-    assert.throws(() => parseHubEditSpec(JSON.stringify(invalid), schema), /unrequested fields null/);
-  }
-});
-
-test('appearance/scoreboard contracts cover every clause while protecting unrelated statistics and layout', () => {
-  const schema = editSchemaForInstruction('Use a darker blue degrade, replace the light blue outlines with thinner dark blue lines, add left and right padding in the scoreboard and add drake/voidgrubs information.');
-  const spec = editSpec(); spec.appearance.backgroundColor = 'navy'; spec.appearance.gradientTo = 'midnight';
-  spec.appearance.borderColor = 'slate-blue'; spec.appearance.borderWidth = .5;
-  spec.scoreboard.paddingX = 16; spec.scoreboard.showObjectives = true;
-  assert.doesNotThrow(() => parseHubEditSpec(JSON.stringify(spec), schema));
-  spec.scoreboard.showGold = false;
-  assert.throws(() => parseHubEditSpec(JSON.stringify(spec), schema));
-  const padding = editSpec(); padding.scoreboard.paddingX = 24;
-  const paddingSchema = editSchemaForInstruction('Set the scoreboard padding to 24 pixels. Keep the gradient, outline, teams and player panels unchanged.');
-  assert.doesNotThrow(() => parseHubEditSpec(JSON.stringify(padding), paddingSchema));
-  padding.appearance.borderColor = 'navy';
-  assert.throws(() => parseHubEditSpec(JSON.stringify(padding), paddingSchema));
-});
-
-test('field vocabulary covers Portuguese, explicit border-only edits and unknown phrasing falls back safely', () => {
-  const spec = editSpec(); spec.players.portraitSize = 56; spec.players.gap = 8;
-  assert.doesNotThrow(() => parseHubEditSpec(JSON.stringify(spec), editSchemaForInstruction('Aumenta os retratos e o espaçamento entre as estatísticas.')));
-  const borders = editSpec(); borders.appearance.borderColor = 'dark-blue'; borders.appearance.borderWidth = .5;
-  const schema = editSchemaForInstruction('Use thinner dark blue outlines');
-  assert.doesNotThrow(() => parseHubEditSpec(JSON.stringify(borders), schema));
-  borders.appearance.backgroundColor = 'navy';
-  assert.throws(() => parseHubEditSpec(JSON.stringify(borders), schema));
-  const fallback = editSchemaForInstruction('Try something different');
-  assert.deepEqual(fallback.properties.appearance, HUB_EDIT_SCHEMA.properties.appearance);
-  assert.deepEqual(new Set(fallback.properties.operations.items.oneOf.map(choice => choice.properties.op.const)),
-    new Set(HUB_EDIT_SCHEMA.properties.operations.items.oneOf.map(choice => choice.properties.op.const)));
-});
-
-test('edit decoding enforces native roster dimensions before inference can emit invalid sizes', () => {
-  const schema = editSchemaForInstruction('Make player tables narrower and more compact', hub());
-  const compact = editSpec(); compact.operations = [{ op: 'resize', target: 'players', width: 550, height: 250 }];
-  assert.doesNotThrow(() => parseHubEditSpec(JSON.stringify(compact), schema));
-  compact.operations[0].target = 'all';
-  assert.throws(() => parseHubEditSpec(JSON.stringify(compact), schema));
-  compact.operations[0].target = 'players';
-  for (const dimensions of [[400, 250], [550, 180]]) {
-    compact.operations[0].width = dimensions[0]; compact.operations[0].height = dimensions[1];
-    assert.throws(() => parseHubEditSpec(JSON.stringify(compact), schema));
-  }
 });

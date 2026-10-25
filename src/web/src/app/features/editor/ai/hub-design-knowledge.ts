@@ -1,5 +1,6 @@
 import { createLeagueBroadcastPresetLayout, getBroadcastPresetTokens } from '../../../shared/templates/league-broadcast-presets.template';
 import { LayerType } from '../../../shared/types/layer.types';
+import { nativeReferenceRecord } from './hub-reference-records';
 
 export type DesignCase = { source: string; evidence: Record<string, unknown>; example: Record<string, unknown>;
   why: { choice: string; effect: string }[]; techniques: Record<string, unknown>[]; edit: { request: string; change: string; preserve: string[] }; avoid: string[]; tags: string[] };
@@ -47,6 +48,8 @@ export const APPROVED_HUB_DESIGN_CASES: DesignCase[] = [
     { choice: 'Yellow/orange signals, neutral backgrounds', effect: 'Colour identifies the teams without reducing text contrast.' },
   ], ['industrial', 'steel', 'utility', 'dark', 'condensed']),
 ];
+
+export const APPROVED_HUB_REFERENCE_RECORDS = APPROVED_HUB_DESIGN_CASES.map(example => nativeReferenceRecord(example.source.toLowerCase() as 'pulse' | 'offset' | 'foundry', example.why));
 
 /** Retrieve evidence, not a compulsory whole-hub template or a user-facing picker. */
 export function hubDesignKnowledge(instruction = '') {

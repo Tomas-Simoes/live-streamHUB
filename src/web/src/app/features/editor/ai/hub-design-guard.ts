@@ -32,12 +32,12 @@ export function auditDesignEdits(before: Hub, after: EditorLayer[], plan: HubPla
       if (key === 'text' && plan.operations.some(op => op.op === 'text' && matches(layer, op.target))) continue;
       if (JSON.stringify((old as any)[key]) !== JSON.stringify((layer as any)[key])) add(layer, `${layer.name}: an operation changed unrelated content (${key}).`);
     }
-    const explicitType = plan.operations.some(op => (op.op === 'typography' || (op.op === 'style' && op.rules?.some(rule => rule.declarations.some(item => /^(font|letter-spacing|text-)/.test(item.property)))) || (op.op === 'roster-design'
+    const explicitType = plan.operations.some(op => (op.op === 'css' || op.op === 'typography' || (op.op === 'style' && op.rules?.some(rule => rule.declarations.some(item => /^(font|letter-spacing|text-)/.test(item.property)))) || (op.op === 'roster-design'
       && [op.nameSize, op.statSize, op.kdaSize].some(value => value !== undefined))) && matches(layer, op.target));
     if (!explicitType && JSON.stringify(typography(old)) !== JSON.stringify(typography(layer))) add(layer, `${layer.name}: typography changed without a typography operation.`);
     const geometryChanged = JSON.stringify([old.position, old.width, old.height]) !== JSON.stringify([layer.position, layer.width, layer.height]);
     if (!geometryChanged) continue;
-    const direct = plan.operations.some(op => ['move', 'resize', 'players'].includes(op.op) && matches(layer, op.target));
+    const direct = plan.operations.some(op => ['frame', 'move', 'resize', 'players'].includes(op.op) && matches(layer, op.target));
     const linkedRoster = /-(event-name|roster-plate|roster-divider|left-(info|broadcast-label|round|series|partner)|broadcast-crest)-/.test(layer.id)
       && plan.operations.some(op => ['players', 'move', 'resize'].includes(op.op) && before.layers.some(l => l.type === LayerType.LolPlayerRoster && matches(l, op.target)));
     const linkedLogo = /-(blue|red)-team-logo-/.test(layer.id)

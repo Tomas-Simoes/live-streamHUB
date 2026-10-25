@@ -21,7 +21,7 @@ export function gradeIntentScenario(result, index, scenarios) {
     measured: rendered?.viewport[0] === 1280 && rendered?.viewport[1] === 720,
     fulfilled: result.metrics.requestChecks?.every(check => check.status !== 'failed') ?? false,
     readable: result.design720?.overflow.length === 0 && result.design1080?.overflow.length === 0,
-    bounded: result.metrics.totalMs < 300000,
+    bounded: result.metrics.totalMs < result.metrics.limits.maxDurationMs,
     joinedBottom: tables.length === 2 && Math.abs(rendered.tableGapPx ?? Infinity) <= 2
       && tables.every(frame => Math.abs(frame.y + frame.height - rendered.viewport[1]) <= 2),
   };

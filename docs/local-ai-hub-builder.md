@@ -1,13 +1,19 @@
 # Local AI Hub Builder prototype
 
+The current implementation uses general component CSS authoring. See
+[CSS authoring architecture and validation](ai-hub-css-refactor.md) for the active
+contract, removed intent permissions, persistence and current limitations.
+The earlier operation-based contracts and benchmarks below are historical.
+
 For the current design workflow, internal context and independent composition,
 see [AI hub design knowledge](ai-hub-design-knowledge.md). Earlier model
 benchmarks in this document describe their recorded versions and prompts.
 
 The prototype runs model inference in a dedicated browser worker. Detailed editing
 now defaults to Qwen3 4B; the original 1.7B model remains available for basic
-customization. Phi 3.5 Vision is optional for review of an actual rendered image,
-replacing Qwen in the same single worker. See [design knowledge and review](ai-hub-design-knowledge.md)
+customization. Optional Phi feedback now reviews Qwen's actual preview, with
+sequential model loading in the same worker. Phi can also handle the full
+generation/review process. See [creative control and visual critique](ai-hub-creative-control.md)
 for its memory estimate and the default lighter measured review.
 No inference endpoint,
 API key, paid service, or backend model process is involved. Open an existing hub in the
@@ -25,7 +31,8 @@ canvas; earlier layers render in front. The seven predefined templates build rea
 five roles and six item slots per player. There are also individual portrait, item,
 name, CS, KDA, gold and other stat layers.
 
-The AI produces a small specification, never HTML, CSS, React, URLs or complete layer objects.
+The AI produces a native specification and checked component-part CSS values,
+never HTML, selectors, scripts, resource URLs or complete layer objects.
 New designs choose independent colours, fonts, component treatments and dimensions,
 informed by structured approved hub evidence. Edits use fixed nullable appearance,
 padding and objective-stat fields plus optional operations for other changes; these
@@ -40,7 +47,7 @@ Instruction + bounded current-hub context
   → native component composition + deterministic operations
   → layout validation (bounded local corrections)
   → existing HubPreviewComponent + optional rendered-design critique
-  → at most one aesthetic refinement (five minutes total across the run)
+  → at most one aesthetic refinement (ten minutes total across the run)
   → one HubStore history entry → existing editor → existing Save API
 ```
 
@@ -112,7 +119,7 @@ Sources: [Qwen3 4B model/license](https://huggingface.co/Qwen/Qwen3-4B),
   Template header/background furniture follows increased roster height. Unsupported
   changes or unresolved collisions fail without modifying the hub.
 - Validation errors go back to the same local model for up to three corrections,
-  within one five-minute total limit. Repeated invalid proposals or persistent
+  within one ten-minute total limit. Repeated invalid proposals or persistent
   identical issues stop early. The interface explains each correction and the
   eventual stopping reason. See [validation and repair](ai-hub-validation-repair.md).
   Runtime failures, timeouts and GPU device loss terminate the worker and require reload.

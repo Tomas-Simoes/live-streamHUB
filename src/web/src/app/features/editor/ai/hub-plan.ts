@@ -4,11 +4,15 @@ import { EditorLayer, LayerType, LolPlayerRosterLayer } from '../../../shared/ty
 import { PREDEFINED_HUB_TEMPLATES, getPredefinedHubTemplate } from '../../../shared/templates/predefined-hub-templates';
 import { APPEARANCE_FIELDS, AppearanceChange, applyAppearance, currentAppearance } from './hub-appearance';
 import { AI_PALETTES, applyDesignPalette } from './hub-design-references';
-import { isBroadcastBranding, isPlayerHeader, reflowRosterPair, readablePartSize } from './hub-layout';
+import { reflowRosterPair, readablePartSize } from './hub-layout';
 import { auditDesignEdits, designQualityWarnings } from './hub-design-guard';
 import { HUB_COMPOSITION_SCHEMA, HubComposition, composeHubLayout } from './hub-composition';
 import { applyRosterDetail, applyTeamFill, rosterDetail, RosterDetail } from './hub-detail';
-import { applyPartStyles, clearPartDeclarations, savedPartStyles, stylePartsFor, HUB_STYLE_RULES_SCHEMA, PartStyleRule } from './hub-part-style';
+import { applyPartStyles, clearPartDeclarations, savedPartStyles, stylePartsFor, normalizePartRules, HUB_STYLE_RULES_SCHEMA, PartStyleRule } from './hub-part-style';
+import { fitRosterStyleSizes } from './hub-roster-style';
+import { patchAuthoredCss } from '../../../shared/helpers/authored-css';
+import { matchesHubTarget as matches, hubTargetInventory } from './hub-targets';
+import { createBroadcastScaffold } from './hub-scaffold';
 export { AI_PALETTES } from './hub-design-references';
 
 const templateIds = PREDEFINED_HUB_TEMPLATES.map(t => t.id);
@@ -24,20 +28,23 @@ const operation = (op: string, fields: Record<string, unknown>, required: string
 export const HUB_PLAN_SCHEMA = {
   type: 'object', additionalProperties: false, required: ['template', 'operations'],
   properties: {
-    template: { enum: ['current', 'ai-composed', ...templateIds] },
+    template: { enum: ['current', 'ai-composed', 'ai-authored', ...templateIds] },
+    authored: { const: true }, summary: { type: 'string', maxLength: 360 },
     design: HUB_COMPOSITION_SCHEMA,
     operations: { type: 'array', minItems: 0, maxItems: 32, items: { oneOf: [
       operation('theme', { palette: { enum: Object.keys(AI_PALETTES) } }, ['palette']),
       { ...operation('appearance', { target, ...APPEARANCE_FIELDS }, ['target']), minProperties: 3 },
       operation('move', { target, dx: number(-1920, 1920), dy: number(-1080, 1080) }, ['target', 'dx', 'dy']),
       operation('resize', { target, width: number(24, 1920), height: number(24, 1080) }, ['target', 'width', 'height']),
+      operation('frame', { target, x: number(0, 1920), y: number(0, 1080), width: number(24, 1920), height: number(24, 1080) }, ['target', 'x', 'y', 'width', 'height']),
+      operation('css', { target, mode: { enum: ['patch', 'replace'] }, css: { type: 'string', maxLength: 24000 } }, ['target', 'mode', 'css']),
       operation('style', { target, rules: HUB_STYLE_RULES_SCHEMA }, ['target', 'rules']),
       operation('decoration', { key: { type: 'string', pattern: '^[a-z][a-z0-9-]{0,30}$' }, kind: { enum: ['shape', 'text'] },
         x: number(0, 1920), y: number(0, 1080), width: number(8, 1920), height: number(8, 1080), text: { type: 'string', maxLength: 80 } }, ['key', 'kind', 'x', 'y', 'width', 'height']),
       operation('text', { target, text: { type: 'string', minLength: 1, maxLength: 80 } }, ['target', 'text']),
       operation('scoreboard', { target, showGold: boolean, showObjectives: boolean, showGameTime: boolean,
         blueTeamCode: { type: 'string', minLength: 1, maxLength: 8 }, redTeamCode: { type: 'string', minLength: 1, maxLength: 8 } }, ['target']),
-      operation('players', { target, portraitSize: number(36, 64), gap: number(2, 12), showChampion: boolean,
+      operation('players', { target, portraitSize: number(36, 64), gap: number(2, 12), showChampion: boolean, showLevel: boolean,
         showKda: boolean, showCs: boolean, showGold: boolean, showItems: boolean }, ['target']),
       operation('team-fill', { target, mode: { enum: ['solid', 'gradient'] }, strength: number(.2, .65) }, ['target', 'mode']),
       { ...operation('roster-design', { target, itemSize: number(20, 42), portraitRatio: number(1.05, 1.5), separatorWidth: number(0, 2),
@@ -51,17 +58,17 @@ export const HUB_PLAN_SCHEMA = {
 };
 
 export type HubOperation = AppearanceChange & RosterDetail & {
-  op: 'theme' | 'appearance' | 'move' | 'resize' | 'scoreboard' | 'players' | 'visibility' | 'typography' | 'add' | 'remove' | 'team-fill' | 'roster-design' | 'style' | 'decoration' | 'text';
+  op: 'theme' | 'appearance' | 'move' | 'resize' | 'frame' | 'css' | 'scoreboard' | 'players' | 'visibility' | 'typography' | 'add' | 'remove' | 'team-fill' | 'roster-design' | 'style' | 'decoration' | 'text';
   rules?: PartStyleRule[]; key?: string; kind?: 'shape' | 'text'; x?: number; y?: number;
-  mode?: 'solid' | 'gradient'; strength?: number;
+  mode?: 'solid' | 'gradient' | 'patch' | 'replace'; css?: string; strength?: number;
   target?: string; surface?: string; text?: string; blue?: string; red?: string;
   palette?: keyof typeof AI_PALETTES;
   dx?: number; dy?: number; width?: number; height?: number; visible?: boolean;
   showGold?: boolean; showObjectives?: boolean; showGameTime?: boolean; blueTeamCode?: string; redTeamCode?: string;
-  portraitSize?: number; gap?: number; showChampion?: boolean; showKda?: boolean; showCs?: boolean; showItems?: boolean;
+  portraitSize?: number; gap?: number; showChampion?: boolean; showLevel?: boolean; showKda?: boolean; showCs?: boolean; showItems?: boolean;
   font?: string; size?: number; component?: 'scoreboard' | 'players';
 };
-export type HubPlan = { template: string; design?: HubComposition; operations: HubOperation[] };
+export type HubPlan = { template: string; authored?: true; summary?: string; design?: HubComposition; operations: HubOperation[] };
 export type LayoutIssue = { code: string; layerIds: string[]; message: string; path?: string };
 export class HubPlanError extends Error {
   constructor(public issues: LayoutIssue[]) { super(issues.map(i => i.message).join('\n')); }
@@ -78,6 +85,8 @@ export function parseHubPlan(raw: string): HubPlan {
     code: 'schema', layerIds: [], message: `${e.instancePath} ${e.message}`,
   })).slice(0, 8));
   const plan = value as HubPlan;
+  try { plan.operations = plan.operations.map(op => op.op === 'style' ? { ...op, rules: normalizePartRules(op.rules!) } : op); }
+  catch (error) { throw new HubPlanError([{ code: 'style', layerIds: [], message: error instanceof Error ? error.message : String(error) }]); }
   if ((plan.template === 'ai-composed') !== !!plan.design) throw new HubPlanError([{ code: 'composition', layerIds: [], message: 'A generated composition requires design settings; edits cannot replace them.' }]);
   return value as HubPlan;
 }
@@ -86,7 +95,7 @@ export function hubContext(hub: Hub) {
   const composition = hub.layout?.['aiDesign'] as HubComposition | undefined;
   return {
     canvas: [1920, 1080], template: hub.layout?.['templateId'],
-    design: composition ? { typography: composition.typography, panels: composition.panels } : undefined,
+    design: composition ? { colors: composition.colors, typography: composition.typography, panels: composition.panels } : undefined,
     relationships: { tables: 'Existing joined pairs reflow together on resize; headers/backdrops follow. Explicit individual moves remain possible.',
       scoreboard: 'Editable team logos follow the scoreboard.', branding: 'Use target branding to hide/show the entire left information group.',
       playerHeader: 'Use target player-header for the strip above the tables.' },
@@ -104,17 +113,6 @@ export function hubContext(hub: Hub) {
   };
 }
 
-function matches(layer: EditorLayer, selector: string) {
-  return selector === layer.id || selector === 'all'
-    || (selector === 'scoreboards' && layer.type === LayerType.LolScorebug)
-    || (selector === 'players' && layer.type === LayerType.LolPlayerRoster)
-    || (selector === 'blue-players' && layer.type === LayerType.LolPlayerRoster && layer.team === 'blue')
-    || (selector === 'red-players' && layer.type === LayerType.LolPlayerRoster && layer.team === 'red')
-    || (selector === 'portraits' && [LayerType.LolPlayerRoster, LayerType.ChampionPortrait].includes(layer.type))
-    || (selector === 'texts' && layer.type === LayerType.Text)
-    || (selector === 'branding' && isBroadcastBranding(layer))
-    || (selector === 'player-header' && isPlayerHeader(layer));
-}
 function cssBlock(layer: EditorLayer, key: string, css: string) {
   const old = layer.style?.customCss ?? '';
   const marker = `/* ai-${key} */`;
@@ -138,7 +136,8 @@ function configureRoster(layer: LolPlayerRosterLayer, op: HubOperation, reflowOn
   // Copied current values are not permission to rebuild the native roster grid.
   if (!reflowOnly && (op.portraitSize === undefined || op.portraitSize === settings.portraitSize)
     && (op.gap === undefined || op.gap === settings.gap) && flags.every(key => op[key] === undefined || op[key] === layer[key])) return;
-  const size = op.portraitSize ?? settings.portraitSize;
+  const requestedSize = op.portraitSize ?? settings.portraitSize;
+  const size = reflowOnly ? Math.min(requestedSize, Math.max(36, Math.floor((layer.height - 24) / 5 - 4))) : requestedSize;
   const gap = op.gap ?? settings.gap;
   for (const key of ['showChampion', 'showKda', 'showCs', 'showGold', 'showItems'] as const) {
     if (op[key] !== undefined) layer[key] = op[key]!;
@@ -164,6 +163,20 @@ ${keys.map((k, i) => `& [data-component-part="${k}"] { grid-column: ${i + 1}; gr
 & .roster-portrait { width: ${scaled(size)}; height: ${scaled(size)}; }
 & .roster-level { grid-column: ${keys.indexOf('portrait') + 1}; }
 & .roster-items { grid-template-columns: repeat(6, minmax(0, 1fr)); }`);
+}
+
+function applyFlowingPartStyles(layer: EditorLayer, rules: PartStyleRule[], warnings: LayoutIssue[]) {
+  if (layer.type === LayerType.LolPlayerRoster) {
+    const fit = fitRosterStyleSizes(layer, normalizePartRules(rules), savedPartStyles(layer));
+    if (fit.notes.some(note => note.startsWith('Item dimensions'))) clearPartDeclarations(layer, (part, property) => part === 'items' && ['width', 'height'].includes(property));
+    if (fit.portraitSize !== undefined) {
+      configureRoster(layer, { op: 'players', portraitSize: fit.portraitSize }, true);
+      applyRosterDetail(layer, { itemSize: fit.itemSize ?? rosterDetail(layer).itemSize ?? Math.min(42, Math.floor(fit.portraitSize / 1.2)) });
+    }
+    for (const message of fit.notes) if (!warnings.some(issue => issue.message === message && issue.layerIds.includes(layer.id))) warnings.push({ code: 'layout-fit', layerIds: [layer.id], message });
+    rules = fit.rules;
+  }
+  if (rules.length || savedPartStyles(layer).length) applyPartStyles(layer, rules);
 }
 
 function fitRosterFrame(layers: EditorLayer[], touched: Set<string>) {
@@ -203,7 +216,7 @@ export function compileHubPlan(hub: Hub, plan: HubPlan): { hub: Hub; warnings: L
   // Also validate callers that did not use parseHubPlan.
   plan = parseHubPlan(JSON.stringify(plan));
   const layout: HubLayout = structuredClone(plan.template === 'current' ? { ...hub.layout, layers: hub.layers }
-    : plan.template === 'ai-composed' ? composeHubLayout(plan.design!) : getPredefinedHubTemplate(plan.template)!.createLayout());
+    : plan.template === 'ai-authored' ? createBroadcastScaffold() : plan.template === 'ai-composed' ? composeHubLayout(plan.design!) : getPredefinedHubTemplate(plan.template)!.createLayout());
   let layers = layout.layers ?? [];
   const initialGeometry = new Map(layers.map(l => [l.id, { position: { ...l.position }, width: l.width, height: l.height }]));
   const initialPadding = new Map(layers.map(l => [l.id, currentAppearance(l).paddingX ?? 0]));
@@ -212,7 +225,7 @@ export function compileHubPlan(hub: Hub, plan: HubPlan): { hub: Hub; warnings: L
   const rosterGeometry = new Set<string>();
   const warnings: LayoutIssue[] = [];
   // New compositions and saved templates both use native editable layers.
-  for (const op of plan.operations) {
+  for (const [operationIndex, op] of plan.operations.entries()) {
     if (op.op === 'decoration') {
       const id = `ai-decoration-${op.key}`;
       if (layers.some(layer => layer.id === id)) throw new HubPlanError([{ code: 'id', layerIds: [id], message: 'Decoration key already exists. Style/move the existing layer instead.' }]);
@@ -223,7 +236,7 @@ export function compileHubPlan(hub: Hub, plan: HubPlan): { hub: Hub; warnings: L
       touched.add(id); continue;
     }
     if (op.op === 'add') {
-      const source = getPredefinedHubTemplate('cblol-broadcast')!.createLayout().layers ?? [];
+      const source = (plan.authored ? createBroadcastScaffold() : getPredefinedHubTemplate('cblol-broadcast')!.createLayout()).layers ?? [];
       const type = op.component === 'scoreboard' ? LayerType.LolScorebug : LayerType.LolPlayerRoster;
       const additions = source.filter(l => l.type === type && !layers.some(existing => existing.type === type
         && (type !== LayerType.LolPlayerRoster || (existing as LolPlayerRosterLayer).team === (l as LolPlayerRosterLayer).team)));
@@ -232,7 +245,11 @@ export function compileHubPlan(hub: Hub, plan: HubPlan): { hub: Hub; warnings: L
       continue;
     }
     const selected = layers.filter(l => matches(l, op.target ?? 'all'));
-    if (!selected.length) throw new HubPlanError([{ code: 'target', layerIds: [], message: `No layers match ${op.target}. Use IDs from the current hub or add the component first.` }]);
+    if (!selected.length) {
+      const inventory = hubTargetInventory(layers);
+      throw new HubPlanError([{ code: 'target', path: `/operations/${operationIndex}/target`, layerIds: [],
+        message: `No layers match ${op.target}. Available aliases: ${Object.keys(inventory.aliases).join(', ')}. Use an existing layer ID or create a decoration before styling its ai-decoration-KEY ID.` }]);
+    }
     if (op.op === 'style') for (const rule of op.rules!) if (!selected.some(layer => stylePartsFor(layer).includes(rule.part))) {
       throw new HubPlanError([{ code: 'style', layerIds: selected.map(layer => layer.id), message: `Unknown part ${rule.part} on target ${op.target}. Use the supplied component inventory.` }]);
     }
@@ -249,9 +266,14 @@ export function compileHubPlan(hub: Hub, plan: HubPlan): { hub: Hub; warnings: L
       touched.add(layer.id);
       if (layer.type === LayerType.LolPlayerRoster && ['move', 'resize'].includes(op.op)) rosterGeometry.add(layer.id);
       switch (op.op) {
+        case 'css':
+          try { layer.style = { ...layer.style, customCss: patchAuthoredCss(layer.style?.customCss, op.css!, op.mode as 'patch' | 'replace') }; }
+          catch (error) { throw new HubPlanError([{ code: 'style', layerIds: [layer.id], message: error instanceof Error ? error.message : String(error) }]); }
+          break;
+        case 'frame': layer.position = { x: op.x!, y: op.y! }; layer.width = op.width!; layer.height = op.height!; break;
         case 'appearance': applyAppearance(layer, op, op.target === 'all', cssBlock); break;
         case 'style':
-          try { applyPartStyles(layer, op.rules!.filter(rule => stylePartsFor(layer).includes(rule.part))); }
+          try { applyFlowingPartStyles(layer, op.rules!.filter(rule => stylePartsFor(layer).includes(rule.part)), warnings); }
           catch (error) { throw new HubPlanError([{ code: 'style', layerIds: [layer.id], message: error instanceof Error ? error.message : String(error) }]); }
           break;
         case 'text':
@@ -268,13 +290,16 @@ export function compileHubPlan(hub: Hub, plan: HubPlan): { hub: Hub; warnings: L
           break;
         case 'players':
           if (layer.type !== LayerType.LolPlayerRoster) throw wrongType(op, layer);
-          { const before = JSON.stringify(layer); configureRoster(layer, op);
+          { const before = JSON.stringify(layer);
+            if (plan.authored) {
+              for (const key of ['showChampion', 'showLevel', 'showKda', 'showCs', 'showGold', 'showItems'] as const) if (op[key] !== undefined) layer[key] = op[key]!;
+            } else configureRoster(layer, op);
             if (JSON.stringify(layer) !== before) rosterGeometry.add(layer.id); }
           break;
         case 'team-fill':
           if (layer.type !== LayerType.LolScorebug) throw wrongType(op, layer);
           clearPartDeclarations(layer, (part, property) => ['blue-team', 'red-team'].includes(part) && property.startsWith('background'));
-          applyTeamFill(layer, op.mode!, op.strength); break;
+          applyTeamFill(layer, op.mode as 'solid' | 'gradient', op.strength); break;
         case 'roster-design':
           if (layer.type !== LayerType.LolPlayerRoster) throw wrongType(op, layer);
           clearPartDeclarations(layer, (part, property) => (op.portraitRatio !== undefined || op.itemSize !== undefined) && ['portrait', 'item', 'items', 'row'].includes(part) && /width|height|grid-template-columns/.test(property)
@@ -296,9 +321,11 @@ export function compileHubPlan(hub: Hub, plan: HubPlan): { hub: Hub; warnings: L
       }
     }
   }
-  reflowRosterPair(layers, initialGeometry, plan.operations, rosterGeometry);
-  fitRosterFrame(layers, rosterGeometry);
-  for (const layer of layers) if (touched.has(layer.id) && layer.type === LayerType.LolPlayerRoster) {
+  if (!plan.authored) {
+    reflowRosterPair(layers, initialGeometry, plan.operations, rosterGeometry);
+    fitRosterFrame(layers, rosterGeometry);
+  }
+  for (const layer of layers) if (!plan.authored && touched.has(layer.id) && layer.type === LayerType.LolPlayerRoster) {
     // Percentage/container units must use the FINAL frame, never an intermediate
     // model resize that was subsequently resolved to native layout constraints.
     if (layer.style?.customCss?.includes('/* ai-roster */')) configureRoster(layer, { op: 'players' }, true);
@@ -307,7 +334,7 @@ export function compileHubPlan(hub: Hub, plan: HubPlan): { hub: Hub; warnings: L
   for (const id of rosterGeometry) touched.add(id);
   // Deterministic boundary repair, never trusting the model's coordinates.
   for (const l of layers) {
-    if (!touched.has(l.id) || l.type === LayerType.Group) continue;
+    if (plan.authored || !touched.has(l.id) || l.type === LayerType.Group) continue;
     const x = Math.max(l.width / 2, Math.min(1920 - l.width / 2, l.position.x));
     const y = Math.max(l.height / 2, Math.min(1080 - l.height / 2, l.position.y));
     if (x !== l.position.x || y !== l.position.y) warnings.push({ code: 'clamped', layerIds: [l.id], message: `${l.name}: position kept inside the canvas.` });
@@ -345,8 +372,8 @@ export function compileHubPlan(hub: Hub, plan: HubPlan): { hub: Hub; warnings: L
   }
   // Recompile native-unit styles after final roster reflow/resize. This also
   // keeps custom design rules after the native component's generated defaults.
-  for (const layer of layers) if (savedPartStyles(layer).length) applyPartStyles(layer, []);
-  const issues = validateHubLayers(layers);
+  for (const layer of layers) if (!plan.authored && savedPartStyles(layer).length) applyFlowingPartStyles(layer, savedPartStyles(layer), warnings);
+  const issues = validateHubLayers(layers, !!plan.authored);
   const errors = issues.filter(i => plan.template !== 'current' || !beforeIssues.some(b => issueKey(b) === issueKey(i)));
   if (errors.length) throw new HubPlanError(errors);
   const preservationIssues = auditDesignEdits(hub, layers, plan);
@@ -363,7 +390,7 @@ export function compileHubPlan(hub: Hub, plan: HubPlan): { hub: Hub; warnings: L
 const issueKey = (i: LayoutIssue) => `${i.code}:${i.layerIds.join(',')}`;
 const wrongType = (op: HubOperation, l: EditorLayer) => new HubPlanError([{ code: 'type', layerIds: [l.id], message: `${op.op} cannot modify ${l.type}. Choose a compatible target.` }]);
 
-export function validateHubLayers(layers: EditorLayer[]): LayoutIssue[] {
+export function validateHubLayers(layers: EditorLayer[], flexible = false): LayoutIssue[] {
   const issues: LayoutIssue[] = [];
   const add = (code: string, ls: EditorLayer[], message: string) => issues.push({ code, layerIds: ls.map(l => l.id), message });
   const ids = new Set<string>();
@@ -375,8 +402,8 @@ export function validateHubLayers(layers: EditorLayer[]): LayoutIssue[] {
     if (![l.width, l.height, l.position.x, l.position.y].every(Number.isFinite) || l.width <= 0 || l.height <= 0) { add('dimensions', [l], `${l.name}: invalid dimensions.`); continue; }
     if (l.position.x - l.width / 2 < -0.1 || l.position.x + l.width / 2 > 1920.1 || l.position.y - l.height / 2 < -0.1 || l.position.y + l.height / 2 > 1080.1)
       add('bounds', [l], `${l.name}: outside the canvas.`);
-    if (l.type === LayerType.LolScorebug && (l.width < 800 || l.height < 76 || !l.blueTeamCode || !l.redTeamCode)) add('scoreboard', [l], 'Scoreboard requires team codes and at least 800 x 76 pixels.');
-    if (l.type === LayerType.LolPlayerRoster && (l.width < 540 || l.height < 240 || !['blue', 'red'].includes(l.team))) add('roster', [l], 'Each five-player roster requires a team and at least 540 x 240 pixels.');
+    if (l.type === LayerType.LolScorebug && ((!flexible && (l.width < 800 || l.height < 76)) || !l.blueTeamCode || !l.redTeamCode)) add('scoreboard', [l], 'Scoreboard requires valid team codes and a readable frame.');
+    if (l.type === LayerType.LolPlayerRoster && ((!flexible && (l.width < 540 || l.height < 240)) || !['blue', 'red'].includes(l.team))) add('roster', [l], 'Each five-player roster requires a valid team and a readable frame.');
     if (l.type === LayerType.ChampionPortrait && (l.width < 36 || l.height < 36)) add('portrait', [l], 'Champion portraits must be at least 36 x 36 pixels.');
     if (l.type === LayerType.PlayerItems && (l.width < 144 || l.height < 24)) add('items', [l], 'Six item slots need at least 144 x 24 pixels.');
   }
@@ -384,7 +411,7 @@ export function validateHubLayers(layers: EditorLayer[]): LayoutIssue[] {
   // Shapes and images may intentionally sit behind functional components. Only reject
   // newly introduced intersections between content layers; existing ones are warnings.
   const content = layers.filter(l => l.visible && ![LayerType.Shape, LayerType.Image, LayerType.Video, LayerType.Group].includes(l.type));
-  for (let a = 0; a < content.length; a++) for (let b = a + 1; b < content.length; b++) {
+  for (let a = 0; !flexible && a < content.length; a++) for (let b = a + 1; b < content.length; b++) {
     const x = content[a], y = content[b];
     if (Math.abs(x.position.x - y.position.x) < (x.width + y.width) / 2 - 1
       && Math.abs(x.position.y - y.position.y) < (x.height + y.height) / 2 - 1)
@@ -401,6 +428,7 @@ export function previewHub(hub: Hub, prefix = 'ai-preview-'): Hub {
 }
 
 export function describeHubPlan(plan: HubPlan): string[] {
+  if (plan.authored) return [plan.summary || 'Updated the broadcast design.', ...plan.operations.filter(op => op.op !== 'css').map(op => `${op.op}: ${op.target ?? op.key ?? op.component ?? ''}`)];
   const changes = plan.design ? [`New composition: ${plan.design.panels.fill} panels, ${plan.design.panels.corners} corners; ${plan.design.typography.headingFont} / ${plan.design.typography.bodyFont}`, `Scoreboard ${plan.design.layout.scoreboardWidth} × ${plan.design.layout.scoreboardHeight}; player panels ${plan.design.layout.rosterHeight}px high`]
     : plan.template === 'current' ? [] : [`Start from ${getPredefinedHubTemplate(plan.template)?.name ?? plan.template}`];
   for (const op of plan.operations) {

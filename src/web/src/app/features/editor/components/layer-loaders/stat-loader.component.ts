@@ -1,5 +1,6 @@
 import { Component, Input } from '@angular/core';
 import { getComponentPartCss } from '../../../../shared/helpers/layer-style.helpers';
+import { nativeRosterTracks } from '../../../../shared/helpers/roster-fields';
 
 import {
   formatGold,
@@ -30,7 +31,7 @@ import {
   template: `
     @switch(layer.type) {
     @case(LayerType.LolScorebug) {
-    <div class="scorebug" [style.--blue-accent]="layer.blueAccent" [style.--red-accent]="layer.redAccent">
+    <div class="scorebug" data-component-part="surface" [style.--blue-accent]="layer.blueAccent" [style.--red-accent]="layer.redAccent">
       <div class="scorebug-team scorebug-team-blue" data-component-part="blue-team" [ngStyle]="partStyle(layer, 'blue-team')">
         <span class="team-logo" data-component-part="blue-logo" [ngStyle]="partStyle(layer, 'blue-logo')">{{ getTeamLogoText(layer.blueTeamCode) }}</span>
         <span class="team-lockup">
@@ -83,9 +84,9 @@ import {
     </div>
     }
     @case(LayerType.LolPlayerRoster) {
-    <div class="player-roster" [class.player-roster-right]="layer.orientation === 'right'">
+      <div class="player-roster" data-component-part="surface" [attr.data-team]="layer.team" [style.--roster-tracks]="rosterTracks(layer)" [class.player-roster-right]="layer.orientation === 'right'">
       @for(player of getRosterPlayers(layer); track player.role) {
-      <div class="roster-row" data-component-part="row" [ngStyle]="partStyle(layer, 'row')">
+      <div class="roster-row" data-component-part="row" [attr.data-player-role]="player.role" [ngStyle]="partStyle(layer, 'row')">
         @if(layer.orientation === 'right') {
         @if(layer.showKda) {
         <span class="roster-kda" data-component-part="kda" [ngStyle]="partStyle(layer, 'kda')">{{ getKda(player) }}</span>
@@ -307,7 +308,7 @@ import {
         font-size: clamp(12px, 6.2cqw, 34px);
         font-weight: 950;
         letter-spacing: 0;
-        line-height: 1;
+        line-height: 1.1;
         text-overflow: ellipsis;
         white-space: nowrap;
       }
@@ -343,8 +344,11 @@ import {
       .scorebug-center {
         position: relative;
         grid-area: center;
-        justify-content: center;
-        gap: 11%;
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        grid-template-rows: minmax(0, 1fr) auto;
+        justify-items: center;
+        gap: 0;
         background:
           linear-gradient(180deg, rgb(255 255 255 / 8%), transparent 38%),
           rgb(7 8 18 / 92%);
@@ -361,24 +365,24 @@ import {
       }
 
       .score-divider {
+        display: none;
         width: 2px;
         height: 52%;
         background: rgb(255 255 255 / 24%);
       }
 
       .game-clock {
-        position: absolute;
-        bottom: -32%;
-        left: 50%;
+        position: static;
+        grid-column: 1 / -1;
         min-width: 5.4em;
         padding: 0.18em 0.55em;
         border: 1px solid rgb(255 255 255 / 14%);
         background: rgb(2 3 8 / 78%);
         color: #fff;
-        font-size: clamp(7px, 2.5cqw, 14px);
+        font-size: 1.5cqw;
         font-weight: 950;
         text-align: center;
-        transform: translateX(-50%);
+        transform: none;
       }
 
       .objective-row {
@@ -418,7 +422,9 @@ import {
         display: grid;
         align-items: center;
         min-width: 0;
-        grid-template-columns: minmax(0, 0.55fr) 0.34fr minmax(0, 1.6fr) minmax(0, 0.95fr) 0.48fr 0.58fr minmax(0, 2.2fr);
+        min-height: 0;
+        grid-template-columns: var(--roster-tracks);
+        grid-template-rows: minmax(0, 1fr);
         gap: 1.5%;
         padding: 0.7% 1.4%;
         overflow: hidden;
@@ -484,14 +490,14 @@ import {
       .roster-level,
       .roster-stat,
       .roster-kda {
-        font-size: clamp(6px, 2.8cqw, 13px);
+        font-size: 3cqw;
         font-weight: 850;
         white-space: nowrap;
       }
 
       .roster-name {
         overflow: hidden;
-        font-size: clamp(7px, 3.3cqw, 16px);
+        font-size: 3.3cqw;
         font-weight: 880;
         text-overflow: ellipsis;
         white-space: nowrap;
@@ -504,6 +510,8 @@ import {
         grid-template-columns: repeat(6, minmax(0, 1fr));
         gap: 3px;
       }
+      .roster-items { height: 100%; min-height: 0; align-items: center; }
+      .roster-kda { font-size: 2.5cqw; }
 
       .items-layer {
         width: 100%;
@@ -515,6 +523,7 @@ import {
       .item-slot {
         aspect-ratio: 1;
         min-width: 0;
+        max-height: 100%;
         overflow: hidden;
         border: 1px solid rgb(255 255 255 / 18%);
         background: rgb(0 0 0 / 34%);
@@ -559,6 +568,11 @@ export class StatLoaderComponent {
   @Input() selectedPartKey = '';
   readonly LayerType = LayerType;
   readonly previewData = LEAGUE_PREVIEW_DATA;
+
+  /** Match the actual visible bound fields; styling can freely override this grid. */
+  rosterTracks(layer: LolPlayerRosterLayer): string {
+    return nativeRosterTracks(layer);
+  }
 
   partStyle(layer: LolScorebugLayer | LolPlayerRosterLayer, key: string): Record<string, string | number> {
     const css = getComponentPartCss(layer.partStyles?.[key], layer.width || 1);

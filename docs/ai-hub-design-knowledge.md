@@ -1,5 +1,10 @@
 # Design knowledge and rendered review
 
+The latest component-level CSS controls, stricter checks and optional Qwen → Phi →
+Qwen workflow are documented in [creative control and visual critique](ai-hub-creative-control.md).
+Benchmarks below describe their recorded versions. The optional separate reviewer
+supersedes the previous same-model-only behaviour.
+
 The builder composes native broadcast components from a natural-language request.
 There is no reference picker or compulsory named style. Relationships guide the
 layout: score hierarchy, readable names, quiet secondary data, coherent team
@@ -109,7 +114,8 @@ Portrait/item sizes, row dividers and team background gradients are also measure
 Tiny/clipped text and failed measurable requests enter the bounded repair loop.
 Best-candidate fallback only retains proposals that passed these checks.
 
-The same loaded model returns a short structured critique. A clear design issue
+By default the same loaded model returns a short structured critique. Optional Phi
+feedback adds a separate image reviewer to Qwen proposals. A clear design issue
 can trigger **one aesthetic refinement**, followed by another render/review.
 The best structurally valid, readable candidate is retained if refinement regresses,
 fails or exhausts the shared budget. Its score is advisory, not a certificate of
@@ -118,6 +124,7 @@ visual quality. No hidden chain of thought is requested or stored.
 | Selected model | Review input | Resource impact |
 | --- | --- | --- |
 | Qwen3 4B / 1.7B | Actual DOM measurements, design decisions and approved evidence | Reuses the loaded text model; no screenshot or extra weights. Adds inference time. |
+| Qwen + optional Phi feedback | Candidate image, craftsmanship example/previous proposal, measurements and original request | Sequential Qwen → Phi → Qwen loading; all switches share the generation deadline. |
 | Phi 3.5 Vision | Actual rendered PNG, measurements and quality criteria | Replaces Qwen; roughly 3 GB initial download and 4.5 GB estimated GPU memory. One 672 x 512 contact sheet per candidate, with overview and readable overlay details. |
 
 Qwen does not see an image. Phi receives an actual image via WebLLM's `image_url`
@@ -131,10 +138,11 @@ uses a bounded-whitespace grammar to prevent incomplete JSON/whitespace stalls.
 Switching models requires unloading the current model. Downloads can remain cached
 on disk even though only one model is loaded into GPU memory.
 
-The five-minute limit covers **the whole generation run**: interpretation, proposals, rendering,
+The ten-minute limit covers **the whole generation run**: interpretation, proposals, rendering,
 validation, critique and refinement. There are at most four proposal attempts and
 one aesthetic refinement; reviewer calls consume the same time budget.
-Download/initialization is separate. Cancel terminates the worker. Apply remains
+Initial generator loading is separate; reviewer loading and switches count toward
+the generation deadline. Cancel terminates the worker. Apply remains
 explicit and atomic. A readable proposal can still be shown if optional review
 fails, with a warning; no invalid proposal is substituted for it.
 
@@ -165,7 +173,8 @@ Reports/screenshots are under `tmp-visual-qa/ai-hub-builder/design-regression` a
 Existing creation, appearance, natural-language, composition
 and repair suites remain available separately. Mechanical checks do not guarantee
 aesthetic judgement or exact interpretation of every prompt. Creation is limited
-to supported native components; arbitrary layouts, cameras and CSS are not generated.
+to native components and decorations. Checked component-level CSS is generated;
+invented live widgets, cameras and arbitrary markup remain unsupported.
 
 Recorded Qwen3-4B verification on 2026-10-16: 89 automated tests and the production
 build passed. Real browser creation plus measured review took 51.5 seconds; a

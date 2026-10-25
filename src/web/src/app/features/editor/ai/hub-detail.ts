@@ -22,6 +22,9 @@ export function portraitSettings(layer: LolPlayerRosterLayer) {
 }
 export function applyRosterDetail(layer: LolPlayerRosterLayer, change: RosterDetail = {}) {
   const settings = { ...rosterDetail(layer), ...change };
+  // A new relative relationship replaces the model's earlier arbitrary icon
+  // size. Keeping that stale size can make 'slightly larger' become twice as big.
+  if (change.portraitRatio !== undefined && change.itemSize === undefined) delete settings.itemSize;
   if (!Object.keys(settings).length) return;
   const { portraitSize, gap } = portraitSettings(layer);
   const scaled = (n: number) => `${100 * n / layer.width}cqw`;

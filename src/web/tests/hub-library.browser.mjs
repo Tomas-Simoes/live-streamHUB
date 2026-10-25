@@ -40,6 +40,7 @@ let socket;
 let createAttempts = 0;
 let created;
 let failCreation = true;
+let releaseCreation;
 
 try {
   let port;
@@ -78,7 +79,9 @@ try {
         created = JSON.parse(request.postData);
         responseCode = failCreation ? 503 : 200;
         body = failCreation ? { message: 'Temporary failure' } : { _id: 'qa-created', ...created };
-        await delay(350); // Keep the pending state visible to test double submission.
+        // Hold the successful request until the test observes the pending state.
+        // A fixed delay races with screenshots/CDP work on a busy GPU machine.
+        if (!failCreation) await new Promise(done => { releaseCreation = done; });
       }
       await send('Fetch.fulfillRequest', { requestId, responseCode, responseHeaders: [
         { name: 'Content-Type', value: 'application/json' }, { name: 'Access-Control-Allow-Origin', value: origin },
@@ -257,6 +260,8 @@ try {
   await click('.template-use-button');
   await waitFor(`document.querySelector('.template-use-button')?.disabled`);
   await evaluate(`document.querySelector('.template-use-button').click()`);
+  assert.equal(createAttempts, 2, 'Pending creation cannot be submitted twice');
+  releaseCreation();
   await waitFor(`!!document.querySelector('.canvas-base .scorebug')`);
   assert.equal(createAttempts, 2, 'Pending creation cannot be submitted twice');
   assert.equal(created.hubName, 'Foundry');

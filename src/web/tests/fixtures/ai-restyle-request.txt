@@ -1,0 +1,6 @@
+Refine this existing hub into a polished esports broadcast package with a stronger, consistent teal-and-orange identity.
+Keep the current overall layout, compact top scoreboard and joined bottom player tables. Preserve all match information and keep the gameplay and minimap clear.
+Replace the flat grey player panels with layered near-black and charcoal surfaces. Give the left scoreboard section a dark teal gradient and the right section a matching burnt-orange gradient, with both fading toward darker shades near the neutral center. Make their brightness and depth feel balanced.
+Improve the typography hierarchy. Keep scores large and prominent, player names bold and condensed, and CS clearly stronger than KDA. Use teal for left-team CS and orange for right-team CS. Keep secondary statistics quieter but comfortably readable.
+Carry the team identity into the player tables through subtle team-tinted row backgrounds and narrow accent lines. Use gentle alternating rows and fine separators. Give champion portraits a restrained team-coloured frame and keep them slightly larger than item icons.
+Refine the shared “LEC MATCH” heading into a slim, carefully aligned header that connects both tables. Add a little breathing room around text while keeping the rows tightly packed. Coordinate the gradients, accents, borders and typography across the entire overlay.
