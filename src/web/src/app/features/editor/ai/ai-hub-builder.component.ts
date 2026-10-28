@@ -12,6 +12,10 @@ import { diagnosticHub, diagnosticValue, HubDiagnosticArchive } from './hub-diag
 import { waitForPreviewPaint } from './hub-preview-readiness';
 import { IntentCheck } from './hub-intent';
 import type { DesignBrief } from './hub-design-spec';
+import { measureRequirements } from './hub-request-checks';
+import { HubVisualLibrary } from './hub-visual-library';
+import { APPROVED_HUB_REFERENCE_RECORDS } from './hub-design-knowledge';
+import { getPredefinedHubTemplate } from '../../../shared/templates/predefined-hub-templates';
 
 @Component({
   selector: 'app-ai-hub-builder', standalone: true,
@@ -34,6 +38,10 @@ export class AiHubBuilderComponent implements OnInit, AfterViewInit, OnDestroy {
   reviewEnabled = true;
   visionReviewEnabled = false;
   reasoningEnabled = false;
+  referenceCssEnabled = false;
+  referenceNotes = '';
+  addingReferences = signal(false);
+  referenceExample = signal<Hub | null>(null);
   describePlan = describeHubPlan;
   notice = signal('');
   private previousFocus = document.activeElement as HTMLElement | null;
@@ -49,7 +57,7 @@ export class AiHubBuilderComponent implements OnInit, AfterViewInit, OnDestroy {
     { title: 'Refine the details', description: 'Portraits, spacing, alignment' },
     { title: 'Future of esports', description: 'Compact, sharp, stats ready' },
   ];
-  constructor(public ai: LocalAiService, public hubs: HubStore, private editor: EditorStore, private element: ElementRef<HTMLElement>, private archive: HubDiagnosticArchive) {}
+  constructor(public ai: LocalAiService, public hubs: HubStore, private editor: EditorStore, private element: ElementRef<HTMLElement>, private archive: HubDiagnosticArchive, public library: HubVisualLibrary) {}
   async ngOnInit() { this.compatibility.set(await this.ai.compatibility()); }
   ngAfterViewInit() { this.element.nativeElement.querySelector<HTMLElement>('button')?.focus(); }
   ngOnDestroy() { this.previousFocus?.focus(); }
@@ -63,7 +71,7 @@ export class AiHubBuilderComponent implements OnInit, AfterViewInit, OnDestroy {
     if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last?.focus(); }
     else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first?.focus(); }
   }
-  get busy() { return this.exporting() || ['loading', 'generating', 'unloading'].includes(this.ai.state()); }
+  get busy() { return this.exporting() || this.addingReferences() || ['loading', 'generating', 'unloading'].includes(this.ai.state()); }
   get diagnosticRun() { return this.ai.diagnostics() ?? this.archive.latest(); }
   get selectedModel() { return this.models.find(m => m.id === this.model)!; }
   get designReview() { return this.proposal()?.metrics['designReview'] as (HubDesignReview & { kind: string }) | undefined; }
@@ -84,14 +92,17 @@ export class AiHubBuilderComponent implements OnInit, AfterViewInit, OnDestroy {
     this.notice.set(''); this.proposal.set(null); this.preview.set(null);
     try {
       const pending = this.ai.generate(hub, this.instruction, this.mode, { review: this.reviewEnabled, visionReview: this.visionReviewEnabled,
-        reasoning: this.reasoningEnabled && this.model.startsWith('Qwen3-'), inspect: async (candidate, image) => {
+        reasoning: this.reasoningEnabled && this.model.startsWith('Qwen3-'), references: this.library.entries(), referenceCss: this.referenceCssEnabled,
+        inspect: async (candidate, image, requirements) => {
         const preview = previewHub(candidate, 'ai-render-review-');
         const sourceIds = new Map(preview.layers.map((layer, index) => [layer.id, candidate.layers[index].id]));
         this.reviewHub.set(preview);
         await waitForPreviewPaint();
         const root = this.element.nativeElement.querySelector<HTMLElement>('.review-stage .broadcast-preview');
         if (!root) throw new Error('The render review was cancelled.');
-        return inspectHubPreview(root, image, sourceIds);
+        const rendered = await inspectHubPreview(root, image, sourceIds);
+        rendered.requirementEvidence = measureRequirements(root, candidate, requirements ?? [], sourceIds);
+        return rendered;
       } });
       if (this.ai.diagnostics()) this.archive.latest.set(this.ai.diagnostics());
       const result = await pending;
@@ -104,6 +115,28 @@ export class AiHubBuilderComponent implements OnInit, AfterViewInit, OnDestroy {
         if (!run.outcome) run.finish('stopped', run.error || this.ai.status());
       }
     }
+  }
+  async addReferences(event: Event) {
+    const input = event.target as HTMLInputElement;
+    const files = Array.from(input.files ?? []);
+    if (this.busy || !files.length) return;
+    this.addingReferences.set(true);
+    try { for (const file of files) await this.library.add(file, this.referenceNotes); }
+    catch (error) { this.library.message.set(error instanceof Error ? error.message : String(error)); }
+    finally { input.value = ''; this.addingReferences.set(false); }
+  }
+  showReferenceExample(templateId: string) {
+    const template = getPredefinedHubTemplate(templateId);
+    if (!template) return;
+    const layout = template.createLayout();
+    this.referenceExample.set(previewHub({ _id: templateId, hubName: templateId, layout, layers: layout.layers! }, 'ai-library-'));
+  }
+  exportReferences() {
+    const data = { format: 'ai-hub-reference-library', version: 1, references: this.library.entries(), nativeSources: APPROVED_HUB_REFERENCE_RECORDS,
+      note: 'Reference context and source examples only; no model training or automatic approval of generated designs.' };
+    const url = URL.createObjectURL(new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' }));
+    const anchor = document.createElement('a'); anchor.href = url; anchor.download = 'ai-hub-reference-library.json'; anchor.click();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
   }
   apply() {
     const proposal = this.proposal();

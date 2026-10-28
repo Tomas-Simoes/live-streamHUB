@@ -4,7 +4,7 @@ import { normalizePartRules } from './hub-part-style';
 
 export const HUB_REPAIR_LIMITS = Object.freeze({ maxAttempts: 4, maxDurationMs: 600_000, repeatedIssueLimit: 3 });
 export const HUB_PHASE_LIMITS = Object.freeze({ previewMs: 12_000, textReviewMs: 45_000, imageReviewMs: 90_000, modelSwitchMs: 60_000 });
-export type RepairStopReason = 'attempt-limit' | 'time-limit' | 'preview-error' | 'repeated-proposal' | 'no-progress' | 'runtime-error';
+export type RepairStopReason = 'attempt-limit' | 'time-limit' | 'insufficient-budget' | 'preview-error' | 'repeated-proposal' | 'no-progress' | 'runtime-error';
 export type ValidationFailure = { fingerprint: string; issues: LayoutIssue[] };
 
 export function repairHintOperations(hints: { target: string; part: string; css: string }[]) {
@@ -85,7 +85,9 @@ export function validationSummary(issues: LayoutIssue[]): string {
     'no-change': 'The proposal did not make the requested changes.',
     'design-preservation': 'The proposal changed parts that should be preserved.',
   };
-  return [...new Set(issues.map(issue => issue.code === 'target' ? issue.message.split('. Available aliases:')[0] + '.'
+  return [...new Set(issues.map(issue => issue.code === 'schema' ? `Invalid model output: ${issue.message}`
+    : issue.code === 'style' ? `Invalid component CSS: ${issue.message}`
+    : issue.code === 'target' ? issue.message.split('. Available aliases:')[0] + '.'
     : issue.code === 'readability' && /parts overlap/.test(issue.message) ? 'Some portraits, items or statistics overlap.'
     : issue.code === 'readability' && /lacks contrast/.test(issue.message) ? 'Some text has insufficient contrast against its background.'
     : issue.code === 'readability' && /Item icons/.test(issue.message) ? 'Some item icons are too small to read.'
@@ -107,6 +109,7 @@ export function stoppedRepairMessage(reason: RepairStopReason, attempts: number,
   const explanation: Record<RepairStopReason, string> = {
     'attempt-limit': `Stopped after ${attempts} attempts.`,
     'time-limit': 'Stopped at the ten-minute time limit.',
+    'insufficient-budget': 'Stopped before another full generation because the observed model speed would exceed the remaining time budget.',
     'preview-error': 'The preview could not finish preparing for validation.',
     'repeated-proposal': 'Stopped because the model repeated an invalid proposal.',
     'no-progress': 'Stopped because the same validation problems kept recurring.',

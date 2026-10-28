@@ -68,9 +68,9 @@ test('patching preserves unrelated declarations, selectors and conditional conte
   let source = css.patchAuthoredCss('', '.name{color:white;font-size:21px}.kda{color:#aaa}@media(min-width:1px){.name{font-size:22px}}');
   source = css.patchAuthoredCss(source, '.name{font-size:23px}');
   const saved = css.authoredCss(source);
-  assert(saved.includes('color:white')); assert(saved.includes('.kda')); assert(saved.includes('22px')); assert(saved.includes('23px')); assert(!saved.includes('21px'));
+  assert(saved.includes('color:white')); assert(saved.includes('data-component-part=kda')); assert(saved.includes('22px')); assert(saved.includes('23px')); assert(!saved.includes('21px'));
   const replaced = css.patchAuthoredCss(source, '.name{color:black}', 'replace');
-  assert(!replaced.includes('.kda'));
+  assert(!replaced.includes('data-component-part=kda'));
 });
 
 test('stored native CSS survives serialization, preview ID remapping and frame resizing', () => {

@@ -44,7 +44,7 @@ addEventListener('message', async ({ data }) => {
           part: item.properties.part, css: { type: 'string', minLength: 1 },
         } };
       }
-      const maxTokens = kind === 'review' ? Math.min(800, data.maxTokens ?? 700) : kind === 'interpret' ? 1800 : Math.min(3200, data.maxTokens ?? (kind === 'repair' ? 1400 : 2800));
+      const maxTokens = kind === 'review' ? Math.min(800, data.maxTokens ?? 700) : kind === 'interpret' ? Math.min(900, data.maxTokens ?? 900) : Math.min(3200, data.maxTokens ?? (kind === 'repair' ? 1400 : 2800));
       send('configuration', { model: currentModel, temperature: 0, maxTokens,
         contextWindow: currentModel.startsWith('Qwen') ? 8192 : 4096, thinking: false,
         decoder: data.grammar ? { grammar: data.grammar } : { schema: decodeSchema } });

@@ -24,7 +24,7 @@ const spec = () => ({ design: { colors: { background: '#15171c', text: '#ffffff'
   typography: { bodyFont: 'Arial', headingFont: 'Impact', nameFont: 'Impact', uppercaseNames: true }, panels: { fill: 'gradient', corners: 'square', borderWidth: .5, accentWidth: 1, teamSections: true, rows: 'alternating', headerAccent: 'underline' },
   layout: { scoreboardWidth: 1100, scoreboardHeight: 100, rosterWidth: 600, rosterHeight: 260, showEventPanel: false }, title: 'LIVE' }, operations: [] });
 const report = () => ({ viewport: [1280, 720], fonts: [], clipped: [], frames: [], tableGapPx: 0, missingImages: 0 });
-const review = (approved, score) => ({ approved, score, summary: 'Cyan and orange sections have a clear score hierarchy.', issues: approved ? [] : [{ target: 'players', problem: 'Header competes with names.', action: 'Reduce header accent weight.' }] });
+const review = (approved, score) => ({ approved, score, comparison: 'initial', resolved: [], regressions: [], summary: 'Cyan and orange sections have a clear score hierarchy.', issues: approved ? [] : [{ target: 'players', problem: 'Header competes with names.', evidence: 'The header is brighter than player names in the lower strip.', criterion: 'Keep data prominent.', action: 'Reduce header accent weight.' }] });
 
 test('the recorded real Qwen composition compiles with its CSS aliases and native relationship requirements', async () => {
   const recorded = JSON.parse(await readFile(new URL('./fixtures/ai-creative-recorded.json', import.meta.url), 'utf8'));
@@ -181,7 +181,7 @@ function scripted(outputs) {
     const result = outputs.shift(); assert.notEqual(result, undefined, `Unexpected ${kind} call`);
     if (typeof result === 'function') return result(service);
     if (result instanceof Error) throw result;
-    return kind === 'switch' ? { model: payload.model, initializationMs: 10 } : { raw: JSON.stringify(kind === 'generate' && result.design ? cssFixture(result) : result) };
+    return kind === 'switch' ? { model: payload.model, initializationMs: 10 } : { raw: JSON.stringify(['generate', 'repair'].includes(kind) && result.design ? cssFixture(result) : result) };
   };
   return { service, calls };
 }
@@ -202,8 +202,8 @@ test('a worse Phi-guided refinement retains the better previously reviewed valid
   const { service, calls } = scripted([spec(), {}, review(false, 3.5), {}, refined, {}, review(false, 2), {}]);
   const result = await service.generate(hub(), 'Create my hub', 'create', { interpret: false, inspect, visionReview: true });
   assert.equal(result.hub.layers.find(layer => layer.team === 'blue').height, 260);
-  assert.equal(result.metrics.qualityRefinements, 1); assert.equal(calls.filter(call => call.kind === 'generate').length, 2);
-  assert.match(calls.findLast(call => call.kind === 'generate').messages.at(-1).content, /Header competes/);
+  assert.equal(result.metrics.qualityRefinements, 1); assert.equal(calls.filter(call => call.kind === 'generate').length, 1);
+  assert.match(calls.findLast(call => call.kind === 'repair').messages.at(-1).content, /Header competes/);
 });
 
 test('Phi loading failure preserves the valid Qwen candidate and does not claim visual approval', async () => {
@@ -213,12 +213,12 @@ test('Phi loading failure preserves the valid Qwen candidate and does not claim 
   assert(result.warnings.some(item => item.code === 'review-unavailable'));
 });
 
-test('ungrounded visual feedback gets one focused retry before it can affect the generator', async () => {
+test('ungrounded visual feedback retains the valid hub without extra review or design calls', async () => {
   const ungrounded = { approved: false, score: 0, issues: [], summary: 'Team accents not visible in image.' };
   const { service, calls } = scripted([spec(), {}, ungrounded, review(true, 4), {}]);
   const result = await service.generate(hub(), 'Create my hub', 'create', { interpret: false, inspect, visionReview: true });
-  assert.equal(result.metrics.assessment.visual, 'reviewed-advisory');
-  assert.equal(calls.filter(call => call.kind === 'review').length, 2);
+  assert.equal(result.metrics.assessment.visual, 'not-assessed');
+  assert.equal(calls.filter(call => call.kind === 'review').length, 1);
   assert.equal(result.metrics.qualityRefinements, 0);
 });
 

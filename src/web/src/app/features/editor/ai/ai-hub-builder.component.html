@@ -83,9 +83,10 @@
         @if (mode === 'edit') { <p class="edit-hint">Your composition and typography are preserved unless you ask to change them.</p> }
 
         <div class="instruction-label"><label for="ai-instruction">{{ mode === 'create' ? 'Describe your design' : 'What would you like to change?' }}</label><span id="instruction-count">{{ instruction.length }} / 6,000</span></div>
-        <textarea id="ai-instruction" rows="4" maxlength="6000" [disabled]="busy" [value]="instruction" aria-describedby="instruction-hint instruction-count"
+        <textarea id="ai-instruction" rows="4" [disabled]="busy" [value]="instruction" aria-describedby="instruction-hint instruction-count"
           (input)="instruction = $any($event.target).value" [placeholder]="mode === 'create' ? 'A clean, dark broadcast overlay with warm amber accents, a compact top scoreboard, and player panels along the bottom…' : 'Tell us what to adjust: colors, spacing, typography, scoreboard, player panels…'"></textarea>
         <p id="instruction-hint" class="input-hint">Think colors, layout, and the details that make it yours.</p>
+        @if (instruction.length > 6000) { <p class="warning" role="alert">Your full text is preserved. This local pipeline accepts up to 6,000 characters per request; shorten it or split it into edits before generating.</p> }
 
         <div class="examples-heading"><h4>Need a starting point?</h4><span>Try an idea</span></div>
         <div class="examples">
@@ -116,6 +117,37 @@
           </label>
         }
 
+        <details class="reference-library">
+          <summary>Visual reference library · {{ library.entries().length }} examples</summary>
+          <p>Pulse, Offset and Foundry are included. Add professional broadcasts with a note about what works. Relevant examples are selected automatically; your request still defines the design.</p>
+          <p class="muted">Qwen uses the annotations. Enable Phi visual feedback to compare actual images. Adding references does not train the model.</p>
+          <div class="reference-list">
+            @for (reference of library.entries(); track reference.id) {
+              <article class="reference-card">
+                @if (reference.image) { <img [src]="reference.image" [alt]="reference.title" loading="lazy"> }
+                <strong>{{ reference.title }}</strong><p>{{ reference.description }}</p>
+                @if (reference.templateId) { <button type="button" [disabled]="busy" (click)="showReferenceExample(reference.templateId)">View example</button> }
+                @if (reference.source === 'user') { <button type="button" [disabled]="busy" (click)="library.remove(reference.id)">Remove reference</button> }
+              </article>
+            }
+          </div>
+          @if (referenceExample(); as reference) {
+            <div class="preview reference-preview"><app-hub-preview [hub]="reference"></app-hub-preview></div>
+            <button type="button" (click)="referenceExample.set(null)">Close example</button>
+          }
+          <label for="reference-notes">What works in these images?</label>
+          <textarea id="reference-notes" rows="2" [disabled]="busy" [value]="referenceNotes" (input)="referenceNotes = $any($event.target).value"
+            placeholder="For example: clear score hierarchy, grouped player data and restrained team accents."></textarea>
+          <label for="reference-images">Add reference images</label>
+          <input id="reference-images" type="file" accept="image/png,image/jpeg,image/webp" multiple [disabled]="busy || !referenceNotes.trim()" (change)="addReferences($event)">
+          <p class="muted">PNG, JPEG or WebP, up to 12 MB each. Images stay in this browser.</p>
+          @if (library.message()) { <p role="status">{{ library.message() }}</p> }
+          <button type="button" [disabled]="busy" (click)="exportReferences()">Download reference library</button>
+          <label class="review-option"><span><strong>Include reference CSS · comparison experiment</strong><small>Off by default to reduce copying of an example. Compare the same request with this on and off.</small></span>
+            <input type="checkbox" role="switch" aria-label="Include reference CSS" [checked]="referenceCssEnabled" [disabled]="busy" (change)="referenceCssEnabled = $any($event.target).checked">
+          </label>
+        </details>
+
         @if (ai.validationNotice()) { <p class="muted validation-feedback" role="status">{{ ai.validationNotice() }}</p> }
         @if (ai.error()) { <p class="warning" role="alert">{{ ai.error() }}</p> }
         @if (notice()) { <p class="success" role="status">{{ notice() }}</p> }
@@ -140,7 +172,7 @@
                 <p class="muted">{{ plan.composition }} {{ plan.typography }} {{ plan.playerRows }}</p>
               }
               <ul>@for (check of requestChecks; track $index) {
-                <li><strong>{{ check.status === 'verified' ? 'Checked' : check.status === 'limited' ? 'Limited' : 'Review in preview' }}:</strong> {{ check.request }} <span class="muted">{{ check.detail }}</span></li>
+                <li><strong>{{ check.status === 'verified' ? 'Measured' : check.status === 'limited' ? 'Partly measured' : check.status === 'failed' ? 'Not met' : 'Review in preview' }}:</strong> {{ check.request }} <span class="muted">{{ check.detail }}</span></li>
               }</ul>
               @if (understood.preserve.length) { <p class="muted">Preserve: {{ understood.preserve.join('; ') }}</p> }
             </details>
@@ -149,7 +181,12 @@
           @if (designReview; as review) {
             <details class="design-review"><summary>Design review · {{ review.kind === 'image' ? 'image and measurements' : 'measurements' }}</summary>
               <p>{{ review.summary }}</p>
-              @for (issue of review.issues; track $index) { <p class="muted">{{ issue.problem }} {{ issue.action }}</p> }
+              @for (issue of review.issues; track $index) {
+                <p><strong>{{ issue.problem }}</strong> {{ issue.action }}</p>
+                @if (issue.evidence) { <p class="muted">Observed: {{ issue.evidence }}</p> }
+                @if (issue.criterion) { <p class="muted">Criterion: {{ issue.criterion }}</p> }
+              }
+              @if (review.comparison && review.comparison !== 'initial') { <p>Compared with previous proposal: {{ review.comparison }}.</p> }
             </details>
           }
           @if (proposal()!.warnings.length) { <ul>@for (issue of proposal()!.warnings; track $index) { <li class="muted">{{ issue.message }}</li> }</ul> }
@@ -171,7 +208,7 @@
       }
       <details class="diagnostics"><summary>Generation details &amp; performance</summary>
         <p>Automatic checks can make up to three corrections, within a ten-minute total limit. Every request is interpreted first. Technical checks and explicit preservation checks run even when design review is off. Other visual requirements remain yours to assess in the preview.</p>
-        <p>If another design pass is unlikely to finish in time, the builder keeps its validated proposal with the remaining suggestions.</p>
+        <p>Visual feedback can request one CSS correction. It replaces the previous valid proposal only when the image comparison identifies a resolved problem and no regressions. If time or evidence is insufficient, the previous proposal is retained.</p>
         <p>Preview preparation stops after 12 seconds if it cannot complete. Optional feedback is limited to 45 seconds for measurements or 90 seconds for images; a validated proposal is retained if that feedback is unavailable.</p>
         <p>{{ selectedModel.vision ? 'Phi handles generation and image review.' : visionReviewEnabled ? 'Qwen generates, Phi reviews the image, and Qwen can refine once. Models load sequentially within the same ten-minute total limit.' : 'Qwen review uses measurements. Optional Phi feedback adds inspection of the actual preview.' }}</p>
         <pre>{{ ai.raw() || 'No output yet.' }}</pre>

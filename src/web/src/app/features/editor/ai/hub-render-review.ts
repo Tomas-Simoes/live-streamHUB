@@ -13,6 +13,7 @@ export async function inspectHubPreview(root: HTMLElement, withImage: boolean, s
   const readiness = await preparePreviewAssets(root);
   const measurements = measureRenderedHub(root, withImage);
   for (const row of measurements.rowLayouts ?? []) if (row.target && sourceIds) row.target = sourceIds.get(row.target);
+  for (const component of measurements.componentLayouts ?? []) if (sourceIds) component.target = sourceIds.get(component.target) ?? component.target;
   measurements.readiness = readiness;
   const computedStyles = computedHubEvidence(root, sourceIds);
   if (!withImage) return { measurements, computedStyles };
@@ -58,7 +59,7 @@ export async function captureDiagnosticPreview(root: HTMLElement, sourceIds: Rea
 
 /** One local image keeps Phi's single-image input contract. The candidate is
  * dominant; the smaller companion teaches craftsmanship or shows a baseline. */
-export async function composeReviewComparison(candidate: string, companion: string, label: string): Promise<string> {
+export async function composeReviewComparison(candidate: string, companion: string, label: string, comparePrevious = false): Promise<string> {
   if (typeof Image === 'undefined') return candidate;
   const load = async (src: string) => { const bitmap = new Image(); bitmap.src = src; await bitmap.decode(); return bitmap; };
   const [current, reference] = await Promise.all([load(candidate), load(companion)]);
@@ -68,9 +69,21 @@ export async function composeReviewComparison(candidate: string, companion: stri
   context.fillStyle = '#0b1017'; context.fillRect(0, 0, sheet.width, sheet.height);
   context.font = '14px Arial'; context.fillStyle = '#ffffff';
   context.fillText('CANDIDATE — evaluate this hub', 8, 18);
+  if (comparePrevious) {
+    // Equal scale prevents the larger candidate from looking more readable
+    // merely because the previous proposal was displayed as a thumbnail.
+    context.fillText(label, 568, 18);
+    for (const [bitmap, left] of [[current, 0], [reference, 560]] as const) {
+      const scale = Math.min(552 / bitmap.width, 460 / bitmap.height);
+      context.drawImage(bitmap, left, 28, bitmap.width * scale, bitmap.height * scale);
+    }
+    context.fillText('Same scale. Identify resolved problems and any regressions.', 8, 524);
+    return sheet.toDataURL('image/png');
+  }
   context.drawImage(current, 0, 28, 672, 512);
   context.fillText(label, 684, 18);
-  context.drawImage(reference, 680, 28, 440, 335);
+  const companionScale = Math.min(440 / reference.width, 335 / reference.height);
+  context.drawImage(reference, 680, 28, reference.width * companionScale, reference.height * companionScale);
   context.font = '12px Arial';
   context.fillText('Compare hierarchy, spacing and finish.', 690, 390);
   context.fillText('Keep the user’s requested identity.', 690, 412);

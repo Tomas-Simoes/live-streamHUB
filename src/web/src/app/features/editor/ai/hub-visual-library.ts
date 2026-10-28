@@ -29,10 +29,13 @@ export class HubVisualLibrary {
   private async database(): Promise<IDBDatabase> {
     return new Promise((resolve, reject) => {
       const request = indexedDB.open('ai-hub-visual-references', 1);
+      let expired = false;
+      const timer = setTimeout(() => { expired = true; reject(new Error('Reference storage did not respond in time.')); }, 5000);
+      const fail = (error: unknown) => { expired = true; clearTimeout(timer); reject(error); };
       request.onupgradeneeded = () => request.result.createObjectStore('references', { keyPath: 'id' });
-      request.onerror = () => reject(request.error);
-      request.onblocked = () => reject(new Error('Reference storage is blocked by another tab.'));
-      request.onsuccess = () => resolve(request.result);
+      request.onerror = () => fail(request.error);
+      request.onblocked = () => fail(new Error('Reference storage is blocked by another tab.'));
+      request.onsuccess = () => { clearTimeout(timer); if (expired) request.result.close(); else resolve(request.result); };
     });
   }
   private async load() {

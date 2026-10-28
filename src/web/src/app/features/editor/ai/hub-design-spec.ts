@@ -7,7 +7,7 @@ import { authoredCss, validateAuthoredCss, cssChangesOutside } from '../../../sh
 import { rosterFields, nativeRosterTracks } from '../../../shared/helpers/roster-fields';
 import { HUB_PLAN_SCHEMA, HubPlan, HubPlanError, LayoutIssue, parseModelJson } from './hub-plan';
 import { hubTargetInventory, matchesHubTarget as matches } from './hub-targets';
-import { HubRequirement, REQUIREMENTS_SCHEMA, normalizedQuote } from './hub-request-checks';
+import { HubRequirement, REQUIREMENTS_SCHEMA, normalizedQuote, requestClauses } from './hub-request-checks';
 
 const text = { type: 'string', minLength: 1 };
 const strings = { type: 'array', maxItems: 6, items: text };
@@ -32,8 +32,19 @@ export const DESIGN_BRIEF_SCHEMA = {
   },
 };
 const validateBrief = new Ajv({ allErrors: true, strict: false }).compile(DESIGN_BRIEF_SCHEMA);
+type CompactDesignBrief = { version: 2; requirements: (Omit<HubRequirement, 'quote'> & { clause: number })[];
+  designPlan: NonNullable<DesignBrief['designPlan']>; constraints: DesignBrief['constraints']; unresolved: string[] };
 export function parseDesignBrief(raw: string, instruction: string): DesignBrief {
-  const value = parseModelJson(raw);
+  let value = parseModelJson(raw);
+  if ((value as any)?.version === 2) {
+    const compact = value;
+    const validate = new Ajv({ allErrors: true, strict: false }).compile<CompactDesignBrief>(compactBriefSchema(instruction));
+    if (!validate(compact)) throw new Error('Return the compact version-2 brief with valid original clause indices, requirements, designPlan, constraints and unresolved.');
+    const clauses = requestClauses(instruction);
+    value = { summary: compact.designPlan.identity, goals: [instruction], targets: ['all'], preserve: [], preferences: [], functionalRequirements: [],
+      scope: 'broad', designPlan: compact.designPlan, constraints: compact.constraints, unresolved: compact.unresolved,
+      requirements: compact.requirements.map(({ clause, ...check }) => ({ ...check, quote: clauses[clause] })) };
+  }
   if (!validateBrief(value)) throw new Error('Return a complete design brief with goals, targets, preservation constraints and preferences.');
   const result = value as DesignBrief;
   for (const requirement of result.requirements ?? []) {
@@ -50,11 +61,28 @@ export function parseDesignBrief(raw: string, instruction: string): DesignBrief 
 
 export const DESIGN_BRIEF_PROMPT = `Interpret a user's League of Legends broadcast design request and propose a concrete implementation plan. Return JSON, not CSS. Aim for 700-1100 tokens: requirements first, four short designPlan decisions, one summary, 1-4 goals and empty unspecified arrays.
 requirements preserves EACH explicit requested relationship, colour and layout detail. quote is an exact phrase from the user's text, never your paraphrase. Split different checks into separate records. Never replace specific instructions with "professional" or "balanced". target is an existing alias/ID; selector is scoped CSS using actual data-component-part attributes. measure is a measurement capability, NOT a styling permission: visual for anything not objectively checkable, gradient for visible gradient presence, widthFraction for width/canvas (value="0.5" for half), largerThan for image dimensions compared to reference selector, above/below for element placement relative to reference selector, color for a hue-family check (value=interpreted #RRGGBB, reference="text" or "fill"). Unused selector/reference/value are empty strings. For gradient direction, subtlety or aesthetic quality, retain an additional visual requirement. For portraits vs items, select [data-component-part="portrait"] and reference [data-component-part="item"]. For CS above KDA use selector [data-component-part="cs"], reference [data-component-part="kda"], measure=above. For team fills use [data-component-part="blue-team"] or red-team. Keep the chosen colour faithful: teal is not cyan and burnt orange is not vivid orange. Do not invent numeric ratios the user never specified, except 5% as the minimum test for "slightly larger". Keep all goals, including novel requests with measure=visual.
-designPlan comes first: identity chooses concrete colour/surface relationships consistent with the user's palette; composition chooses component proportions and alignment; typography chooses a legible hierarchy; playerRows explains field grouping, six equipment icons and placement of EVERY actual rowField including level. Use the supplied component structure. For targeted edits, leave unrelated decisions as "retain current". These are proposed design decisions, not additional user constraints or proof of visual quality. They do not restrict available CSS properties. Do not invent missing widgets or claim a plan has already been rendered.
+After requirements, designPlan makes concrete decisions: identity chooses colour/surface relationships consistent with the user's palette; composition chooses component proportions and alignment; typography chooses a legible hierarchy; playerRows explains field grouping, six equipment icons and placement of EVERY actual rowField including level. Use the supplied component structure. For targeted edits, leave unrelated decisions as "retain current". These are proposed design decisions, not additional user constraints or proof of visual quality. They do not restrict available CSS properties. Do not invent missing widgets or claim a plan has already been rendered.
 Describe goals, explicit targets, explicit visual preferences, functional requirements, preservation notes and scope. Understand ordinary/imperfect language. A broad request permits coordinated artistic decisions. A precise request should retain unrelated details. Do not invent a preferred aesthetic or require users to name CSS properties.
 All CSS and structural capabilities remain available regardless of this brief. targets are context, never an operation whitelist. Use aliases from the supplied availableTargets, never invent aliases or enumerate every layer ID. Creation/overall redesign uses targets=["all"]. Use an ID only when a specific additional layer is explicitly targeted.
 constraints contain ONLY explicit things to preserve. Quote the original phrase in request. aspect=all protects the entire target; geometry protects position/dimensions; typography protects its type; content protects data/media/text; visibility protects existing visibility. For "only change player tables; keep scoreboard unchanged", protect scoreboards/all. For an explicit narrow CSS-only edit, only-css protects EVERYTHING except its selector/properties on the stated target: e.g. target=all, aspect=only-css, selector=[data-component-part="name"], properties=["font-family"] for "only change the player names' font". Properties/selectors are free CSS, not style categories. Use only-css only for explicit ONLY requests, never for a broad request that needs coordinated changes. Do not add a preservation rule that conflicts with a requested modification. preserve may express finer constraints not covered by those aspects; they stay instructions to the designer.
 scope=broad for overall redesign/creation, targeted for specific edits. goals/preferences are free natural-language descriptions, not categories. unresolved lists genuinely missing functionality such as a new data feed or webcam; CSS styles and novel themes are supported. If the user did not ask to preserve anything, preserve=[] and constraints=[]. A NEW design has no existing geometry or visibility to preserve. Keep the brief concise.`;
+
+export const COMPACT_DESIGN_BRIEF_PROMPT = `Prepare a compact implementation aid for a League broadcast designer. Return version=2 JSON, ideally 250-500 tokens. The ORIGINAL instruction always reaches the designer unchanged; this aid never replaces it.
+requirements contains ONLY objective checks: gradient presence, widthFraction (canvas fraction as numeric string), largerThan (portrait vs ONE item), above/below, or color (interpreted #RRGGBB hue). clause is an index into originalClauses; NEVER copy or summarize its text. Subjective goals need no record: all original clauses remain obligations and unmeasured ones stay visible. Do not repeat requests into goals, preferences or a summary. Unused reference/value are empty strings. Use real targets/selectors from components; do not invent widget names.
+Scoreboard width: target=scoreboards, selector=&. Scoreboard fills: target=scoreboards, selector=[data-component-part="blue-team"] or red-team. Portrait comparison: target=players, selector=[data-component-part="portrait"], measure=largerThan, reference=[data-component-part="item"]. Never use widthFraction for a portrait/item comparison. Teal is not royal blue; keep the requested palette.
+designPlan has four SHORT decisions: identity, composition, typography, playerRows. One concise sentence per field, no repetition of the request. Account for all rowFields including level. Novel styling is supported through general CSS, not categories.
+constraints contains ONLY explicit user preservation boundaries, request quotes the user's exact phrase. aspect=all|geometry|typography|content|visibility; only-css additionally needs selector and properties. A new design normally has constraints=[]. unresolved is only missing functionality such as webcam feeds, not CSS styling. No CSS output here.`;
+
+function compactBriefSchema(instruction: string): Record<string, any> {
+  const properties = { ...REQUIREMENTS_SCHEMA.items.properties } as Record<string, any>;
+  delete properties.quote;
+  properties.measure = { enum: ['gradient', 'widthFraction', 'largerThan', 'above', 'below', 'color'] };
+  properties.clause = { type: 'integer', minimum: 0, maximum: Math.max(0, requestClauses(instruction).length - 1) };
+  return { type: 'object', additionalProperties: false, required: ['version', 'requirements', 'designPlan', 'constraints', 'unresolved'], properties: {
+    version: { const: 2 }, requirements: { type: 'array', maxItems: 16, items: { type: 'object', additionalProperties: false, required: Object.keys(properties), properties } },
+    designPlan: DESIGN_BRIEF_SCHEMA.properties.designPlan, constraints: DESIGN_BRIEF_SCHEMA.properties.constraints, unresolved: strings,
+  } };
+}
 
 const structural = HUB_PLAN_SCHEMA.properties.operations.items.oneOf.filter(operation =>
   ['frame', 'move', 'resize', 'decoration', 'text', 'scoreboard', 'players', 'visibility', 'add', 'remove'].includes(operation.properties.op.const)).map(operation => {
@@ -66,7 +94,7 @@ const structural = HUB_PLAN_SCHEMA.properties.operations.items.oneOf.filter(oper
 export const HUB_DESIGN_RESPONSE_SCHEMA = {
   type: 'object', additionalProperties: false, required: ['summary', 'styles', 'operations'],
   properties: {
-    summary: { type: 'string', maxLength: 360 },
+    summary: { type: 'string' },
     styles: { type: 'array', maxItems: 16, items: { type: 'object', additionalProperties: false, required: ['target', 'mode', 'css'], properties: {
       target: text, mode: { enum: ['patch', 'replace'] }, css: { type: 'string', maxLength: 24000 },
     } } },
@@ -89,7 +117,15 @@ export function designResponseSchema(hub: Hub): Record<string, any> {
   for (const operation of schema['properties'].operations.items.oneOf) if (operation.properties.target) operation.properties.target = designTargetSchema(hub);
   return schema;
 }
-export function designBriefSchema(hub: Hub): Record<string, any> {
+export function designBriefSchema(hub: Hub, instruction?: string): Record<string, any> {
+  if (instruction !== undefined) {
+    const schema = compactBriefSchema(instruction);
+    const target = { enum: [...new Set(['all', ...Object.keys(hubTargetInventory(hub.layers).aliases), ...hub.layers.map(layer => layer.id)])] };
+    schema.properties.requirements.items.properties.target = target;
+    schema.properties.constraints = structuredClone(schema.properties.constraints);
+    schema.properties.constraints.items.properties.target = target;
+    return schema;
+  }
   const schema: Record<string, any> = structuredClone(DESIGN_BRIEF_SCHEMA);
   // Older diagnostics remain readable, while new decoder output must contain
   // concrete design decisions before the CSS generation request.
@@ -105,10 +141,15 @@ export function parseDesignResponse(raw: string, mode: 'create' | 'edit'): HubPl
   const value = parseModelJson(raw) as { summary: string; styles: { target: string; mode: 'patch' | 'replace'; css: string }[]; operations: HubPlan['operations'] };
   if (!validateResponse(value)) throw new HubPlanError([{ code: 'schema', layerIds: [], message: (validateResponse.errors ?? []).slice(0, 4).map(error => `${error.instancePath} ${error.message}`).join('; ') }]);
   if (!value.styles.length && !value.operations.length) throw new HubPlanError([{ code: 'no-change', layerIds: [], message: 'Return CSS or structural changes implementing the instruction.' }]);
-  try { for (const style of value.styles) validateAuthoredCss(style.css); }
-  catch (error) { throw new HubPlanError([{ code: 'style', layerIds: [], message: error instanceof Error ? error.message : String(error) }]); }
-  return { template: mode === 'create' ? 'ai-authored' : 'current', authored: true, summary: value.summary,
+  const plan: HubPlan = { template: mode === 'create' ? 'ai-authored' : 'current', authored: true, summary: value.summary,
     operations: [...value.operations, ...value.styles.map(style => ({ op: 'css' as const, ...style }))] };
+  const issues: LayoutIssue[] = [];
+  for (const [index, style] of value.styles.entries()) {
+    try { validateAuthoredCss(style.css); }
+    catch (error) { issues.push({ code: 'style', path: `/operations/${value.operations.length + index}/css`, layerIds: [], message: error instanceof Error ? error.message : String(error) }); }
+  }
+  if (issues.length) throw new HubPlanError(issues, plan);
+  return plan;
 }
 
 export const HUB_STYLING_CONTRACT = `This is a 1920x1080 broadcast overlay over gameplay, not a website. Functional native widgets retain all live bindings. Layer coordinates are CENTER coordinates. Reusable components: a two-team scoreboard and two five-player tables, each player containing a champion portrait and a strip of SIX individual equipment icons. Optional flags control data visibility; static decorations must never replace live numbers.
@@ -116,6 +157,7 @@ CSS targets: use availableTargets in the supplied context or an actual layer ID.
 Scoreboard semantic tree: .scorebug (surface) > blue-team, center, red-team, blue-objectives, red-objectives. Team section > blue/red-logo, .team-lockup > blue/red-code and blue/red-seed, blue/red-gold, blue/red-towers. center > blue-kills, .score-divider, red-kills, clock. These unprefixed names are data-component-part VALUES, NEVER class names: use [data-component-part="blue-gold"], [data-component-part="clock"], [data-component-part="blue-code"]. .blue-gold, .clock, .blue-code and .roster-cs do not exist. Use [data-component-part="cs"] for CS. Objectives contain dragons, voidgrubs and herald. Names and values remain native bindings.
 Table tree: .player-roster[data-team="blue|red"] > [data-component-part="row"][data-player-role="top|jungle|mid|adc|support"] x5. Each row contains items > item x6 > img; portrait > img; level; name; cs; kda; gold if enabled. Context rowFields is the ACTUAL visible order; account for every field when authoring tracks. Red ordering is mirrored initially. There is no .roster-row.red class: target red-players or .player-roster[data-team="red"]. item=ONE icon; items=the ENTIRE six-icon strip. CSS grid/flex/order can change internal organization freely. .text-layer is decorative text, img is existing media.
 Any browser-supported CSS property/value is available for presentation, including custom variables, gradients, layout, typography, masks without resources, clipping, shadows, pseudo elements and local keyframes. Variables are authored by you; define them before use. Fonts use available system faces or existing installed fonts; no remote imports. No URLs, scripts, markup, external resources or selectors escaping a layer. @media/@supports/@container/@layer and local @keyframes are supported; flatten nested selectors. Root frame width/height/position/transform use frame/move/resize operations so editor handles match exports. Internal dimensions/position/transform are CSS.
+The outer & frame contains ONE native renderer. The [data-component-part="surface"] contains five rows; each [data-component-part="row"] contains that player's fields. Put field grid tracks on the row, not on &; six outer columns squeeze the entire five-player table into one column. Exact .PART shorthand is normalized to [data-component-part="PART"]; other class names must exist in the supplied structure.
 CSS px mean native canvas units, scaled with each layer. Percentage grid tracks plus gaps must fit available space. Retain legible match data at 720p. A compact component still contains all its data, not one row. Keep the request's explicit constraints; do not apply unrelated artistic changes. There is no compulsory palette, font, geometry or prepared visual reference.`;
 
 export const HUB_DESIGN_PROMPT = `You author a League broadcast hub's visual design. Return ONLY JSON: {summary,styles:[{target,mode,css}],operations:[]}.
@@ -123,11 +165,11 @@ ${HUB_STYLING_CONTRACT}
 Choose a coherent identity from the actual request and carry its relationships across the relevant components. A vague request permits design judgment; a specific edit preserves unrelated content and styling. Your CSS owns the artistic decisions; the application supplies no keyword-based treatments. Reference CSS demonstrates structure and craftsmanship: do NOT copy its colours or identity when the user requests different ones. The final user instruction takes priority over all reference values.
 Implement EVERY explicit requirement in the brief and original request. Do not merely recolour the scaffold: use frame operations and internal CSS grid/flex when proportions/grouping are requested. Check all quoted requirements against the CSS you are returning. Visual requirements remain obligations even when no automatic measurement exists. Small examples illustrate techniques, never a default answer. Do not invent selectors; prefer the documented data-component-part attributes.
 Creation: style the supplied neutral scaffold using original CSS; arrange its components if appropriate. Editing: use mode=patch to change only relevant declarations; unrelated rules remain. mode=replace clears a target's entire old custom CSS, including earlier styles in the same proposal, so use it only for an explicitly complete target redesign. After styling all, specialize individual components with patch rather than clearing the shared foundation again. Empty replace CSS clears custom CSS intentionally. Declare all variables you reference. A CSS patch is a normal complete selector block, not a diff format. Keep output concise by grouping selectors; do not repeat defaults.
-Structural operations: frame {target,x,y,width,height} sets absolute native geometry; move {target,dx,dy}; resize {target,width,height}; visibility {target,visible}; text {target,text}; decoration {key,kind:shape|text,x,y,width,height,text?}; scoreboard {target,showGold?,showObjectives?,showGameTime?}; players {target,showChampion?,showItems?,showCs?,showKda?,showGold?}; add {component:scoreboard|players}; remove {target}. New decorations have ID ai-decoration-KEY. Geometry and text use operations; all visual decisions use styles. Never rename a team because of a colour instruction. Preserve data sources/roles/teams. Keep a short summary describing actual design choices, not an explanation of every CSS line.`;
+Structural operations: frame {target,x,y,width,height} sets absolute native geometry; move {target,dx,dy}; resize {target,width,height}; visibility {target,visible}; text {target,text}; decoration {key,kind:shape|text,x,y,width,height,text?}; scoreboard {target,showGold?,showObjectives?,showGameTime?}; players {target,showChampion?,showItems?,showCs?,showKda?,showGold?}; add {component:scoreboard|players}; remove {target}. New decorations have ID ai-decoration-KEY. Geometry and text use operations; all visual decisions use styles. Never rename a team because of a colour instruction. Preserve data sources/roles/teams. Summary: one short sentence about actual decisions, not a copy of the request. Write compact CSS, group shared selectors and specialize with patch; do not spend output repeating ineffective selectors or defaults.`;
 
 export const HUB_REPAIR_PROMPT = `Repair the supplied broadcast candidate. Return ONLY complete JSON: {"summary":"Short repair summary","styles":[{"target":"players","mode":"patch","css":"selector{property:value}"}],"operations":[]}.
 The application RETAINS the entire candidate. Return ONLY the few declarations needed to fix the reported failures, not a repeated design or stylesheet. Aim below 600 output tokens. Keep its visual identity, explicit user constraints and all live bindings. No reference copying or unrelated restyling. previousPatch already failed: do not repeat it. When implicitWrap=true, fix the containing row grid AND stale field placements. An image width cannot enlarge a clipped .item-slot or its .roster-items strip. rowLayouts.items gives slot, image and actually visible sizes. --roster-tracks is the renderer's valid grid for CURRENT fields; it is available as a starting point, not a mandatory layout.
-Targets: layer ID, scoreboards, players, blue-players, red-players, all. CSS is scoped to each layer; & is its root. [data-component-part="row|items|item|portrait|level|name|cs|kda|gold"] are table parts. items is a SIX-icon strip; item is one icon. A row has every visible field in context.rowFields, including level when enabled. Account for EVERY field in grid tracks or explicit placements; five columns do not automatically fit six fields. Mirrored tables may need different tracks. Target red-players, not .roster-row.red. Use normal selector blocks; arbitrary valid presentation CSS is available. Define any custom variables you use. No URLs, imports or global selectors. CSS px are native 1920x1080 units. measurements.rowLayouts field widths/heights are native units; grid is computed CSS track sizes. Root geometry uses operations: frame {target,x,y,width,height} (center coordinates), move {target,dx,dy}, resize {target,width,height}. Do not hide or replace live information to pass a check. Empty operations is appropriate for CSS-only repairs.`;
+Targets: layer ID, scoreboards, players, blue-players, red-players, all. CSS is scoped to each layer; & is its root. [data-component-part="row|items|item|portrait|level|name|cs|kda|gold"] are table parts. items is a SIX-icon strip; item is one icon. A row has every visible field in context.rowFields, including level when enabled. Account for EVERY field in grid tracks or explicit placements; five columns do not automatically fit six fields. Mirrored tables may need different tracks. Target red-players, not .roster-row.red. Use normal selector blocks; arbitrary valid presentation CSS is available. Define any custom variables you use. No URLs, imports or global selectors. CSS px are native 1920x1080 units. measurements.rowLayouts field widths/heights are native units; grid is computed CSS track sizes. componentLayouts compares the outer frame, its ONE renderer and its surface: fix a squeezed parent before enlarging icons inside it. Put player field columns on [data-component-part="row"], not &. Root geometry uses operations: frame {target,x,y,width,height} (center coordinates), move {target,dx,dy}, resize {target,width,height}. Do not hide or replace live information to pass a check. Empty operations is appropriate for CSS-only repairs.`;
 
 export function designContext(hub: Hub, brief?: DesignBrief, cssBudget = 10500) {
   const cssById = new Map<string, { css: string; omittedCssCharacters?: number }>();

@@ -43,15 +43,17 @@ export function evaluateRequirement(requirement: HubRequirement, samples: Requir
     case 'largerThan':
       if (samples.some(sample => !sample.reference)) return result('unverified', 'Comparison element was not available in the same player row.');
       passed = samples.every(sample => Math.min(sample.width, sample.height) > Math.min(sample.reference!.width, sample.reference!.height) * 1.05);
-      detail = 'Compared visible image sides within each row; larger means at least 5% larger.';
+      detail = `Visible sides: ${Math.min(...samples.map(sample => Math.min(sample.width, sample.height))).toFixed(1)}px minimum vs ${Math.max(...samples.map(sample => Math.min(sample.reference!.width, sample.reference!.height))).toFixed(1)}px maximum comparison. Each row must be at least 5% larger.`;
       break;
     case 'above': case 'below':
       if (samples.some(sample => !sample.reference)) return result('unverified', 'Comparison element was not available.');
       passed = samples.every(sample => requirement.measure === 'above' ? sample.bottom <= sample.reference!.top + 1 : sample.top >= sample.reference!.bottom - 1);
-      detail = `Measured ${requirement.selector} ${requirement.measure} ${requirement.reference} within each component/row.`;
+      detail = `Measured ${requirement.selector} ${requirement.measure} ${requirement.reference} within each component/row. First vertical bounds: ${samples[0].top.toFixed(1)}–${samples[0].bottom.toFixed(1)}px vs ${samples[0].reference!.top.toFixed(1)}–${samples[0].reference!.bottom.toFixed(1)}px.`;
       break;
     case 'color': {
+      if (!['text', 'fill'].includes(requirement.reference)) return result('unverified', 'The interpreted colour check did not identify text or fill. A frame/border colour cannot be checked as a background.');
       if (!/^#[a-f\d]{6}$/i.test(requirement.value)) return result('unverified', 'Colour measurement needs an interpreted RGB reference; visual palette judgement remains advisory.');
+      if (requirement.reference !== 'text' && samples.some(sample => /gradient\(/.test(sample.fill))) return result('unverified', 'Gradient palette needs visual review; a single colour stop cannot establish the whole treatment.');
       // This checks a hue family, not an exact artistic interpretation of a name.
       passed = samples.every(sample => matchesRenderedHue(requirement.reference === 'text' ? sample.color : sample.fill, requirement.value));
       return result(passed ? 'limited' : 'failed', passed ? 'Measured hue agrees with the interpreted colour. Brightness, saturation and overall identity still need review.' : `Rendered colour differs from the interpreted hue ${requirement.value}.`);
@@ -60,14 +62,17 @@ export function evaluateRequirement(requirement: HubRequirement, samples: Requir
   return result(passed ? 'verified' : 'failed', detail!);
 }
 
-function visibleBox(node: HTMLElement) {
+function visibleBox(node: HTMLElement, root: HTMLElement) {
   const image = node.matches('img') ? node : node.querySelector<HTMLElement>('img');
   const rect = (image ?? node).getBoundingClientRect();
   let left = rect.left, right = rect.right, top = rect.top, bottom = rect.bottom;
+  // The review stage is deliberately offscreen. Clip inside this preview,
+  // never against dialog/page ancestors that do not belong to its canvas.
   if (image) for (let parent = image.parentElement; parent; parent = parent.parentElement) {
     const style = getComputedStyle(parent), box = parent.getBoundingClientRect();
     if (/hidden|clip|auto|scroll/.test(style.overflowX)) { left = Math.max(left, box.left); right = Math.min(right, box.right); }
     if (/hidden|clip|auto|scroll/.test(style.overflowY)) { top = Math.max(top, box.top); bottom = Math.min(bottom, box.bottom); }
+    if (parent === root) break;
   }
   return { width: Math.max(0, right - left), height: Math.max(0, bottom - top), top, bottom };
 }
@@ -83,16 +88,20 @@ export function measureRequirements(root: HTMLElement, hub: Hub, requirements: H
     const samples: RequirementSample[] = [];
     try {
       for (const frame of frames) {
-        const nodes = requirement.selector === '&' ? [frame] : Array.from(frame.querySelectorAll<HTMLElement>(requirement.selector));
+        const sourceId = sourceIds.get(frame.dataset['layerId']!);
+        const nodes = requirement.selector === '&' || requirement.selector === `#${sourceId}` ? [frame] : Array.from(frame.querySelectorAll<HTMLElement>(requirement.selector));
         for (const node of nodes) {
           const style = getComputedStyle(node), fill = style.backgroundImage === 'none' ? style.backgroundColor : style.backgroundImage;
           const container = node.closest<HTMLElement>('[data-component-part="row"]') ?? frame;
-          const comparison = ['above', 'below', 'largerThan'].includes(requirement.measure) ? container.querySelector<HTMLElement>(requirement.reference) : null;
-          samples.push({ ...visibleBox(node), fill, color: style.color, gradientDelta: gradientColorDelta(fill),
-            ...(comparison ? { reference: visibleBox(comparison) } : {}) });
+          const comparisons = ['above', 'below', 'largerThan'].includes(requirement.measure)
+            ? Array.from(container.querySelectorAll<HTMLElement>(requirement.reference)).map(node => visibleBox(node, root)) : [];
+          const comparison = requirement.measure === 'largerThan'
+            ? comparisons.sort((a, b) => Math.min(b.width, b.height) - Math.min(a.width, a.height))[0] : comparisons[0];
+          samples.push({ ...visibleBox(node, root), fill, color: style.color, gradientDelta: gradientColorDelta(fill),
+            ...(comparison ? { reference: comparison } : {}) });
         }
       }
-    } catch { /* Invalid selectors are reported as unverified, never executed as code. */ }
+    } catch { samples.length = 0; /* Never approve partial measurements after an invalid selector. */ }
     return { requirement, samples, check: evaluateRequirement(requirement, samples, root.getBoundingClientRect().width) };
   });
 }

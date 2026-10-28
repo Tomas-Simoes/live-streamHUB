@@ -1,0 +1,19 @@
+{
+  "instruction": "Add a gradient to the left team section. Keep all match information readable.",
+  "interpretation": "{\"summary\":\"Gradient with readable data\",\"goals\":[\"Gradient and legible data\"],\"targets\":[\"scoreboards\"],\"preserve\":[],\"preferences\":[],\"functionalRequirements\":[],\"scope\":\"broad\",\"constraints\":[],\"unresolved\":[],\"requirements\":[{\"quote\":\"Add a gradient to the left team section\",\"target\":\"scoreboards\",\"selector\":\"[data-component-part=blue-team]\",\"measure\":\"gradient\",\"reference\":\"\",\"value\":\"\"}]}",
+  "proposal": "{\"summary\":\"Controlled initial solid surface\",\"styles\":[{\"target\":\"all\",\"mode\":\"patch\",\"css\":\"&{color:#ffffff;background:#12151a}\"},{\"target\":\"scoreboards\",\"mode\":\"patch\",\"css\":\"[data-component-part=blue-team]{background:#123a3a}\"},{\"target\":\"players\",\"mode\":\"patch\",\"css\":\"[data-component-part=row]{border-bottom:1px solid #283239}\"}],\"operations\":[]}",
+  "repairs": [
+    "{\"summary\":\"Repair missing gradient\",\"styles\":[{\"target\":\"scoreboards\",\"mode\":\"patch\",\"css\":\"[data-component-part=blue-team]{background:linear-gradient(90deg,#126565,#12151a)}\"}],\"operations\":[]}",
+    "{\"summary\":\"Coordinate separators with team treatment\",\"styles\":[{\"target\":\"players\",\"mode\":\"patch\",\"css\":\"[data-component-part=row]{border-bottom:1px solid #315453}\"}],\"operations\":[]}"
+  ],
+  "reviews": [
+    "{\"approved\":false,\"comparison\":\"initial\",\"resolved\":[],\"regressions\":[],\"summary\":\"Teal scoreboard with dark player rows and white condensed names.\",\"issues\":[{\"target\":\"players\",\"problem\":\"Row separators lack team identity\",\"action\":\"Use a restrained teal separator\",\"evidence\":\"Grey dividers below the rows do not repeat the scoreboard teal.\",\"criterion\":\"Coordinated team identity\"}]}",
+    "{\"approved\":true,\"comparison\":\"improved\",\"resolved\":[\"Row separators lack team identity\"],\"regressions\":[],\"summary\":\"Teal row separators now repeat the scoreboard accent; white names remain readable.\",\"issues\":[]}"
+  ],
+  "worseReviews": [
+    "{\"approved\":false,\"comparison\":\"initial\",\"resolved\":[],\"regressions\":[],\"summary\":\"Teal scoreboard with dark player rows and white condensed names.\",\"issues\":[{\"target\":\"players\",\"problem\":\"Row separators lack team identity\",\"action\":\"Use a restrained teal separator\",\"evidence\":\"Grey dividers below the rows do not repeat the scoreboard teal.\",\"criterion\":\"Coordinated team identity\"}]}",
+    "{\"approved\":false,\"comparison\":\"worse\",\"resolved\":[\"Row separators lack team identity\"],\"regressions\":[\"Row separators now dominate the secondary statistics\"],\"summary\":\"Teal separators became distracting alongside the white player names.\",\"issues\":[{\"target\":\"players\",\"problem\":\"Separators are too prominent\",\"action\":\"Keep the previous separators\",\"evidence\":\"New teal lines draw more attention than the quiet KDA text.\",\"criterion\":\"Readable hierarchy\"}]}"
+  ],
+  "expectedEvidence": {"accept":true,"border":"rgb(49, 84, 83)"},
+  "expectedRetainedEvidence": {"accept":false,"border":"rgb(40, 50, 57)"}
+}

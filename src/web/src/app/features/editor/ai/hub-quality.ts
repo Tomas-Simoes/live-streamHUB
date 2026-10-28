@@ -4,10 +4,14 @@ import { LayoutIssue, parseModelJson } from './hub-plan';
 import type { PreviewReadiness } from './hub-preview-readiness';
 
 export type RenderedHubReport = {
+  componentLayouts?: { target: string; role: string; width: number; height: number; contentWidth: number; loaderWidth: number;
+    rootColumns: number; rootPadding: number; surfaceWidth: number; surfaceHeight: number;
+    text?: { part: string; fontPx: number }[] }[];
   rowLayouts?: { team: string; target?: string; grid: string; rows?: string; width?: number; height?: number;
     trackCount?: number; implicitWrap?: boolean; defaultTracks?: string;
     items?: { slotWidth: number; slotHeight: number; imageWidth: number; imageHeight: number; visibleMin: number };
-    fields: { part: string; width: number; height: number; column: string; row?: string; x?: number; y?: number; position?: string }[] }[];
+    fields: { part: string; width: number; height: number; column: string; row?: string; x?: number; y?: number; position?: string;
+      fontPx?: number; textWidth?: number; border?: number; margin?: number }[] }[];
   editFacts?: { rosters: { dark: boolean; tinted: boolean; alternating: boolean; csColor: string; csWeight: number; kdaWeight: number; namesFace: string; portraitBorder: number }[]; header?: { fontPx: number; heightPx: number } };
   readiness?: PreviewReadiness;
   repairHints?: { target: string; part: string; css: string; reason: string }[];
@@ -114,6 +118,19 @@ export function measureRenderedHub(root: HTMLElement, includeColourFacts = false
   const fills = (node: HTMLElement) => { const style = getComputedStyle(node); return style.backgroundImage === 'none' ? style.backgroundColor : style.backgroundImage; };
   const editRosters = Array.from(root.querySelectorAll<HTMLElement>('.player-roster')).sort((a, b) => a.getBoundingClientRect().x - b.getBoundingClientRect().x);
   const nativeScale = 1920 / (bounds.width || 1920);
+  const componentLayouts = editRosters.concat(Array.from(root.querySelectorAll<HTMLElement>('.scorebug'))).flatMap(surface => {
+    const frame = surface.closest<HTMLElement>('[data-layer-id]'), loader = surface.parentElement;
+    if (!frame || !loader) return [];
+    const box = frame.getBoundingClientRect(), computed = getComputedStyle(frame), inner = surface.getBoundingClientRect();
+    const horizontal = parseFloat(computed.paddingLeft) + parseFloat(computed.paddingRight) + parseFloat(computed.borderLeftWidth) + parseFloat(computed.borderRightWidth);
+    return [{ target: frame.dataset['layerId']!, role: surface.classList.contains('scorebug') ? 'scoreboard' : 'players',
+      width: box.width * nativeScale, height: box.height * nativeScale, contentWidth: box.width * nativeScale - horizontal,
+      loaderWidth: loader.getBoundingClientRect().width * nativeScale, rootColumns: (computed.gridTemplateColumns.match(/[\d.]+px/g) ?? []).length,
+      rootPadding: Math.max(...['paddingLeft','paddingRight','paddingTop','paddingBottom'].map(key => parseFloat((computed as any)[key]) || 0)),
+      surfaceWidth: inner.width * nativeScale, surfaceHeight: inner.height * nativeScale,
+      text: Array.from(surface.querySelectorAll<HTMLElement>('[data-component-part]')).filter(item => /^(clock|(?:blue|red)-(?:code|gold|kills))$/.test(item.dataset['componentPart'] ?? ''))
+        .map(item => ({ part: item.dataset['componentPart']!, fontPx: parseFloat(getComputedStyle(item).fontSize) })) }];
+  });
   const rowLayouts = editRosters.flatMap(node => {
     const row = node.querySelector<HTMLElement>('.roster-row');
     if (!row) return [];
@@ -122,7 +139,11 @@ export function measureRenderedHub(root: HTMLElement, includeColourFacts = false
     const fields = Array.from(row.children).filter((child): child is HTMLElement => child instanceof HTMLElement)
         .filter(child => getComputedStyle(child).display !== 'none').map(child => {
           const cell = child.getBoundingClientRect(), style = getComputedStyle(child);
-          return { part: child.dataset['componentPart'] ?? child.className, width: native(cell.width), height: native(cell.height),
+          const part = child.dataset['componentPart'] ?? child.className;
+          const siblings = Array.from(node.querySelectorAll<HTMLElement>('[data-component-part]')).filter(item => item.dataset['componentPart'] === part);
+          const textWidth = Math.max(0, ...siblings.map(item => { const range = document.createRange(); range.selectNodeContents(item); return range.getBoundingClientRect().width * nativeScale; }));
+          return { part, width: native(cell.width), height: native(cell.height), fontPx: parseFloat(style.fontSize), textWidth,
+            border: parseFloat(style.borderLeftWidth) + parseFloat(style.borderRightWidth), margin: parseFloat(style.marginLeft) + parseFloat(style.marginRight),
             column: style.gridColumn, row: style.gridRow, x: native(cell.left - box.left), y: native(cell.top - box.top), position: style.position };
         });
     const trackCount = (rowStyle.gridTemplateColumns.match(/[\d.]+px/g) ?? []).length;
@@ -217,7 +238,7 @@ export function measureRenderedHub(root: HTMLElement, includeColourFacts = false
       return { css, family: renderedColorFamily(css) };
     });
   return { viewport: [Math.round(bounds.width), Math.round(bounds.height)], fonts, clipped, frames,
-    rosterDetails, teamFills, integrity, editFacts, rowLayouts, ...(repairHints.length ? { repairHints } : {}),
+    rosterDetails, teamFills, integrity, editFacts, rowLayouts, componentLayouts, ...(repairHints.length ? { repairHints } : {}),
     tableGapPx: tables.length === 2 ? tables[1].x - tables[0].x - tables[0].width : null,
     ...(teamAccents ? { teamAccents } : {}),
     missingImages: Array.from(root.querySelectorAll<HTMLImageElement>('img')).filter(image => !image.complete || !image.naturalWidth).length };

@@ -15,6 +15,7 @@ const cssRegression = process.env.AI_QA_CSS === '1';
 const reasoningRegression = process.env.AI_QA_REASONING === '1';
 const diagnosticRegression = process.env.AI_QA_DIAGNOSTICS === '1';
 const diagnosticFailure = process.env.AI_QA_DIAGNOSTIC_FAILURE === '1';
+const libraryRegression = process.env.AI_QA_LIBRARY === '1';
 const appearanceRegression = process.env.AI_QA_APPEARANCE === '1';
 const compositionRegression = process.env.AI_QA_COMPOSITION === '1';
 const naturalRegression = process.env.AI_QA_NATURAL === '1';
@@ -27,6 +28,10 @@ const creativeRegression = process.env.AI_QA_CREATIVE === '1';
 const crossReview = process.env.AI_QA_PHI_REVIEW === '1';
 const reuseCreative = creativeRegression && process.env.AI_QA_REUSE_CREATIVE === '1';
 const replay = process.env.AI_QA_REPLAY ? JSON.parse(await readFile(resolve(process.env.AI_QA_REPLAY), 'utf8')) : null;
+if (process.env.AI_QA_RETAIN === '1') {
+  assert(replay?.worseReviews && replay?.expectedRetainedEvidence, 'Retention test requires controlled worse feedback');
+  replay.reviews = replay.worseReviews; replay.expectedEvidence = replay.expectedRetainedEvidence;
+}
 const editFixture = process.env.AI_QA_EDIT_FIXTURE ? JSON.parse(await readFile(resolve(process.env.AI_QA_EDIT_FIXTURE), 'utf8')) : null;
 const stalledPreview = process.env.AI_QA_STALLED_PREVIEW === '1';
 assert(!stalledPreview || replay, 'Stalled-preview regression requires recorded output, without live inference.');
@@ -151,18 +156,20 @@ try {
     HTMLImageElement.prototype.decode = function() { return this.isConnected ? new Promise(() => {}) : decode.call(this); };
   })()` });
   if (replay) await send('Page.addScriptToEvaluateOnNewDocument', { source: `(() => {
-    const fixture=${JSON.stringify(replay)}, NativeWorker=Worker; let repairIndex=0;
+    const fixture=${JSON.stringify(replay)}, NativeWorker=Worker; let repairIndex=0, reviewIndex=0;
+    window.__replayCalls=[];
     window.__reasoningReplayCalls=0;
     window.Worker=class extends NativeWorker {
       postMessage(data,...args) {
+        window.__replayCalls.push(data.kind);
         if(data.kind==='reason') {
           window.__reasoningReplayCalls++;
           queueMicrotask(()=>this.dispatchEvent(new MessageEvent('message',{data:{id:data.id,type:'result',payload:{notes:'CONTROLLED_REPLAY_NOTES: allocate all visible fields; preserve the requested palette.',durationMs:0,stopReason:'token-budget',truncated:true}}})));
           return;
         }
-        const raw=${diagnosticFailure} && ['generate','repair'].includes(data.kind)?'{':data.kind==='interpret'?fixture.interpretation:data.kind==='generate'?fixture.proposal:data.kind==='repair'?(fixture.repairs?.[repairIndex++]??fixture.repair??JSON.stringify({summary:'No controlled repair response remains',styles:[],operations:[]})):data.kind==='review'?JSON.stringify({approved:true,score:0,summary:'Recorded render regression; visual appeal unassessed.',issues:[]}):undefined;
-        if(raw!==undefined || data.kind==='init') { queueMicrotask(()=>this.dispatchEvent(new MessageEvent('message',{data:{id:data.id,type:'result',payload:raw===undefined?{initializationMs:0}:{raw,generationMs:0}}}))); return; }
-        return super.postMessage(data,...args);
+        const raw=${diagnosticFailure} && ['generate','repair'].includes(data.kind)?'{':data.kind==='interpret'?fixture.interpretation:data.kind==='generate'?fixture.proposal:data.kind==='repair'?(fixture.repairs?.[repairIndex++]??fixture.repair??JSON.stringify({summary:'No controlled repair response remains',styles:[],operations:[]})):data.kind==='review'?(fixture.reviews?.[reviewIndex++]??JSON.stringify({approved:true,comparison:'initial',resolved:[],regressions:[],summary:'Controlled render review; teal and orange accents with white names.',issues:[]})):undefined;
+        if(raw!==undefined || ['init','switch','unload'].includes(data.kind)) { queueMicrotask(()=>this.dispatchEvent(new MessageEvent('message',{data:{id:data.id,type:'result',payload:raw===undefined?{initializationMs:0}:{raw,generationMs:0}}}))); return; }
+        throw Error('Unexpected worker request in controlled replay: '+data.kind);
       }
     };
   })()` });
@@ -275,6 +282,7 @@ Add informations for drake, voidgrubs etc... on the upper scoreboard`,
   ];
   if (reuseCreative) prompts.splice(0, 1);
   if (editFixture) prompts.splice(0, prompts.length, editFixture.instruction);
+  if (replay?.instruction) prompts.splice(0, prompts.length, replay.instruction);
   if (process.env.AI_QA_PROMPT) prompts.splice(0, prompts.length, process.env.AI_QA_PROMPT);
   if (process.env.AI_QA_SINGLE === '1') prompts.splice(1);
   const visualState = async (preview = false) => evaluate(`(() => {
@@ -359,6 +367,59 @@ Add informations for drake, voidgrubs etc... on the upper scoreboard`,
           && !measured.integrity?.lowContrast.length && !measured.integrity?.overlapping.length
           && result.metrics.pipelineVersion.includes('css-authoring') && result.metrics.totalMs < 600000;
         if (replay?.expectedRootBackground) result.semanticPassed &&= result.rootBackgrounds.every(value=>value===replay.expectedRootBackground);
+        if (replay?.expectedSummaryRegression) {
+          const attempts = result.metrics.attempts;
+          assert.equal(attempts[0].raw, replay.proposal, 'Replay must start with the exact user response');
+          assert(attempts[0].rendered, 'A long summary must reach actual rendering');
+          assert(!attempts[0].validation.issues.some(issue=>issue.code==='schema'), 'Description length cannot invalidate the design');
+          assert.equal(attempts.length,2,'Only one measured CSS repair');
+          assert.equal(attempts[1].kind,'style-repair','Retain CSS and repair; do not regenerate the full design');
+          assert.match(result.metrics.pipelineVersion,/css-authoring-(?:budget-v7|recovery-v8|fit-v9)$/);
+          result.summaryRegressionPassed=true;
+        }
+        if (replay?.expectedMeasuredFit) {
+          const attempts=result.metrics.attempts;
+          result.replayCalls=await evaluate('window.__replayCalls');
+          assert.equal(attempts.length,1,'The original generation must succeed without another model response');
+          assert.equal(attempts[0].modelRaw,replay.proposal,'Recovery must start with the exact reported response');
+          assert.equal(result.replayCalls.filter(kind=>kind==='repair').length,0,'No scripted CSS repair may rescue this regression');
+          assert(attempts[0].localRepairTrials.some(trial=>trial.applied));
+          assert(attempts[0].localRepairTrials.length<=3,'Mechanical trials share a strict bound');
+          assert(attempts[0].requestChecks.some(check=>check.status==='verified' && check.detail.includes('50.0%')));
+          assert(measured.rowLayouts.every(row=>row.width>550 && row.items.visibleMin>=24));
+          assert(measured.teamFills.every(fill=>fill.gradient));
+          result.nativeRootFonts=await evaluate(`[...document.querySelectorAll('.proposal-preview [data-layer-id]')].map(node=>({id:node.dataset.layerId,font:parseFloat(getComputedStyle(node).fontSize)}))`);
+          assert(result.nativeRootFonts.filter(item=>item.id.includes('roster')).every(item=>Math.abs(item.font-16)<.02),'Root 16px must remain 16px, not grow with the canvas/layer ratio');
+          result.measuredFitPassed=true;
+        }
+        if (replay?.expectedMixedCssRegression) {
+          const attempts=result.metrics.attempts;
+          assert.equal(attempts[0].raw,replay.proposal,'Use the exact reported response');
+          assert.equal(attempts.length,3,'One indexed resource repair and one measured CSS repair');
+          assert(attempts[0].validation.issues.every(issue=>issue.code==='target'),'Mixed declarations must not force another generation');
+          assert.deepEqual(attempts.map(attempt=>attempt.kind),['generation','proposal-repair','style-repair']);
+          assert.equal(result.metrics.interpretation[0].ignoredCreationConstraints.length,1);
+          assert(attempts[1].validation.issues.some(issue=>issue.code==='readability'));
+          assert(attempts[1].validation.issues.some(issue=>issue.code==='intent'),'Geometry/gradient misses must accompany readability feedback');
+          assert(result.metrics.requestChecks.some(check=>/half the screen/.test(check.request)&&check.status==='verified'),'Original-ID frame selector must resolve to measured root geometry');
+          assert(result.metrics.requestChecks.some(check=>check.status==='unverified'&&check.detail.includes('frame/border')),'Do not invent a background check for a portrait frame');
+          assert(result.design720.teamBackgrounds.every(fill=>fill.includes('gradient')));
+          result.mixedCssRegressionPassed=true;
+        }
+        if (replay?.expectedEvidence) {
+          const attempts=result.metrics.attempts, expected=replay.expectedEvidence;
+          result.replayCalls=await evaluate('window.__replayCalls');
+          assert.equal(result.metrics.qualityRefinements, 1, 'Only one aesthetic correction');
+          assert.equal(result.replayCalls.filter(kind=>kind==='review').length, 2, 'Initial and comparison review only');
+          assert.equal(result.replayCalls.filter(kind=>kind==='repair').length, 2, 'One requirement repair and one aesthetic correction');
+          assert(attempts[0].requestChecks.some(check=>check.status==='failed'), 'Real flat surface must fail the gradient request');
+          assert(result.metrics.requestChecks.some(check=>check.status==='limited'), 'Visible gradient is partially measured, not aesthetic certification');
+          assert(attempts.at(-1).imageReview.comparisonSupplied, 'Reviewer must receive actual before/after image');
+          assert.match(attempts.at(-1).comparisonDecision, expected.accept ? /Accepted/ : /Retained/);
+          const border=await evaluate(`getComputedStyle(document.querySelector('.proposal-preview .roster-row')).borderBottomColor`);
+          assert.equal(border, expected.border, 'Published hub must match the comparison decision');
+          result.evidencePassed=true;
+        }
         if (replay?.expectedLocalRecovery) {
           const trial = result.metrics.attempts[0].localRepair;
           result.semanticPassed &&= result.metrics.attempts.length === 1 && result.metrics.localCorrections === 1
@@ -601,6 +662,30 @@ Add informations for drake, voidgrubs etc... on the upper scoreboard`,
   report.savedCount = saveCount;
   report.passed = report.scenarios.length === prompts.length && report.scenarios.every(s => s.validationPassed);
   report.semanticPassed = report.scenarios.length === prompts.length && report.scenarios.every(s => s.semanticPassed);
+  if (libraryRegression) {
+    if (!await evaluate(`!!document.querySelector('.ai-panel')`)) await clickText('AI Hub Builder');
+    await click('.reference-library summary');
+    await clickText('View example');
+    await waitFor(`document.querySelector('.reference-preview .scorebug') && document.querySelectorAll('.reference-preview .roster-row').length===10`);
+    await clickText('Close example');
+    await evaluate(`(()=>{const notes=document.querySelector('#reference-notes');notes.value='QA persistence reference: compact charcoal rows with restrained teal accents.';notes.dispatchEvent(new Event('input',{bubbles:true}));})()`);
+    await waitFor(`!document.querySelector('#reference-images').disabled`);
+    await evaluate(`(async()=>{const canvas=document.createElement('canvas');canvas.width=640;canvas.height=360;const ctx=canvas.getContext('2d');ctx.fillStyle='#122a2a';ctx.fillRect(0,0,640,360);const blob=await new Promise(resolve=>canvas.toBlob(resolve,'image/png'));const files=new DataTransfer();files.items.add(new File([blob],'QA-persisted-reference.png',{type:'image/png'}));const input=document.querySelector('#reference-images');input.files=files.files;input.dispatchEvent(new Event('change',{bubbles:true}));})()`);
+    await waitFor(`document.querySelector('.reference-library').textContent.includes('Reference library saved locally') && [...document.querySelectorAll('.reference-card strong')].some(el=>el.textContent==='QA-persisted-reference.png')`);
+    await send('Page.navigate', {url:`${origin}/hubs`});
+    await waitFor(`!!document.querySelector('.template-use-button')`);
+    await click('.template-use-button');
+    await waitFor(`!!document.querySelector('.canvas-base .scorebug')`);
+    await clickText('AI Hub Builder');
+    await waitFor(`[...document.querySelectorAll('.reference-card strong')].some(el=>el.textContent==='QA-persisted-reference.png')`);
+    await click('.reference-library summary');
+    await waitFor(`document.querySelector('img[alt="QA-persisted-reference.png"]')?.naturalWidth===640`);
+    await evaluate(`(()=>{const card=[...document.querySelectorAll('.reference-card')].find(el=>el.querySelector('strong')?.textContent==='QA-persisted-reference.png');card.querySelector('button').click();})()`);
+    await waitFor(`![...document.querySelectorAll('.reference-card strong')].some(el=>el.textContent==='QA-persisted-reference.png')`);
+    const stored = await evaluate(`new Promise((resolve,reject)=>{const request=indexedDB.open('ai-hub-visual-references',1);request.onsuccess=()=>{const db=request.result;const read=db.transaction('references').objectStore('references').getAll();read.onsuccess=()=>{db.close();resolve(read.result.some(entry=>entry.title==='QA-persisted-reference.png'));};read.onerror=()=>reject(read.error);};request.onerror=()=>reject(request.error);})`);
+    assert.equal(stored,false,'Deleted reference must be absent from persistent storage');
+    report.libraryPassed=true;
+  }
   // Exercise actual worker cancellation and recovery, separately from model quality.
   if (!replay) {
   if (await evaluate(`!!document.querySelector('.ai-panel [role=alert]')`)) {

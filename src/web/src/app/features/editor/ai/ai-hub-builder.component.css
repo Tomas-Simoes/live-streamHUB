@@ -147,6 +147,12 @@ textarea:disabled { opacity: .6; }
 .diagnostics { margin-top: 10px; color: var(--ai-muted); font-size: 10px; }
 .diagnostic-export { margin-top: 18px; padding: 14px; border: 1px solid var(--ai-line); border-radius: 8px; }
 .diagnostic-export p { margin: 8px 0 0; line-height: 1.5; }
+.reference-library { margin-top: 16px; padding: 12px; border: 1px solid var(--ai-line); border-radius: 8px; }
+.reference-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; max-height: 320px; overflow: auto; margin: 12px 0; }
+.reference-card { padding: 10px; border: 1px solid var(--ai-line); border-radius: 6px; font-size: 12px; }
+.reference-card img { width: 100%; max-height: 120px; object-fit: contain; }
+.reference-library textarea { height: auto; min-height: 70px; }
+.reference-library input[type=file] { max-width: 100%; margin: 8px 0; }
 summary { cursor: pointer; padding: 7px 0; }
 details p { line-height: 1.7; }
 pre { max-height: 220px; overflow: auto; white-space: pre-wrap; overflow-wrap: anywhere; padding: 12px; border: 1px solid var(--ai-line); border-radius: 8px; background: rgb(0 0 0 / 20%); font-size: 11px; }

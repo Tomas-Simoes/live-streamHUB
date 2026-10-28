@@ -113,5 +113,6 @@ test('legacy briefs parse, but new decoder requires four free-form concrete deci
   const legacy = brief(); delete legacy.designPlan; assert(parseDesignBrief(JSON.stringify(legacy), 'Create a broadcast'));
   const schema = designBriefSchema(hub()); assert(schema.required.includes('designPlan'));
   assert.equal(schema.properties.designPlan.properties.identity.enum, undefined);
-  assert.equal(Object.keys(schema.properties)[0], 'designPlan');
+  assert.equal(Object.keys(schema.properties)[0], 'requirements');
+  assert(schema.required.includes('requirements'));
 });

@@ -1,0 +1,316 @@
+{
+  "instruction": "Create a League of Legends tournament broadcast overlay with a distinctive dark charcoal, teal and burnt-orange identity.\nKeep the scoreboard centered at the top, roughly half the screen width. Give the left team a visible dark teal gradient and the right team a burnt-orange gradient, both fading toward a neutral dark center. Make the scores prominent and keep team names, gold, objectives and the clock easy to read.\nPlace two mirrored five-player tables together at the bottom. Put items toward the outside and names and statistics toward the middle. Champion portraits should be slightly larger than individual item icons.\nUse condensed player names, stronger CS numbers and quieter KDA. Carry the team colours into restrained portrait frames and subtle row accents. Keep the main surfaces dark, with fine separators and enough spacing for every statistic to remain readable. Leave the gameplay and minimap clear.",
+  "interpretation": "<think>\n\n</think>\n\n{\n  \"version\": 2,\n  \"requirements\": [\n    {\"target\": \"scoreboards\", \"selector\": \"#hub-scoreboard\", \"measure\": \"widthFraction\", \"reference\": \"1\", \"value\": \"0.5\", \"clause\": 1},\n    {\"target\": \"scoreboards\", \"selector\": \"[data-component-part=\\\"blue-team\\\"]\", \"measure\": \"gradient\", \"reference\": \"none\", \"value\": \"teal\", \"clause\": 2},\n    {\"target\": \"scoreboards\", \"selector\": \"[data-component-part=\\\"red-team\\\"]\", \"measure\": \"gradient\", \"reference\": \"none\", \"value\": \"burnt-orange\", \"clause\": 2},\n    {\"target\": \"players\", \"selector\": \"[data-component-part=\\\"portrait\\\"]\", \"measure\": \"largerThan\", \"reference\": \"[data-component-part=\\\"item\\\"]\", \"value\": \"1.5\", \"clause\": 5},\n    {\"target\": \"players\", \"selector\": \"[data-component-part=\\\"portrait\\\"]\", \"measure\": \"color\", \"reference\": \"#006699\", \"value\": \"#006699\", \"clause\": 8}\n  ],\n  \"designPlan\": {\n    \"identity\": \"Dark charcoal, teal, and burnt-orange palette with subtle gradients.\",\n    \"composition\": \"Centered scoreboard at top, mirrored player tables at bottom.\",\n    \"typography\": \"Condensed player names, prominent CS numbers, and readable KDA.\",\n    \"playerRows\": \"Player portraits centered with item icons placed outward.\"\n  },\n  \"constraints\": [\n    {\"target\": \"scoreboards\", \"aspect\": \"geometry\", \"request\": \"Keep the scoreboard centered at the top, roughly half the screen width.\"}\n  ],\n  \"unresolved\": []\n}",
+  "proposal": "<think>\n\n</think>\n\n{\n  \"summary\": \"Created a League of Legends broadcast overlay with a dark charcoal, teal, and burnt-orange identity. Scoreboard is centered at the top with team gradients, and mirrored player tables at the bottom with condensed names, prominent CS, and readable stats.\",\n  \"styles\": [\n    {\n      \"target\": \"hub-scoreboard\",\n      \"mode\": \"replace\",\n      \"css\": \"background: #1e1e1e; color: #ffffff; font-family: 'Arial', sans-serif; font-size: 24px; padding: 10px; border-radius: 8px; box-shadow: 0 0 10px #000; .blue-team { background: linear-gradient(to right, #006699, #003333); } .red-team { background: linear-gradient(to right, #cc6600, #1e1e1e); }\"\n    },\n    {\n      \"target\": \"hub-blue-roster\",\n      \"mode\": \"patch\",\n      \"css\": \"background: #1e1e1e; color: #ffffff; font-family: 'Arial', sans-serif; font-size: 16px; .portrait { width: 60px; height: 60px; border: 2px solid #006699; } .item { width: 30px; height: 30px; }\"\n    },\n    {\n      \"target\": \"hub-red-roster\",\n      \"mode\": \"patch\",\n      \"css\": \"background: #1e1e1e; color: #ffffff; font-family: 'Arial', sans-serif; font-size: 16px; .portrait { width: 60px; height: 60px; border: 2px solid #cc6600; } .item { width: 30px; height: 30px; }\"\n    },\n    {\n      \"target\": \"hub-blue-roster\",\n      \"mode\": \"patch\",\n      \"css\": \"grid-template-columns: 1.5fr 1.5fr 1fr 1fr 1fr 1fr;\"\n    },\n    {\n      \"target\": \"hub-red-roster\",\n      \"mode\": \"patch\",\n      \"css\": \"grid-template-columns: 1.5fr 1.5fr 1fr 1fr 1fr 1fr;\"\n    },\n    {\n      \"target\": \"hub-blue-roster\",\n      \"mode\": \"patch\",\n      \"css\": \" .portrait { border-radius: 50%; } .item { margin: 2px; }\"\n    },\n    {\n      \"target\": \"hub-red-roster\",\n      \"mode\": \"patch\",\n      \"css\": \" .portrait { border-radius: 50%; } .item { margin: 2px; }\"\n    }\n  ],\n  \"operations\": []\n}",
+  "reportedRepairs": [
+    "<think>\n\n</think>\n\n{\n  \"summary\": \"Fix item icon size and text readability for 720p.\",\n  \"styles\": [\n    {\n      \"target\": \"players\",\n      \"mode\": \"patch\",\n      \"css\": \".item { width: 40px; height: 40px; } .name { font-size: 14px; } .cs { font-size: 14px; } .kda { font-size: 12px; }\"\n    }\n  ],\n  \"operations\": []\n}",
+    "<think>\n\n</think>\n\n{\n  \"summary\": \"Fix item icon size and text readability for 720p.\",\n  \"styles\": [\n    {\n      \"target\": \"players\",\n      \"mode\": \"patch\",\n      \"css\": \".item { width: 60px; height: 60px; } .name { font-size: 16px; } .cs { font-size: 16px; } .kda { font-size: 14px; }\"\n    }\n  ],\n  \"operations\": []\n}"
+  ],
+  "recordedMeasurements": {
+    "viewport": [
+      1280,
+      720
+    ],
+    "fonts": [
+      {
+        "role": "team-code",
+        "minPx": 22.67,
+        "face": "Arial, sans-serif"
+      },
+      {
+        "role": "team-gold",
+        "minPx": 12.67,
+        "face": "Arial, sans-serif"
+      },
+      {
+        "role": "score",
+        "minPx": 26.67,
+        "face": "Arial, sans-serif"
+      },
+      {
+        "role": "clock",
+        "minPx": 11.68,
+        "face": "Arial, sans-serif"
+      },
+      {
+        "role": "names",
+        "minPx": 2.83,
+        "face": "Arial, sans-serif"
+      },
+      {
+        "role": "cs",
+        "minPx": 2.57,
+        "face": "Arial, sans-serif"
+      },
+      {
+        "role": "kda",
+        "minPx": 2.14,
+        "face": "Arial, sans-serif"
+      }
+    ],
+    "clipped": [],
+    "frames": [
+      {
+        "role": "scoreboard",
+        "x": 251,
+        "y": 11,
+        "width": 779,
+        "height": 45
+      },
+      {
+        "role": "players",
+        "x": 240,
+        "y": 533,
+        "width": 86,
+        "height": 187
+      },
+      {
+        "role": "players",
+        "x": 640,
+        "y": 533,
+        "width": 86,
+        "height": 187
+      }
+    ],
+    "rosterDetails": [
+      {
+        "portraitMin": 7.28125,
+        "itemMax": 4.0728759765625,
+        "itemMin": 2.728515625,
+        "separator": 0
+      },
+      {
+        "portraitMin": 7.28125,
+        "itemMax": 4.0728759765625,
+        "itemMin": 2.728515625,
+        "separator": 0
+      }
+    ],
+    "teamFills": [
+      {
+        "css": "linear-gradient(rgba(255, 255, 255, 0.14), rgba(0, 0, 0, 0) 46%), none",
+        "gradient": true,
+        "delta": 1
+      },
+      {
+        "css": "linear-gradient(rgba(255, 255, 255, 0.14), rgba(0, 0, 0, 0) 46%), none",
+        "gradient": true,
+        "delta": 1
+      }
+    ],
+    "integrity": {
+      "hidden": [],
+      "outside": [
+        "team-kills"
+      ],
+      "lowContrast": [],
+      "overlapping": []
+    },
+    "editFacts": {
+      "rosters": [
+        {
+          "dark": true,
+          "tinted": false,
+          "alternating": false,
+          "csColor": "rgb(255, 255, 255)",
+          "csWeight": 850,
+          "kdaWeight": 850,
+          "namesFace": "Arial, sans-serif",
+          "portraitBorder": 0
+        },
+        {
+          "dark": true,
+          "tinted": false,
+          "alternating": false,
+          "csColor": "rgb(255, 255, 255)",
+          "csWeight": 850,
+          "kdaWeight": 850,
+          "namesFace": "Arial, sans-serif",
+          "portraitBorder": 0
+        }
+      ]
+    },
+    "rowLayouts": [
+      {
+        "team": "blue",
+        "target": "hub-blue-roster",
+        "grid": "51.5938px 10.9219px 4.95312px 23.8125px 8.34375px 12.2969px",
+        "rows": "48.1719px",
+        "width": 124.5,
+        "height": 49.9,
+        "trackCount": 6,
+        "implicitWrap": false,
+        "defaultTracks": "minmax(0,2.6fr) minmax(0,.55fr) minmax(0,.25fr) minmax(0,1.2fr) minmax(0,.42fr) minmax(0,.62fr)",
+        "fields": [
+          {
+            "part": "items",
+            "width": 51.6,
+            "height": 48.2,
+            "column": "auto",
+            "row": "auto",
+            "x": 1.7,
+            "y": 0.9,
+            "position": "static"
+          },
+          {
+            "part": "portrait",
+            "width": 10.9,
+            "height": 48.2,
+            "column": "auto",
+            "row": "auto",
+            "x": 55.1,
+            "y": 0.9,
+            "position": "relative"
+          },
+          {
+            "part": "level",
+            "width": 5,
+            "height": 5.8,
+            "column": "auto",
+            "row": "auto",
+            "x": 67.9,
+            "y": 22,
+            "position": "static"
+          },
+          {
+            "part": "name",
+            "width": 23.8,
+            "height": 6.4,
+            "column": "auto",
+            "row": "auto",
+            "x": 74.6,
+            "y": 21.8,
+            "position": "static"
+          },
+          {
+            "part": "cs",
+            "width": 8.3,
+            "height": 5.8,
+            "column": "auto",
+            "row": "auto",
+            "x": 100.3,
+            "y": 22,
+            "position": "static"
+          },
+          {
+            "part": "kda",
+            "width": 12.3,
+            "height": 4.8,
+            "column": "auto",
+            "row": "auto",
+            "x": 110.4,
+            "y": 22.5,
+            "position": "static"
+          }
+        ],
+        "items": {
+          "slotWidth": 6.1,
+          "slotHeight": 6.1,
+          "imageWidth": 4.1,
+          "imageHeight": 4.1,
+          "visibleMin": 4.1
+        }
+      },
+      {
+        "team": "red",
+        "target": "hub-red-roster",
+        "grid": "12.2969px 8.34375px 23.8125px 4.95312px 10.9219px 51.6094px",
+        "rows": "48.1719px",
+        "width": 124.5,
+        "height": 49.9,
+        "trackCount": 6,
+        "implicitWrap": false,
+        "defaultTracks": "minmax(0,.62fr) minmax(0,.42fr) minmax(0,1.2fr) minmax(0,.25fr) minmax(0,.55fr) minmax(0,2.6fr)",
+        "fields": [
+          {
+            "part": "kda",
+            "width": 12.3,
+            "height": 4.8,
+            "column": "auto",
+            "row": "auto",
+            "x": 1.7,
+            "y": 22.5,
+            "position": "static"
+          },
+          {
+            "part": "cs",
+            "width": 8.3,
+            "height": 5.8,
+            "column": "auto",
+            "row": "auto",
+            "x": 15.8,
+            "y": 22,
+            "position": "static"
+          },
+          {
+            "part": "name",
+            "width": 23.8,
+            "height": 6.4,
+            "column": "auto",
+            "row": "auto",
+            "x": 26,
+            "y": 21.8,
+            "position": "static"
+          },
+          {
+            "part": "level",
+            "width": 5,
+            "height": 5.8,
+            "column": "auto",
+            "row": "auto",
+            "x": 51.6,
+            "y": 22,
+            "position": "static"
+          },
+          {
+            "part": "portrait",
+            "width": 10.9,
+            "height": 48.2,
+            "column": "auto",
+            "row": "auto",
+            "x": 58.4,
+            "y": 0.9,
+            "position": "relative"
+          },
+          {
+            "part": "items",
+            "width": 51.6,
+            "height": 48.2,
+            "column": "auto",
+            "row": "auto",
+            "x": 71.1,
+            "y": 0.9,
+            "position": "static"
+          }
+        ],
+        "items": {
+          "slotWidth": 6.1,
+          "slotHeight": 6.1,
+          "imageWidth": 4.1,
+          "imageHeight": 4.1,
+          "visibleMin": 4.1
+        }
+      }
+    ],
+    "tableGapPx": 314,
+    "teamAccents": [
+      {
+        "css": "rgb(255, 255, 255)",
+        "family": "neutral"
+      },
+      {
+        "css": "rgb(255, 255, 255)",
+        "family": "neutral"
+      }
+    ],
+    "missingImages": 0,
+    "readiness": {
+      "fonts": "ready",
+      "images": "ready",
+      "pendingImages": 0,
+      "failedImages": 0
+    }
+  },
+  "repairs": [],
+  "expectedMeasuredFit": true
+}

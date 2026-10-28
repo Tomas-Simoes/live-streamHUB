@@ -29,7 +29,7 @@ export const HUB_PLAN_SCHEMA = {
   type: 'object', additionalProperties: false, required: ['template', 'operations'],
   properties: {
     template: { enum: ['current', 'ai-composed', 'ai-authored', ...templateIds] },
-    authored: { const: true }, summary: { type: 'string', maxLength: 360 },
+    authored: { const: true }, summary: { type: 'string' },
     design: HUB_COMPOSITION_SCHEMA,
     operations: { type: 'array', minItems: 0, maxItems: 32, items: { oneOf: [
       operation('theme', { palette: { enum: Object.keys(AI_PALETTES) } }, ['palette']),
@@ -71,7 +71,7 @@ export type HubOperation = AppearanceChange & RosterDetail & {
 export type HubPlan = { template: string; authored?: true; summary?: string; design?: HubComposition; operations: HubOperation[] };
 export type LayoutIssue = { code: string; layerIds: string[]; message: string; path?: string };
 export class HubPlanError extends Error {
-  constructor(public issues: LayoutIssue[]) { super(issues.map(i => i.message).join('\n')); }
+  constructor(public issues: LayoutIssue[], public candidatePlan?: HubPlan) { super(issues.map(i => i.message).join('\n')); }
 }
 const validatePlan = new Ajv({ allErrors: true, strict: false }).compile(HUB_PLAN_SCHEMA);
 export function parseModelJson(raw: string): unknown {
@@ -268,7 +268,7 @@ export function compileHubPlan(hub: Hub, plan: HubPlan): { hub: Hub; warnings: L
       switch (op.op) {
         case 'css':
           try { layer.style = { ...layer.style, customCss: patchAuthoredCss(layer.style?.customCss, op.css!, op.mode as 'patch' | 'replace') }; }
-          catch (error) { throw new HubPlanError([{ code: 'style', layerIds: [layer.id], message: error instanceof Error ? error.message : String(error) }]); }
+          catch (error) { throw new HubPlanError([{ code: 'style', path: `/operations/${operationIndex}/css`, layerIds: [layer.id], message: error instanceof Error ? error.message : String(error) }], plan); }
           break;
         case 'frame': layer.position = { x: op.x!, y: op.y! }; layer.width = op.width!; layer.height = op.height!; break;
         case 'appearance': applyAppearance(layer, op, op.target === 'all', cssBlock); break;

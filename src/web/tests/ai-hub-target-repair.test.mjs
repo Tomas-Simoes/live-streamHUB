@@ -32,7 +32,7 @@ test('creation context and decoder expose real targets and preserve every presen
   assert.deepEqual(schema.properties.styles.items.properties.css, design.HUB_DESIGN_RESPONSE_SCHEMA.properties.styles.items.properties.css);
   assert.deepEqual(schema.properties.operations.items.oneOf.map(item => item.properties.op.const), design.HUB_DESIGN_RESPONSE_SCHEMA.properties.operations.items.oneOf.map(item => item.properties.op.const));
   const brief = new Ajv({ strict: false }).compile(design.designBriefSchema(source));
-  const interpreted = { ...JSON.parse(fixture.interpretation), designPlan: { identity: 'teal/orange', composition: 'compact scoreboard', typography: 'condensed headings', playerRows: 'mirrored rows with every visible field' } };
+  const interpreted = { ...JSON.parse(fixture.interpretation), requirements: [], designPlan: { identity: 'teal/orange', composition: 'compact scoreboard', typography: 'condensed headings', playerRows: 'mirrored rows with every visible field' } };
   assert(brief(interpreted));
   assert(!brief({ ...interpreted, targets: ["player-header', "] }));
 });

@@ -1,11 +1,16 @@
-import { parse, root as cssRoot, comment, type Root, type Rule, type Declaration, type AtRule } from 'postcss';
+import { parse, root as cssRoot, rule as cssRule, comment, type Root, type Rule, type Declaration, type AtRule } from 'postcss';
 import selectorParser from 'postcss-selector-parser';
 import valueParser from 'postcss-value-parser';
 import type { EditorLayer } from '../types/layer.types';
 
 const START = 'hub-authored-css';
 const END = '/hub-authored-css';
-const geometry = /^(?:(?:min-|max-)?(?:width|height)|position|inset(?:-.+)?|top|right|bottom|left|transform(?:-.+)?|translate|rotate|scale|display|zoom|container(?:-.+)?)$/;
+// Exact semantic part names are also accepted as class shorthand. This is an
+// address normalization, not a style recipe: values and arbitrary selectors
+// remain authored. These names are backed by data-component-part in the DOM.
+const semanticParts = new Set(['surface', 'text', 'row', 'portrait', 'items', 'item', 'name', 'cs', 'kda', 'gold', 'level', 'center', 'clock',
+  ...['blue', 'red'].flatMap(team => ['team', 'code', 'gold', 'kills', 'seed', 'towers', 'objectives', 'logo'].map(part => `${team}-${part}`))]);
+const geometry = /^(?:(?:min-|max-)?(?:width|height)|position|inset(?:-.+)?|top|right|bottom|left|transform(?:-.+)?|translate|rotate|scale|zoom|container(?:-.+)?)$/;
 const decode = (text: string) => text.replace(/\\([\da-f]{1,6})\s?|\\([^\r\n])/gi, (_all, hex, char) => hex ? String.fromCodePoint(Math.min(parseInt(hex, 16), 0x10ffff) || 0xfffd) : char);
 const keyframe = (rule: Rule) => rule.parent?.type === 'atrule' && /^(?:-webkit-)?keyframes$/i.test((rule.parent as AtRule).name);
 
@@ -13,9 +18,14 @@ const keyframe = (rule: Rule) => rule.parent?.type === 'atrule' && /^(?:-webkit-
 function tree(source: string): Root {
   if (source.length > 48_000) throw new Error('The component stylesheet exceeds 48 KB. Return a focused patch.');
   const result = parse(source, { from: undefined });
-  if (result.nodes.some(node => node.type === 'decl')) {
-    if (result.nodes.some(node => !['decl', 'comment'].includes(node.type))) throw new Error('Put declarations inside a selector block, for example & { color: white; }.');
-    return parse(`& { ${source} }`, { from: undefined });
+  // Bare component declarations and ordinary rules have an unambiguous scope.
+  // Wrap each declaration run in place, preserving cascade order and values.
+  let declarations: Rule | undefined;
+  for (const node of [...result.nodes]) {
+    if (node.type === 'decl') {
+      if (!declarations) { declarations = cssRule({ selector: '&' }); node.before(declarations); }
+      declarations.append(node);
+    } else declarations = undefined;
   }
   return result;
 }
@@ -64,7 +74,9 @@ export function validateAuthoredCss(source: string): Root {
     if (rule.parent?.type === 'rule') throw new Error('Flatten nested selectors into complete component rules.');
     // In a component stylesheet, document-root spellings refer to that component.
     // This changes the scope, never the author's visual property values.
-    rule.selector = selectorParser(selectors => { selectors.each(selector => {
+    rule.selector = selectorParser(selectors => { selectors.walkClasses(node => {
+      if (semanticParts.has(node.value)) node.replaceWith(selectorParser.attribute({ attribute: 'data-component-part', operator: '=', value: node.value, quoteMark: '"', raws: {} }));
+    }); selectors.each(selector => {
       const first = selector.nodes[0];
       if (first && (first.type === 'tag' && ['html', 'body'].includes(first.value.toLowerCase()) || first.type === 'pseudo' && first.value === ':root')) first.replaceWith(selectorParser.nesting({ value: '&' }));
     }); }).processSync(rule.selector);
@@ -74,6 +86,9 @@ export function validateAuthoredCss(source: string): Root {
     rule.walkDecls(declaration => {
       const property = decode(declaration.prop).toLowerCase();
       if (rootSelector && (geometry.test(property) || property === 'all')) throw new Error(`Use a layout operation for root ${property}; CSS must keep editor frame geometry accurate.`);
+      if (rootSelector && property === 'display' && !/^(block|inline-block|flex|inline-flex|grid|inline-grid|flow-root)$/i.test(declaration.value.trim())) {
+        throw new Error('The layer root must retain a frame box. Use a visibility operation to hide it; display:none/contents and indirect root display values are unavailable.');
+      }
     });
   });
   result.walkDecls(declaration => {
@@ -138,6 +153,21 @@ export function patchAuthoredCss(current: string | undefined, patch: string, mod
 /** Render from saved native units; preview ID changes never alter the saved CSS. */
 export function compileAuthoredCss(source: string, layerId: string, width: number): string {
   const result = validateAuthoredCss(source);
+  // The frame queries the canvas; descendants inside a native loader query that
+  // loader. Using the layer width for BOTH multiplied root padding/font sizes
+  // by 1920/layerWidth (16px became 51.2px in a 600px player panel).
+  const canvasRules = new Set<Rule>();
+  result.walkRules(rule => {
+    if (keyframe(rule)) return;
+    const selectors = selectorParser().astSync(rule.selector).nodes;
+    const atFrame = (selector: typeof selectors[number]) => selector.nodes[0]?.type === 'nesting' && !selector.nodes.some(node => node.type === 'combinator');
+    const frame = selectors.filter(atFrame), inner = selectors.filter(selector => !atFrame(selector));
+    if (!frame.length) return;
+    if (inner.length) {
+      const clone = rule.cloneBefore({ selector: frame.map(item => item.toString()).join(',') });
+      canvasRules.add(clone); rule.selector = inner.map(item => item.toString()).join(',');
+    } else canvasRules.add(rule);
+  });
   const escaped = layerId.replace(/[^\w-]/g, char => `\\${char.codePointAt(0)!.toString(16)} `);
   const scope = `[data-layer-id="${escaped}"][data-layer-id="${escaped}"]`;
   const animations = new Map<string, string>();
@@ -145,11 +175,12 @@ export function compileAuthoredCss(source: string, layerId: string, width: numbe
   result.walkAtRules(rule => { if (rule.name === 'layer' && rule.params.trim()) rule.params = rule.params.split('.').map(name => `hub-${escaped.replace(/[^\w-]/g, '')}-${name.trim()}`).join('.'); });
   result.walkRules(rule => { if (!keyframe(rule)) rule.selector = scopedSelector(rule.selector, scope); });
   result.walkDecls(declaration => {
+    const unitWidth = canvasRules.has(declaration.parent as Rule) ? 1920 : width;
     const value = valueParser(declaration.value);
     value.walk(node => {
       if (node.type === 'word') {
         const dimension = valueParser.unit(node.value);
-        if (dimension && dimension.unit === 'px') node.value = `${Math.round(Number(dimension.number) / width * 100000) / 1000}cqw`;
+        if (dimension && dimension.unit === 'px') node.value = `${Math.round(Number(dimension.number) / unitWidth * 100000) / 1000}cqw`;
         if (/^(?:animation|animation-name)$/.test(declaration.prop) && animations.has(node.value)) node.value = animations.get(node.value)!;
       }
     });
