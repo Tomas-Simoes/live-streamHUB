@@ -1,25 +1,69 @@
 # Live StreamHUB Web
 
-This web app is now an Angular application organized by feature modules.
+Angular frontend for authentication, the hub library, the visual broadcast editor,
+previews, and OBS scene handoff. See the [project README](../../README.md) for
+backend setup, the Overwolf/OBS workflow, and the AI Hub Builder guide.
 
 ## Commands
 
-- `npm run dev` starts Angular on `http://localhost:4200/`.
-- `npm run build` creates a production build in `dist/`.
+Run these from `src/web` after installing dependencies:
 
-From the repository root, use `npm run dev:web` and `npm run build:web`.
+```bash
+npm run dev
+npm run build
+npm test
+```
+
+The development app runs at `http://localhost:4200`. Production browser assets
+are written to `dist/browser`. From the repository root, use `npm run dev:web`
+and `npm run build:web`. In PowerShell, use `npm.cmd` if script execution policy
+blocks `npm.ps1`.
+
+After building, browser checks are available through:
+
+```bash
+npm run test:hubs-browser
+npm run test:ai-browser
+```
+
+The hub-library test uses local Chrome with authentication and persistence
+stubbed. The AI harness can run live inference or controlled replays. Use the
+[recorded-response replay instructions](../../README.md#useful-commands) to test
+recovery without downloading or running a model.
 
 ## Structure
 
-- `src/app/core/models` contains shared domain types such as `HubLayout`, `HubElement`, and game-state models.
-- `src/app/core/services` contains state and integration boundaries: auth, hub storage, game data, data bindings, language, and OBS.
-- `src/app/features/editor` contains the editor feature module and its component split.
-- `src/app/features/renderer` contains the hub renderer used by the editor, layout previews, and OBS overlay route.
-- `src/app/features/layouts`, `auth`, `landing`, and `overlay` own their page components.
-- `src/styles` contains global styles migrated from the previous app. Feature-specific style entry files live beside each module under `features/*/styles`.
+| Path | Responsibility |
+| --- | --- |
+| `src/app/core/api` | Auth, hub, media, and OBS integration. |
+| `src/app/core/store` | Hub state, persistence, and OBS connection state. |
+| `src/app/shared/types` | Hub, layout, layer, and user types. |
+| `src/app/shared/templates` | Predefined broadcast hubs. |
+| `src/app/shared/helpers` | Layer styles, scoped authored CSS, and roster fields. |
+| `src/app/features/editor/components` | Editor, native layer renderers, and manual controls. |
+| `src/app/features/editor/ai` | Local model worker, CSS authoring, validation, review, and diagnostics. |
+| `src/app/features/hubs` | Hub library, shared previews, and OBS export controls. |
+| `src/app/features/auth`, `src/app/features/home` | Authentication and home pages. |
+| `tests` | Node regressions, recorded model fixtures, and browser harnesses. |
 
-## Notes
+## Editor and AI Builder
 
-The editor stores element positions in fixed 1920x1080 broadcast-canvas units even though the canvas scales responsively in the browser. See `CanvasEditorComponent.getCanvasPoint` and the pointer handlers in `HubEditorComponent` for the conversion logic.
+Layers use center coordinates on a 1920 × 1080 broadcast canvas. The canvas scales
+in the browser; authored CSS retains native units in saved layouts. AI proposals
+use the existing `HubStore` history and Save flow, with isolated preview IDs and
+an explicit Apply step.
 
-Hub editing is local-first. Every layout mutation goes through `HubEditorComponent.updateHub`, which refreshes `updatedAt` and writes a local draft via `HubStorageService.saveHubLocally`. Explicit Save still attempts the backend and falls back to local storage if the API is unavailable.
+The current pipeline is **`2026-10-27-css-authoring-fit-v9`**. Qwen3 4B generates
+scoped presentation CSS and structural operations for native live-data widgets.
+Rendered checks cover readability, containment, and measurable requirements.
+Up to three local fitting trials and four model attempts share a ten-minute
+generation budget; invalid proposals are not applied to the editor.
+
+Inference requires WebGPU and a secure context (HTTPS or localhost). Qwen3 4B is
+text-only. Optional Phi image feedback is off by default and has not been
+established to improve visual quality. Reference annotations are context, not
+model training. Download the full diagnostic before reloading after a failed run.
+
+- [CSS authoring architecture](../../docs/ai-hub-css-refactor.md)
+- [v9 recovery and verification evidence](../../docs/ai-hub-measured-fit-2026-10-28.md)
+- [Visual references and optional review](../../docs/ai-hub-visual-review.md)
